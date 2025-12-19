@@ -1,5 +1,5 @@
 [package]
-version = "0.6.1"
+version = "0.8.3"
 category = "Simulation"
 title = "Isaac Sim Core API (Prims)"
 description = "The Core Prims extension provides a set of APIs to read and write state information to the different types of prims."
@@ -15,7 +15,6 @@ writeTarget.kit = true
 "isaacsim.core.simulation_manager" = {}
 "isaacsim.core.utils" = {}
 "omni.isaac.core_archive" = {}
-"omni.isaac.ml_archive" = {}
 "omni.physx.tensors" = {}
 "omni.usd.schema.semantics" = {}
 "omni.warp.core" = {}
@@ -31,6 +30,7 @@ name = "isaacsim.core.prims.tests"
 timeout = 900
 dependencies = [
     "isaacsim.core.api",
+    "omni.isaac.ml_archive",
     "omni.kit.test",
 ]
 
@@ -77,4 +77,13 @@ args = [
     "--/rtx/materialDb/syncLoads=1",
     "--/rtx/newDenoiser/enabled=1",
     "--/rtx/reservedDescriptors=900000",
+]
+
+[[test]]
+name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
+args = [
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

@@ -53,10 +53,10 @@ class PathPlanningTask(BaseTask):
         return
 
     def set_up_scene(self, scene: Scene) -> None:
-        """[summary]
+        """Set up the scene with target and robot.
 
         Args:
-            scene (Scene): [description]
+            scene: The scene to populate.
         """
         super().set_up_scene(scene)
         scene.add_default_ground_plane()
@@ -89,13 +89,13 @@ class PathPlanningTask(BaseTask):
         target_position: Optional[np.ndarray] = None,
         target_orientation: Optional[np.ndarray] = None,
     ) -> None:
-        """[summary]
+        """Set task parameters including target pose.
 
         Args:
-            target_prim_path (Optional[str], optional): [description]. Defaults to None.
-            target_name (Optional[str], optional): [description]. Defaults to None.
-            target_position (Optional[np.ndarray], optional): [description]. Defaults to None.
-            target_orientation (Optional[np.ndarray], optional): [description]. Defaults to None.
+            target_prim_path: USD path for target. Defaults to None.
+            target_name: Name for target object. Defaults to None.
+            target_position: Target position. Defaults to None.
+            target_orientation: Target orientation. Defaults to None.
         """
         if target_prim_path is not None:
             if self._target is not None:
@@ -131,10 +131,10 @@ class PathPlanningTask(BaseTask):
         return
 
     def get_params(self) -> dict:
-        """[summary]
+        """Get task parameters.
 
         Returns:
-            dict: [description]
+            Dictionary of task parameters.
         """
         params_representation = dict()
         params_representation["target_prim_path"] = {"value": self._target.prim_path, "modifiable": True}
@@ -146,18 +146,18 @@ class PathPlanningTask(BaseTask):
         return params_representation
 
     def get_task_objects(self) -> dict:
-        """[summary]
+        """Get all objects registered with the task.
 
         Returns:
-            dict: [description]
+            Dictionary of task objects keyed by name.
         """
         return self._task_objects
 
     def get_observations(self) -> dict:
-        """[summary]
+        """Get current task observations.
 
         Returns:
-            dict: [description]
+            Dictionary with robot and target observations.
         """
         joints_state = self._robot.get_joints_state()
         target_position, target_orientation = self._target.get_local_pose()
@@ -170,10 +170,10 @@ class PathPlanningTask(BaseTask):
         }
 
     def target_reached(self) -> bool:
-        """[summary]
+        """Check if the end effector has reached the target.
 
         Returns:
-            bool: [description]
+            True if target is reached, False otherwise.
         """
         end_effector_position, _ = self._robot.end_effector.get_world_pose()
         target_position, _ = self._target.get_world_pose()
@@ -183,11 +183,11 @@ class PathPlanningTask(BaseTask):
             return False
 
     def pre_step(self, time_step_index: int, simulation_time: float) -> None:
-        """[summary]
+        """Called before each physics step to update target visual.
 
         Args:
-            time_step_index (int): [description]
-            simulation_time (float): [description]
+            time_step_index: Current simulation step index.
+            simulation_time: Current simulation time.
         """
         if self._target_visual_material is not None:
             if hasattr(self._target_visual_material, "set_color"):
@@ -199,10 +199,10 @@ class PathPlanningTask(BaseTask):
         return
 
     def add_obstacle(self, position: np.ndarray = None, orientation=None):
-        """[summary]
+        """Add an obstacle wall to the scene.
 
         Args:
-            position (np.ndarray, optional): [description]. Defaults to np.array([0.1, 0.1, 1.0]).
+            position: Position for the obstacle. Defaults to None.
         """
         # TODO: move to task frame if there is one
         cube_prim_path = find_unique_string_name(
@@ -228,10 +228,10 @@ class PathPlanningTask(BaseTask):
         return cube
 
     def remove_obstacle(self, name: Optional[str] = None) -> None:
-        """[summary]
+        """Remove an obstacle from the scene.
 
         Args:
-            name (Optional[str], optional): [description]. Defaults to None.
+            name: Name of obstacle to remove. Defaults to last added.
         """
         if name is not None:
             self.scene.remove_object(name)
@@ -246,19 +246,19 @@ class PathPlanningTask(BaseTask):
         return list(self._obstacle_walls.values())
 
     def get_obstacle_to_delete(self) -> None:
-        """[summary]
+        """Get the last obstacle that would be deleted.
 
         Returns:
-            [type]: [description]
+            The obstacle object to be deleted.
         """
         obstacle_to_delete = list(self._obstacle_walls.keys())[-1]
         return self.scene.get_object(obstacle_to_delete)
 
     def obstacles_exist(self) -> bool:
-        """[summary]
+        """Check if any obstacles exist in the scene.
 
         Returns:
-            bool: [description]
+            True if obstacles exist, False otherwise.
         """
         if len(self._obstacle_walls) > 0:
             return True
@@ -266,7 +266,7 @@ class PathPlanningTask(BaseTask):
             return False
 
     def cleanup(self) -> None:
-        """[summary]"""
+        """Remove all obstacles from the scene."""
         obstacles_to_delete = list(self._obstacle_walls.keys())
         for obstacle_to_delete in obstacles_to_delete:
             self.scene.remove_object(obstacle_to_delete)
@@ -304,10 +304,10 @@ class FrankaPathPlanningTask(PathPlanningTask):
         return
 
     def set_robot(self) -> Franka:
-        """[summary]
+        """Create and configure the Franka robot.
 
         Returns:
-            Franka: [description]
+            Configured Franka robot instance.
         """
         if self._franka_prim_path is None:
             self._franka_prim_path = find_unique_string_name(

@@ -1,8 +1,8 @@
 [package]
-version = "1.1.5"
+version = "1.1.7"
 category = "Simulation"
 title = "Isaac Sim Physics API Editor"
-description = "Collision and Physics Utils"
+description = "Provides a UI tool for applying and removing physics APIs (collision, rigid body, articulation) on USD prims with support for convex hull and triangle mesh collision shapes."
 keywords = ["isaac", "physics", "utils",]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"

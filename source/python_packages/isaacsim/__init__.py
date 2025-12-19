@@ -116,7 +116,6 @@ def bootstrap_kernel():
     # isaac-sim
     paths = [
         os.path.join(isaacsim_path, "exts", "isaacsim.simulation_app"),
-        os.path.join(isaacsim_path, "extsDeprecated", "omni.isaac.kit"),
     ]
     # update sys.path
     for path in paths:

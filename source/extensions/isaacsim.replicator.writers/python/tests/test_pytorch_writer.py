@@ -22,10 +22,12 @@ import numpy as np
 import omni.kit
 import omni.replicator.core as rep
 import omni.usd
-import torch
+from isaacsim.core.deprecation_manager import import_module
 from isaacsim.core.utils.stage import create_new_stage_async
 from isaacsim.replicator.writers import PytorchListener
 from PIL import Image
+
+torch = import_module("torch")
 
 
 class TestMultipleRenderProducts(omni.kit.test.AsyncTestCase):

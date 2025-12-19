@@ -1,5 +1,5 @@
 [package]
-version = "1.1.16"
+version = "1.3.0"
 category = "SyntheticData"
 title = "Isaac Sim Replicator Behavior Scripts"
 description = "The extension provides various randomization and event scripts for Synthetic Data Generation (SDG) workflows. The scripts can be attached to prims providing modular, persitent, and shareable behaviors. The scripts use exposed variables as custom USD properties which can be modified throught the UI or programmatically."
@@ -13,6 +13,8 @@ writeTarget.kit = true
 [dependencies]
 "isaacsim.storage.native" = {}
 "omni.kit.scripting" = {}
+"omni.physics" = {}
+"omni.physics.physx" = {}
 "omni.physx" = {}
 "omni.usd" = {}
 
@@ -23,6 +25,7 @@ name = "isaacsim.replicator.behavior"
 dependencies = [
     "isaacsim.core.api",
     "isaacsim.test.utils",
+    "omni.isaac.ml_archive",
     "omni.kit.test",
     "omni.replicator.core",
 ]
@@ -75,5 +78,5 @@ args = [
 [[test]]
 name = "startup"
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

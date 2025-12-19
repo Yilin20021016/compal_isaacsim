@@ -19,6 +19,7 @@ import os
 from typing import List, Tuple, Union
 
 import numpy as np
+import torch
 
 # isaacsim.core.api
 from isaacsim.core.api.robots.robot import Robot as _Robot
@@ -154,6 +155,7 @@ class PolicyMobilityGenRobot(MobilityGenRobot):
     def write_action(self, step_size):
         action = self.action.get_value()
         command = np.array([action[0], 0.0, action[1]])
+        command = torch.from_numpy(command)
         self.controller.forward(step_size, command)
 
     def set_pose_2d(self, pose):
@@ -228,7 +230,7 @@ class CarterRobot(WheeledMobilityGenRobot):
     occupancy_map_cell_size: float = 0.05
     occupancy_map_collision_radius: float = 0.5
 
-    front_camera_base_path = "chassis_link/front_hawk/front_hawk"
+    front_camera_base_path = "chassis_link/sensors/front_hawk/front_hawk"
     front_camera_rotation = (0.0, 0.0, 0.0)
     front_camera_translation = (0.0, 0.0, 0.0)
     front_camera_type = HawkCamera

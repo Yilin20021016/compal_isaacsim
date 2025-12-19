@@ -1,5 +1,5 @@
 [package]
-version = "1.3.4"
+version = "1.4.1"
 category = "Simulation"
 title = "Isaac Sim USD to URDF exporter"
 description = "Extension that exports USD files to URDF"
@@ -13,10 +13,8 @@ writeTarget.platform = true # pip prebundle makes this extension os specific
 
 [dependencies]
 "isaacsim.core.deprecation_manager" = {}
-"isaacsim.core.utils" = {}
 "isaacsim.gui.components" = {}
 "omni.kit.pip_archive" = {}
-
 
 [[python.module]]
 path = "pip_prebundle"
@@ -29,7 +27,11 @@ name = "isaacsim.asset.exporter.urdf.tests"
 
 [[test]]
 timeout = 400
-dependencies = [ "isaacsim.asset.importer.urdf", "isaacsim.core.experimental.prims"]
+dependencies = [
+    "isaacsim.asset.importer.urdf",
+    "isaacsim.core.experimental.prims",
+    "isaacsim.storage.native",
+]
 stdoutFailPatterns.exclude = [
     "*Missing call to destroyResourceBindingSignature()*",
     '*not added to `TransformGraph` because it is not a link type or joint type prim.*',
@@ -39,4 +41,10 @@ stdoutFailPatterns.exclude = [
     '*not added to `TransformGraph` because it is not a link type or joint type prim.*',
     '*parent prim is missing contact report API*',
     '*Error processing node attribute `outputs:pointInstanceDataType`: dataType attribute is empty*'
+]
+
+[[test]]
+name = "startup"
+dependencies = [
+    "omni.isaac.core_archive",
 ]

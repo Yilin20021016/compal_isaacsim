@@ -32,12 +32,15 @@ ICON_PATH = CURRENT_PATH.parent.parent.parent.joinpath("icons")
 
 class AssetDetailDelegate(FolderDetailDelegate):
     """
-    Delegate to show asset item in detail view
-    Args:
-        model (AssetBrowserModel): Asset browser model
+    Delegate to show asset item in detail view.
     """
 
     def __init__(self, model: AssetBrowserModel):
+        """Initializes the delegate.
+
+        Args:
+            model: Asset browser model.
+        """
         super().__init__(model=model)
 
         self._dragging_url = None
@@ -55,17 +58,32 @@ class AssetDetailDelegate(FolderDetailDelegate):
             )
 
     def destroy(self):
+        """Destroys the delegate."""
         self._drop_helper = None
         super().destroy()
 
     def get_thumbnail(self, item) -> str:
-        """Set default sky thumbnail if thumbnail is None"""
+        """Set default sky thumbnail if thumbnail is None.
+
+        Args:
+            item: The item to get the thumbnail for.
+
+        Returns:
+            str: The thumbnail path.
+        """
         if item.thumbnail is None:
             return f"{ICON_PATH}/usd_stage_256.png"
         return item.thumbnail
 
     def on_drag(self, item: DetailItem) -> str:
-        """Could be dragged to viewport window"""
+        """Could be dragged to viewport window.
+
+        Args:
+            item: The item being dragged.
+
+        Returns:
+             str: The url of the item.
+        """
         thumbnail = self.get_thumbnail(item)
         icon_size = 128
         with ui.VStack(width=icon_size):
@@ -98,10 +116,26 @@ class AssetDetailDelegate(FolderDetailDelegate):
         return item.url
 
     def _on_drop_accepted(self, url):
+        """Called when drop is accepted.
+
+        Args:
+            url: The url being dropped.
+
+        Returns:
+            bool: True if the url is accepted.
+        """
         # Only handle dragging from asset browser
         return url == self._dragging_url
 
     def _on_drop(self, url, target, viewport_name, context_name):  # pylint: disable=useless-return
+        """Called when dropped.
+
+        Args:
+            url: The url being dropped.
+            target: The target widget.
+            viewport_name: The name of the viewport.
+            context_name: The name of the context.
+        """
         saved_instanceable = self._settings.get("/persistent/app/stage/instanceableOnCreatingReference")
         if not saved_instanceable and url == self._dragging_url:
             # Enable instanceable for viewport asset drop handler
@@ -119,7 +153,11 @@ class AssetDetailDelegate(FolderDetailDelegate):
         return None  # noqa: R501
 
     def on_right_click(self, item: DetailItem) -> None:
-        """Show context menu"""
+        """Show context menu.
+
+        Args:
+            item: The item right clicked.
+        """
         self._action_item = item
         if self._context_menu is None:
             self._context_menu = ContextMenu()

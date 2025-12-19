@@ -39,7 +39,6 @@ class TestHelloWorldExampleExtension(omni.kit.test.AsyncTestCase):
         await update_stage_async()
         while is_stage_loading():
             await update_stage_async()
-        return
 
     # After running each test
     async def tearDown(self):
@@ -50,7 +49,6 @@ class TestHelloWorldExampleExtension(omni.kit.test.AsyncTestCase):
         await self._sample.clear_async()
         await update_stage_async()
         self._sample = None
-        pass
 
     async def test_reset(self):
         await self._sample.reset_async()
@@ -59,4 +57,3 @@ class TestHelloWorldExampleExtension(omni.kit.test.AsyncTestCase):
         await self._sample.reset_async()
         await update_stage_async()
         await update_stage_async()
-        pass

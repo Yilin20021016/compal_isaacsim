@@ -1,5 +1,5 @@
 [package]
-version = "0.2.2"
+version = "0.3.0"
 category = "Simulation"
 title = "Isaac Sim Camera Simulation UI Components"
 description = "Provides UI components for Isaac Sim camera simulation, eg. menu options."
@@ -18,6 +18,9 @@ writeTarget.kit = true
 name = "isaacsim.sensors.camera.ui"
 
 [[test]]
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
     "--enable",
     "omni.kit.loop-isaac",
@@ -70,6 +73,9 @@ stdoutFailPatterns.exclude = [
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

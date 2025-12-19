@@ -17,7 +17,6 @@
 
 #include "GenericModelOutput.h"
 #include "LidarConfigHelper.h"
-#include "LidarMetaData.h"
 #include "OgnIsaacComputeRTXLidarFlatScanDatabase.h"
 #include "isaacsim/core/includes/BaseResetNode.h"
 #include "isaacsim/core/includes/ScopedCudaDevice.h"
@@ -72,6 +71,7 @@ public:
             CARB_LOG_ERROR("IsaacComputeRTXLidarFlatScan: renderProductPath input is empty. Skipping execution.");
             return false;
         }
+        size_t maxPoints = 0;
         pxr::UsdPrim lidarPrim = isaacsim::core::includes::getCameraPrimFromRenderProduct(renderProductPath);
         if (lidarPrim.IsA<pxr::UsdGeomCamera>())
         {
@@ -113,6 +113,9 @@ public:
             state.m_nearRangeM = configHelper.nearRangeM;
             state.m_farRangeM = configHelper.farRangeM;
             state.m_rotationRate = static_cast<float>(configHelper.scanRateBaseHz);
+            maxPoints = configHelper.numChannels * configHelper.maxReturns *
+                        static_cast<size_t>(std::ceil(static_cast<float>(configHelper.reportRateBaseHz) /
+                                                      static_cast<float>(configHelper.scanRateBaseHz)));
         }
         else
         {
@@ -168,7 +171,7 @@ public:
             {
                 // Set useful state variables
                 uint32_t reportRateBaseHzAsInt;
-                lidarPrim.GetAttribute(pxr::TfToken("omni:sensor:Core:reportRateBaseHz")).Get(&reportRateBaseHzAsInt);
+                lidarPrim.GetAttribute(pxr::TfToken("omni:sensor:Core:patternFiringRateHz")).Get(&reportRateBaseHzAsInt);
                 float reportRateBaseHz = static_cast<float>(reportRateBaseHzAsInt);
 
                 state.m_horizontalResolution = 360.0f * state.m_rotationRate / reportRateBaseHz;
@@ -176,10 +179,18 @@ public:
                 state.m_azimuthRangeEnd = 180.0f;
                 state.m_horizontalFov = 360.0;
             }
+
+            // Compute the max number of points in the scan
+            uint32_t maxReturns;
+            uint32_t numChannels;
+            uint32_t patternFiringRateHz;
+            lidarPrim.GetAttribute(pxr::TfToken("omni:sensor:Core:maxReturns")).Get(&maxReturns);
+            lidarPrim.GetAttribute(pxr::TfToken("omni:sensor:Core:numberOfChannels")).Get(&numChannels);
+            lidarPrim.GetAttribute(pxr::TfToken("omni:sensor:Core:patternFiringRateHz")).Get(&patternFiringRateHz);
+            maxPoints = numChannels * maxReturns *
+                        static_cast<size_t>(
+                            std::ceil(static_cast<float>(patternFiringRateHz) / static_cast<float>(rotationRateAsInt)));
         }
-        omni::sensors::lidar::LidarMetaData* metadataPtr =
-            reinterpret_cast<omni::sensors::lidar::LidarMetaData*>(db.inputs.metaDataPtr());
-        auto maxPoints = metadataPtr->maxPoints;
         CUDA_CHECK(cudaMallocHost(&state.m_intensityBuffer, maxPoints * sizeof(float)));
         CUDA_CHECK(cudaMallocHost(&state.m_distanceBuffer, maxPoints * sizeof(float)));
         CUDA_CHECK(cudaMallocHost(&state.m_azimuthBuffer, maxPoints * sizeof(float)));
@@ -192,12 +203,6 @@ public:
         auto& state = db.perInstanceState<OgnIsaacComputeRTXLidarFlatScan>();
         // Enable downstream execution by default
         db.outputs.exec() = kExecutionAttributeStateEnabled;
-
-        if (!db.inputs.metaDataPtr())
-        {
-            CARB_LOG_INFO("IsaacComputeRTXLidarFlatScan: metaDataPtr input is empty. Skipping execution.");
-            return false;
-        }
 
         if (state.m_firstFrame)
         {

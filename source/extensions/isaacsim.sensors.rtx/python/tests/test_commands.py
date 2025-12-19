@@ -22,7 +22,7 @@ from pathlib import Path
 import omni.kit.commands
 import omni.kit.test
 import omni.usd
-from isaacsim.core.utils.prims import get_prim_at_path
+from isaacsim.core.utils.prims import delete_prim, get_prim_at_path
 from isaacsim.core.utils.stage import traverse_stage
 from isaacsim.sensors.rtx import SUPPORTED_LIDAR_CONFIGS, SUPPORTED_LIDAR_VARIANT_SET_NAME
 from pxr import Gf, Sdf, UsdGeom
@@ -365,6 +365,57 @@ class TestRtxSensorCommands(omni.kit.test.AsyncTestCase):
         self.assertTrue(prim.IsValid())
         # Verify it's an OmniLidar prim
         self.assertTrue(prim.IsA("OmniLidar"))
+
+    async def test_rtx_lidar_default_creation_with_path(self):
+        """Test RTX Lidar default creation (no config, no force_camera_prim)."""
+
+        print(get_prim_at_path("/").GetAllChildren())
+        translation = Gf.Vec3d(0.0, 0.0, 0.0)
+        orientation = Gf.Quatd(1.0, 0.0, 0.0, 0.0)
+
+        _, prim = omni.kit.commands.execute(
+            "IsaacSensorCreateRtxLidar",
+            path="/RtxLidar",
+            translation=translation,
+            orientation=orientation,
+        )
+
+        self.assertIsNotNone(prim)
+        self.assertTrue(prim.IsValid())
+        # Verify it's an OmniLidar prim
+        self.assertTrue(prim.IsA("OmniLidar"))
+        self.assertEqual(prim.GetPath(), Sdf.Path("/RtxLidar"))
+        delete_prim(prim.GetPath())
+
+        # Create with parent
+        _, prim = omni.kit.commands.execute(
+            "IsaacSensorCreateRtxLidar",
+            path="/RtxLidar",
+            parent="/Render",
+            translation=translation,
+            orientation=orientation,
+        )
+
+        self.assertIsNotNone(prim)
+        self.assertTrue(prim.IsValid())
+        # Verify it's an OmniLidar prim
+        self.assertTrue(prim.IsA("OmniLidar"))
+        self.assertEqual(prim.GetPath(), Sdf.Path("/Render/RtxLidar"))
+        delete_prim(prim.GetPath())
+
+        # Create with parent in path
+        _, prim = omni.kit.commands.execute(
+            "IsaacSensorCreateRtxLidar",
+            path="/Render/RtxLidar",
+            translation=translation,
+            orientation=orientation,
+        )
+
+        self.assertIsNotNone(prim)
+        self.assertTrue(prim.IsValid())
+        # Verify it's an OmniLidar prim
+        self.assertTrue(prim.IsA("OmniLidar"))
+        self.assertEqual(prim.GetPath(), Sdf.Path("/Render/RtxLidar"))
 
     async def test_rtx_lidar_force_camera_no_config(self):
         """Test RTX Lidar with force_camera_prim=True but no config specified."""

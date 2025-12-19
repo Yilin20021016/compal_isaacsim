@@ -1,5 +1,5 @@
 [package]
-version = "2.3.2"
+version = "2.4.4"
 category = "Simulation"
 title = "Isaac Sim PhysX Sensors"
 description = "Isaac Sim PhysX Sensors extension provides APIs for PhysX-raycast-based lidars and sensors including Proximity Sensor and Lightbeam Sensor."
@@ -19,6 +19,8 @@ writeTarget.kit = true
 "omni.kit.menu.utils" = {}
 "omni.kit.pip_archive" = {} # pulls in numpy
 "omni.kit.uiapp" = {}
+"omni.physics" = {}
+"omni.physics.physx" = {}
 "omni.physx" = {}
 "omni.syntheticdata" = {}
 "omni.timeline" = {} # needed for simulation to start
@@ -44,11 +46,13 @@ stdoutFailPatterns.exclude = [
  "*[Error] [omni.graph.core.plugin] /TestGraph/Template_isaacsim_sensors_physx_IsaacReadLidarPointCloud: [/TestGraph] no prim path found for the lidar*",
  "*[Error] [omni.graph.core.plugin] /TestGraph/Template_isaacsim_sensors_physx_IsaacReadLightBeam: [/TestGraph] Invalid Light Beam Sensor prim*",
  "*[Error] [isaacsim.sensors.physx.impl.commands] Must specify curtain length if num rays > 1*",
+ '*The NumPy module was reloaded*',
 ]
 
 dependencies = [
-    "omni.kit.hydra_texture",
     "isaacsim.test.docstring",
+    "omni.isaac.ml_archive",
+    "omni.kit.hydra_texture",
 ]
 
 args = [
@@ -98,6 +102,9 @@ args = [
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

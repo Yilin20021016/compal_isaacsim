@@ -1,4 +1,10 @@
 # Changelog
+
+## [1.1.0] - 2025-10-27
+### Changed
+- Replace import statements with the deprecation function when importing PyTorch
+- Make omni.isaac.ml_archive an explicit test dependency
+
 ## [1.0.16] - 2025-07-07
 ### Fixed
 - Correctly enable omni.kit.loop-isaac in test dependency (fixes issue from 1.0.15)
@@ -65,4 +71,4 @@
 
 ## [1.0.0] - 2024-12-10
 ### Added
-- created extension with domain_randomization parts from omni.replicator.isaac
+- Created extension with domain_randomization parts from omni.replicator.isaac

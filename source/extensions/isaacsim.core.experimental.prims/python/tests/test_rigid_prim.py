@@ -59,6 +59,18 @@ class TestRigidPrim(omni.kit.test.AsyncTestCase):
     # --------------------------------------------------------------------
 
     @parametrize(
+        devices=["cpu"],  # runtime instance creation is not currently supported on GPU
+        backends=["tensor"],  # "tensor" backend plays the simulation
+        instances=["one"],
+        operations=["wrap"],
+        prim_class=lambda *args, **kwargs: None,
+        populate_stage_func=populate_stage,
+        max_num_prims=1,
+    )
+    async def test_runtime_instance_creation(self, prim, num_prims, device, backend):
+        RigidPrim("/World/A_0")
+
+    @parametrize(
         backends=["tensor", "usd"],
         operations=["wrap"],
         prim_class=RigidPrim,

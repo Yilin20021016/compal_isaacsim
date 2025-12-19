@@ -60,6 +60,7 @@ class ExampleBrowserExtension(omni.ext.IExt):
         omni.kit.menu.utils.remove_menu_items(self._menu_entry, name=BROWSER_MENU_ROOT)
         action_registry = omni.kit.actions.core.get_action_registry()
         action_registry.deregister_action("isaacsim.examples.browser", f"open_isaac_sim_examples_browser")
+        action_registry.deregister_action("isaacsim.examples.browser", f"toggle_isaac_sim_examples_browser")
 
         self._browser_model.destroy()
 
@@ -139,6 +140,12 @@ class ExampleBrowserExtension(omni.ext.IExt):
             lambda: self._show_window(True),
             description=f"Open Isaac Sim Examples Browser",
         )
+        action_registry.register_action(
+            "isaacsim.examples.browser",
+            f"toggle_isaac_sim_examples_browser",
+            self._toggle_window,
+            description=f"Toggle Isaac Sim Examples Browser",
+        )
 
         self._menu_entry = [
             omni.kit.menu.utils.MenuItemDescription(
@@ -148,7 +155,7 @@ class ExampleBrowserExtension(omni.ext.IExt):
                         name="Robotics Examples",
                         ticked=True,
                         ticked_fn=self._is_visible,
-                        onclick_fn=self._toggle_window,
+                        onclick_action=("isaacsim.examples.browser", "toggle_isaac_sim_examples_browser"),
                     )
                 ],
             )

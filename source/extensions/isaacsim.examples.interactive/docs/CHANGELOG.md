@@ -1,4 +1,61 @@
 # Changelog
+## [4.11.2] - 2025-12-07
+### Changed
+- Update description
+
+## [4.11.1] - 2025-12-05
+### Changed
+- Migrate to Events 2.0.
+
+## [4.11.0] - 2025-12-02
+### Removed
+- base_sample_experimental.py
+- base_sample_extension_experimental.py
+
+## [4.10.0] - 2025-12-01
+### Changed
+- Updated inference examples to use GPU physics and the new experimental APIs
+- Moved policy based examples to isaacsim.robot.policy.examples
+
+## [4.9.3] - 2025-11-27
+### Changed
+- Add missing docstrings
+
+## [4.9.2] - 2025-11-24
+### Changed
+- Update imports from isaacsim.base_samples to isaacsim.examples.base
+
+## [4.9.1] - 2025-11-21
+### Removed
+- Build window function use
+
+## [4.9.0] - 2025-11-20
+### Changed
+- The Start with Robot, Kaya Gamepad, Omnigraph Keyboard, and Hello World examples now depend on the new Warp-based APIs
+
+### Removed
+- The Simple Stack example
+- The Franka Pick-and-Place and UR10 Follow Target examples have been removed from this extension and moved to a new location
+
+## [4.8.4] - 2025-11-04
+### Fixed
+- Fix Kaya Gamepad example test
+
+## [4.8.3] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
+## [4.8.2] - 2025-10-22
+### Changed
+- Remove deprecated dependencies
+
+## [4.8.1] - 2025-10-18
+### Changed
+- Remove extra carb settings from tests
+
+## [4.8.0] - 2025-10-17
+### Changed
+- Migrate PhysX subscription and simulation control interfaces to Omni Physics
 
 ## [4.7.4] - 2025-10-02
 ### Changed
@@ -70,7 +127,7 @@
 
 ## [4.5.1] - 2025-04-27
 ### Fixed
-- rename ui unit tests and add ui related test settings
+- Rename ui unit tests and add ui related test settings
 
 ## [4.5.0] - 2025-04-13
 ### Added
@@ -100,7 +157,7 @@
 
 ## [4.4.10] - 2025-03-09
 ### Fixed
-- fix failing unit tests
+- Fix failing unit tests
 
 ## [4.4.9] - 2025-02-20
 ### Changed
@@ -124,7 +181,7 @@
 
 ## [4.4.4] - 2025-01-14
 ### Added
-- refactor LoadButtons UI
+- Refactor LoadButtons UI
 
 ## [4.4.3] - 2025-01-10
 ### Added
@@ -169,7 +226,7 @@
 
 ## [4.0.0] - 2024-09-30
 ### Changed
-- changed extension name to isaacsim.examples.interactive
+- Changed extension name to isaacsim.examples.interactive
 
 ## [3.0.3] - 2024-09-28
 ### Fixed
@@ -317,11 +374,11 @@
 
 ## [1.5.4] - 2023-02-08
 ### Fixed
-- fixed vibrating table in Nut and Bolts Demo
+- Fixed vibrating table in Nut and Bolts Demo
 
 ## [1.5.3] - 2023-01-19
 ### Fixed
-- missing button error when running tests
+- Missing button error when running tests
 
 ## [1.5.2] - 2023-01-06
 ### Fixed
@@ -357,8 +414,8 @@
 
 ## [0.3.0] - 2022-05-05
 ### Changed
-- stage setting changed from cm to m.
-- robofactory and roboparty uses hard coded position in meters (instead of cm)
+- Stage setting changed from cm to m.
+- Robofactory and roboparty uses hard coded position in meters (instead of cm)
 
 ## [0.2.0] - 2022-05-05
 ### Changed
@@ -416,7 +473,7 @@
 
 ## [0.1.12] - 2021-11-01
 ### Changed
-- renamed extension to omni.isaac.examples
+- Renamed extension to omni.isaac.examples
 
 ## [0.1.11] - 2021-11-01
 ### Changed
@@ -436,11 +493,11 @@
 
 ## [0.1.8] - 2021-07-12
 ### Added
-- add UI Utils to Import URDF
+- Add UI Utils to Import URDF
 
 ## [0.1.7] - 2021-07-08
 ### Added
-- add dofbot rmp sample
+- Add dofbot rmp sample
 
 ## [0.1.6] - 2021-05-24
 ### Added
@@ -453,8 +510,8 @@
 
 ## [0.1.4] - 2021-02-17
 ### Added
-- update to python 3.7
-- update to omni.kit.uiapp
+- Update to python 3.7
+- Update to omni.kit.uiapp
 - Update RMP sample to save data
 
 ## [0.1.3] - 2021-01-13

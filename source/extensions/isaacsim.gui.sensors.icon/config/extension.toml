@@ -1,8 +1,8 @@
 [package]
-version = "2.0.3"
+version = "2.0.7"
 category = "other"
 title = "Sensor Icon"
-description = "sensor icon in viewport"
+description = "Renders sensor icons in the viewport and stage hierarchy for visual identification of camera, lidar, IMU, and other sensor prims."
 keywords = ["sensor","icon","gui"]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"
@@ -11,7 +11,6 @@ icon = "data/icon.png"
 writeTarget.kit = true
 
 [dependencies]
-"isaacsim.core.utils" = {}
 "omni.appwindow" = { public = true }
 "omni.kit.viewport.menubar.core" = {}
 "omni.kit.viewport.menubar.display" = {}
@@ -104,5 +103,5 @@ stdoutFailPatterns.exclude = [
 name = "startup"
 enabled = false
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

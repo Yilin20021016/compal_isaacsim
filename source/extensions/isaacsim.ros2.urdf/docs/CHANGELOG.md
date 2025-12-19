@@ -1,4 +1,9 @@
 # Changelog
+
+## [1.1.21] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
 ## [1.1.20] - 2025-10-06
 ### Fixed
 - Fix cleanup of the ObserverGuard object when using omni.kit.command in script

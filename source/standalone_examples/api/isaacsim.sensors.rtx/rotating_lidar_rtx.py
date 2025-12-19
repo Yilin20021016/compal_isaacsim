@@ -78,6 +78,7 @@ i = 0
 reset_needed = False
 while simulation_app.is_running():
     my_world.step(render=True)
+    print(my_lidar.get_current_frame())
     if my_world.is_stopped() and not reset_needed:
         reset_needed = True
     if my_world.is_playing():

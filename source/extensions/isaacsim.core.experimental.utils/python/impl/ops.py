@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Functions for manipulating and performing operations on Warp arrays.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -80,30 +84,30 @@ def place(
         >>> # - bool
         >>> array = ops_utils.place(True, device="cpu")  # doctest: +NO_CHECK
         >>> print(array, array.dtype, array.device, array.shape)
-        [ True] <class 'warp.types.bool'> cpu (1,)
+        [ True] <class 'warp._src.types.bool'> cpu (1,)
         >>> # - int
         >>> array = ops_utils.place(1, device="cpu")  # doctest: +NO_CHECK
         >>> print(array, array.dtype, array.device, array.shape)
-        [1] <class 'warp.types.int64'> cpu (1,)
+        [1] <class 'warp._src.types.int64'> cpu (1,)
         >>> # - float
         >>> array = ops_utils.place(1.0, device="cpu")  # doctest: +NO_CHECK
         >>> print(array, array.dtype, array.device, array.shape)
-        [1.] <class 'warp.types.float64'> cpu (1,)
+        [1.] <class 'warp._src.types.float64'> cpu (1,)
         >>>
         >>> # Python list
         >>> array = ops_utils.place([1.0, 2.0, 3.0], device="cpu")  # doctest: +NO_CHECK
         >>> print(array, array.dtype, array.device, array.shape)
-        [1. 2. 3.] <class 'warp.types.float64'> cpu (3,)
+        [1. 2. 3.] <class 'warp._src.types.float64'> cpu (3,)
         >>>
         >>> # NumPy array (with shape (3, 1))
         >>> array = ops_utils.place(np.array([[1], [2], [3]], dtype=np.uint8), dtype=wp.float32)  # doctest: +NO_CHECK
         >>> print(array, array.dtype, array.device, array.shape)
-        [[1.] [2.] [3.]] <class 'warp.types.float32'> cuda:0 (3, 1)
+        [[1.] [2.] [3.]] <class 'warp._src.types.float32'> cuda:0 (3, 1)
         >>>
         >>> # Warp array (with different device)
         >>> array = ops_utils.place(wp.array([1.0, 2.0, 3.0], device="cpu"), device="cuda")  # doctest: +NO_CHECK
         >>> print(array, array.dtype, array.device, array.shape)
-        [1. 2. 3.] <class 'warp.types.float64'> cuda:0 (3,)
+        [1. 2. 3.] <class 'warp._src.types.float64'> cuda:0 (3,)
     """
     # hint: don't use wp.from_numpy as it returns vector/matrix for arrays of dimensions 2/3
     if isinstance(x, wp.array):
@@ -161,30 +165,30 @@ def resolve_indices(
         >>> # - bool
         >>> indices = ops_utils.resolve_indices(True, device="cpu")  # doctest: +NO_CHECK
         >>> print(indices, indices.dtype, indices.device, indices.shape)
-        [1] <class 'warp.types.int32'> cpu (1,)
+        [1] <class 'warp._src.types.int32'> cpu (1,)
         >>> # - int
         >>> indices = ops_utils.resolve_indices(2, device="cpu")  # doctest: +NO_CHECK
         >>> print(indices, indices.dtype, indices.device, indices.shape)
-        [2] <class 'warp.types.int32'> cpu (1,)
+        [2] <class 'warp._src.types.int32'> cpu (1,)
         >>> # - float
         >>> indices = ops_utils.resolve_indices(3.0, device="cpu")  # doctest: +NO_CHECK
         >>> print(indices, indices.dtype, indices.device, indices.shape)
-        [3] <class 'warp.types.int32'> cpu (1,)
+        [3] <class 'warp._src.types.int32'> cpu (1,)
         >>>
         >>> # Python list
         >>> indices = ops_utils.resolve_indices([1, 2, 3], device="cpu")  # doctest: +NO_CHECK
         >>> print(indices, indices.dtype, indices.device, indices.shape)
-        [1 2 3] <class 'warp.types.int32'> cpu (3,)
+        [1 2 3] <class 'warp._src.types.int32'> cpu (3,)
         >>>
         >>> # NumPy array (with shape (3, 1))
         >>> indices = ops_utils.resolve_indices(np.array([[1], [2], [3]], dtype=np.uint8))  # doctest: +NO_CHECK
         >>> print(indices, indices.dtype, indices.device, indices.shape)
-        [1 2 3] <class 'warp.types.int32'> cuda:0 (3,)
+        [1 2 3] <class 'warp._src.types.int32'> cuda:0 (3,)
         >>>
         >>> # Warp array (with different device)
         >>> indices = ops_utils.resolve_indices(wp.array([1, 2, 3], device="cpu"), device="cuda")  # doctest: +NO_CHECK
         >>> print(indices, indices.dtype, indices.device, indices.shape)
-        [1 2 3] <class 'warp.types.int32'> cuda:0 (3,)
+        [1 2 3] <class 'warp._src.types.int32'> cuda:0 (3,)
     """
     # hint: don't use wp.from_numpy as it returns vector/matrix for arrays of dimensions 2/3
     if dtype is None:

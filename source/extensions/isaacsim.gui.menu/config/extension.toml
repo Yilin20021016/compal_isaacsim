@@ -1,8 +1,8 @@
 [package]
-version = "2.4.4"
+version = "2.4.8"
 category = "Simulation"
 title = "Isaac Sim Menus"
-description = "Menus specific to Isaac Sim"
+description = "Provides Isaac Sim-specific menu bar functionality including File, Edit, Create, Window, Tools, Utilities, Layouts, and Help menus with robotics-focused operations."
 keywords = ["isaac", "menu"]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"
@@ -33,6 +33,7 @@ dependencies = [
     "isaacsim.sensors.physics.ui",
     "isaacsim.sensors.physx.ui",
     "isaacsim.test.utils",
+    "omni.isaac.ml_archive",
 ]
 args = [
     "--enable",
@@ -97,6 +98,9 @@ stdoutFailPatterns.exclude = [
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

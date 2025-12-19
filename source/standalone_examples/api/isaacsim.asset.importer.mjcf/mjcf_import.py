@@ -16,7 +16,7 @@
 from isaacsim import SimulationApp
 
 # MJCF import, configuration and simulation sample
-kit = SimulationApp({"renderer": "RaytracedLighting", "headless": False})
+kit = SimulationApp({"renderer": "RealTimePathTracing", "headless": False})
 import omni.kit.commands
 from isaacsim.core.utils.extensions import get_extension_path_from_name
 from pxr import Gf, PhysicsSchemaTools, PhysxSchema, Sdf, UsdLux, UsdPhysics
@@ -66,7 +66,7 @@ distantLight.CreateIntensityAttr(500)
 # Start simulation
 omni.timeline.get_timeline_interface().play()
 # perform simulation
-for frame in range(1000):
+for frame in range(10):
     kit.update()
 
 # Shutdown and exit

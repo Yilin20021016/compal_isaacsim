@@ -34,7 +34,7 @@ The Windows build process will check a handful of versions before starting.  It 
  * VS 2022
  * MSVC v143
  * MSBuild 17.*
- * WinSDK 10.0.22621.0
+ * WinSDK 10.0.26100.0
 
 If you do not have these versions you can still start a build, run `build.bat --skip-compiler-version-check`
 
@@ -44,29 +44,16 @@ If you do not have these versions you can still start a build, run `build.bat --
 
 #### Installing Visual Studio 2022 Community
 
-1. **Download Visual Studio Installer**
+Install using Winget by running the following command in PowerShell:
 
-   ![VS Download](./vs_download.png)
-   - Visit the [Visual Studio Downloads](https://visualstudio.microsoft.com/downloads/).
-   - Click "Free download" under "Community".
+  ```powershell
+   winget install --id=Microsoft.VisualStudio.2022.Community -e --override "--add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended"
+   ```
 
-2. **Run the Installer**
-   - Open the downloaded installer.
-   - Select "Community" edition and click "Install".
+   Ensure that the following versions are installed:
 
-3. **Select Workloads**
-
-   ![VS Workloads](./vs_workloads.png)
-   - Check "Desktop development with C++".
-   - This includes tools like the MSVC compiler and C++ libraries.
-
-4. **Additional Components**
-   ![VS Additional](./vs_additional.png)
-   - If you need specific components, go to "Individual components".
-   - Select additional tools as needed.
-
-5. **Complete the Installation**
-   - Proceed with the installation to download and set up all files.
+     - MSVC v143
+     - WinSDK 10.0.26100.7175
 
 #### Installing Windows SDK (as needed)
 
@@ -83,7 +70,7 @@ Usually, the Windows SDK is included with the "Desktop development with C++" wor
 3. **Verify Windows SDK**
 
    ![VS WinSDK Verify](./vs_winsdk_verify.png)
-   - Ensure "Windows SDK" is selected under "Optional" sections or "Individual components".
+   - Ensure "Windows 11 SDK" is selected under "Optional" sections or "Individual components".
 
 4. **Apply Changes**
    - Click "Modify" to install or update the SDK.

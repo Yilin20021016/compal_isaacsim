@@ -1,5 +1,5 @@
 [package]
-version = "4.8.0"
+version = "4.11.4"
 category = "Simulation"
 title = "Isaac Sim Core"
 description = "The Core extension provides a set of APIs to control the Simulation State as well as the physics scene. It also provides wrappers for USD objects, physics and visual materials."
@@ -19,14 +19,13 @@ writeTarget.kit = true
 "isaacsim.storage.native" = {}
 "omni.hydra.usdrt_delegate" = {}
 "omni.isaac.core_archive" = {}
-"omni.isaac.ml_archive" = {}
 "omni.kit.material.library" = {optional = true} # OmniGlass
 "omni.kit.stage_templates" = {}
 "omni.kit.usd.layers" = {}
+"omni.physics" = {}
 "omni.physics.physx" = {}
 "omni.physics.stageupdate" = {}
 "omni.physx.tensors" = {}
-"omni.pip.cloud" = {}
 "omni.pip.compute" = {} # scipy
 "omni.usd.schema.semantics" = {}
 "omni.warp.core" = {}
@@ -45,6 +44,7 @@ recursive = false
 timeout = 900
 dependencies = [
     "isaacsim.core.cloner",
+    "omni.isaac.ml_archive",
     "omni.kit.renderer.core",
 ]
 
@@ -96,4 +96,13 @@ args = [
     "--/rtx/materialDb/syncLoads=1",
     "--/rtx/newDenoiser/enabled=1",
     "--/rtx/reservedDescriptors=900000",
+]
+
+[[test]]
+name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
+args = [
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

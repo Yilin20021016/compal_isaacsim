@@ -19,6 +19,46 @@ from pxr import Plug
 
 
 def _register_plugin_path(path):
+    # Check if plugins at this path are already registered to avoid duplicate registration
+    # which can occur when the module is reloaded
+    pluginfo_path = os.path.join(path, "plugInfo.json")
+    if not os.path.exists(pluginfo_path):
+        return
+
+    try:
+        import json
+
+        with open(pluginfo_path, "r") as f:
+            # Strip comment lines (lines starting with #) for JSON parsing
+            lines = f.readlines()
+            json_lines = [line for line in lines if not line.strip().startswith("#")]
+            json_content = "".join(json_lines)
+            data = json.loads(json_content)
+
+        # Get plugin names that would be registered
+        plugin_names_to_register = set()
+        if "Plugins" in data:
+            for plugin_info in data["Plugins"]:
+                if "Name" in plugin_info:
+                    plugin_names_to_register.add(plugin_info["Name"])
+
+        if not plugin_names_to_register:
+            return
+
+        # Check if these plugins are already registered
+        registry = Plug.Registry()
+        all_plugins = registry.GetAllPlugins()
+        registered_plugin_names = {plugin.name for plugin in all_plugins}
+
+        # If all plugins are already registered, skip to avoid re-registration errors
+        if plugin_names_to_register.issubset(registered_plugin_names):
+            return
+
+    except Exception:
+        # If we can't check registration status, proceed with registration attempt
+        pass
+
+    # Attempt registration
     result = Plug.Registry().RegisterPlugins(path)
     if not result:
         import carb

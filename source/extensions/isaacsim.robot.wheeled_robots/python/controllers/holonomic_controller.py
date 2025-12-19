@@ -59,7 +59,7 @@ class HolonomicController(BaseController):
 
 
     Args:
-        name (str): [description]
+        name (str): Name identifier for the controller.
         wheel_radius (np.ndarray): radius of the wheels, array of 1 can be used if all wheels are the same size
         wheel_positions (np.ndarray): position of the wheels relative to center of mass of the vehicle. number of wheels x [x,y,z]
         wheel_orientations (np.ndarray): orientation of the wheels in quaternions relative to center of mass frame of the vehicle. number of wheels x [quaternions]
@@ -164,7 +164,7 @@ class HolonomicController(BaseController):
             command (np.ndarray): [forward speed, lateral speed, yaw speed].
 
         Returns:
-            ArticulationAction: [description]
+            ArticulationAction: Action containing wheel joint velocities.
         """
         if isinstance(command, list):
             command = np.array(command)
@@ -206,5 +206,5 @@ class HolonomicController(BaseController):
         return ArticulationAction(joint_velocities=list(self.joint_commands))
 
     def reset(self) -> None:
-        """[summary]"""
+        """Reset the controller state."""
         return

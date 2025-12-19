@@ -23,10 +23,14 @@ if TYPE_CHECKING:
 
 import carb
 import omni.kit.app as omni_kit_app
+import warp as wp
+from isaacsim.benchmark.services import utils
 from isaacsim.benchmark.services.datarecorders import cpu, frametime, interface, memory
 from isaacsim.benchmark.services.metrics import measurements
 
 from .collectors import IsaacUpdateFrametimeCollector
+
+logger = utils.set_up_logging(__name__)
 
 
 class IsaacFrameTimeRecorder(interface.MeasurementDataRecorder):
@@ -365,16 +369,12 @@ class IsaacHardwareSpecRecorder(interface.MeasurementDataRecorder):
         self.context = context
 
     def get_data(self):
-        import torch
-
-        device_names = [torch.cuda.get_device_name(d) for d in range(torch.cuda.device_count())]
-
+        device_names = [device.name for device in wp.get_cuda_devices()]
         if len(set(device_names)) > 1:
-            carb.log_warn(f"Detected multiple GPU types: {device_names}.")
-            carb.log_warn(f"Only recording GPU 0 type: {device_names[0]}")
+            logger.warning(f"Detected multiple GPU types: {device_names}.")
+            logger.warning(f"Only recording GPU 0 type: {device_names[0]}")
 
         measurements_out = []
-
         measurements_out.append(measurements.SingleMeasurement(name=f"num_cpus", value=psutil.cpu_count(), unit=""))
         measurements_out.append(measurements.SingleMeasurement(name=f"gpu_device_name", value=device_names[0], unit=""))
 

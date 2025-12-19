@@ -656,20 +656,20 @@ def xyz_builder(
     step=0.001,
     on_value_changed_fn=[None, None, None, None],
 ):
-    """[summary]
+    """Create a multi-axis float drag widget with X, Y, Z, W labels.
 
     Args:
-        label (str, optional): Label to the left of the UI element. Defaults to "".
-        type (str, optional): Type of UI element. Defaults to "".
-        axis_count (int, optional): Number of Axes to Display. Max 4. Defaults to 3.
-        default_val (list, optional): List of default values. Defaults to [0.0, 0.0, 0.0, 0.0].
-        min (float, optional): Minimum Float Value. Defaults to float("-inf").
-        max (float, optional): Maximum Float Value. Defaults to float("inf").
-        step (float, optional): Step. Defaults to 0.001.
-        on_value_changed_fn (list, optional): List of callback functions for each axes. Defaults to [None, None, None, None].
+        label: Label to the left of the UI element. Defaults to "".
+        tooltip: Tooltip text for the widget. Defaults to "".
+        axis_count: Number of axes to display (1-4). Defaults to 3.
+        default_val: List of default values. Defaults to [0.0, 0.0, 0.0, 0.0].
+        min: Minimum float value. Defaults to float("-inf").
+        max: Maximum float value. Defaults to float("inf").
+        step: Drag step size. Defaults to 0.001.
+        on_value_changed_fn: List of callback functions for each axis. Defaults to [None, None, None, None].
 
     Returns:
-        list(AbstractValueModel): list(model)
+        List of value models for each axis.
     """
 
     # These styles & colors are taken from omni.kit.property.transform_builder.py _create_multi_float_drag_matrix_with_labels
@@ -1009,21 +1009,21 @@ def combo_cb_xyz_plot_builder(
     value_stride=1,
     tooltip="",
 ):
-    """[summary]
+    """Create a checkbox-enabled XYZ plot widget.
 
     Args:
-        label (str, optional):  Label to the left of the UI element. Defaults to "".
-        default_val (bool, optional): Checkbox default. Defaults to False.
-        on_clicked_fn (Callable, optional): Checkbox Callback function. Defaults to lambda x: None.
-        data list(), optional): Data to plat. Defaults to None.
-        min (int, optional): Min Y Value. Defaults to -1.
-        max (int, optional): Max Y Value. Defaults to 1.
-        type (ui.Type, optional): Plot Type. Defaults to ui.Type.LINE.
-        value_stride (int, optional): Width of plot stride. Defaults to 1.
-        tooltip (str, optional): Tooltip to display over the Label. Defaults to "".
+        label: Label to the left of the UI element. Defaults to "".
+        default_val: Checkbox default state. Defaults to False.
+        on_clicked_fn: Checkbox callback function. Defaults to lambda x: None.
+        data: Data to plot for each axis. Defaults to [].
+        min: Minimum Y value. Defaults to -1.
+        max: Maximum Y value. Defaults to 1.
+        type: Plot type. Defaults to ui.Type.LINE.
+        value_stride: Width of plot stride. Defaults to 1.
+        tooltip: Tooltip to display over the Label. Defaults to "".
 
     Returns:
-        Tuple(list(ui.Plot), list(AbstractValueModel)): ([plot_0, plot_1, plot_2], [val_model_x, val_model_y, val_model_z])
+        Tuple of plot list and value model list.
     """
     with ui.VStack(spacing=5):
         with ui.HStack():

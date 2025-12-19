@@ -3,33 +3,37 @@
 ---
 # Isaac Sim
 
-[![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://docs.python.org/3/whatsnew/3.11.html)
+[![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://docs.python.org/3/whatsnew/3.12.html)
 [![Linux platform](https://img.shields.io/badge/platform-linux--64-orange.svg)](https://releases.ubuntu.com/22.04/)
+[![Linux aarch64 platform](https://img.shields.io/badge/platform-linux--aarch64-orange.svg)](https://docs.nvidia.com/dgx/dgx-os-7-user-guide/introduction.html)
 [![Windows platform](https://img.shields.io/badge/platform-windows--64-orange.svg)](https://www.microsoft.com/en-us/)
-[![License](https://img.shields.io/badge/license-Apache--2.0-yellow.svg)](https://opensource.org/license/apache-2-0)
+[![License](https://img.shields.io/badge/license-Apache--2.0-yellow.svg)](LICENSE)
+
+> **⚠️ PRE-RELEASE SOFTWARE NOTICE**
+> This is pre-release, currently in development. You may encounter bugs, incomplete features, and other issues that will be addressed in future releases. Please [report](#support) any issues you encounter. This will be finalized into a stable release in the future.
 
 NVIDIA Isaac Sim™ is a simulation platform built on NVIDIA Omniverse, designed to develop, test, train, and deploy AI-powered robots in realistic virtual environments. It supports importing robotic systems from common formats such as URDF, MJCF, and CAD. The simulator leverages high-fidelity, GPU-accelerated physics engines to simulate accurate dynamics and support multi-sensor RTX rendering at scale. It comes equipped with end-to-end workflows including synthetic data generation, reinforcement learning, ROS integration, and digital twin simulation. Isaac Sim provides the infrastructure needed to support robotics development at any stage.
 
 ## Key Features
 
-- [Asset Import & Export](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/importer_exporter/importers_exporters.html): Importing and exporting robots and environments from and to non-USD format.
-- [Robot Tuning](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/robot_setup/index.html): Optimize robot for physics accuracy, computation efficiency, or photorealism
-- [Robot Simulation](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/robot_simulation/index.html): Tools for moving robots, such as controllers, motion generation and kinematics solvers, and policy integration.
-- [Sensors](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/sensors/index.html): RTX and physics-based sensors
+- [Asset Import & Export](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/importer_exporter/importers_exporters.html): Importing and exporting robots and environments from and to non-USD format.
+- [Robot Tuning](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/robot_setup/index.html): Optimize robot for physics accuracy, computation efficiency, or photorealism
+- [Robot Simulation](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/robot_simulation/index.html): Tools for moving robots, such as controllers, motion generation and kinematics solvers, and policy integration.
+- [Sensors](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/sensors/index.html): RTX and physics-based sensors
 
 ## Key Applications
 
-- [Isaac Lab](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/isaac_lab_tutorials/index.html): GPU-accelerated framework built for reinforcement learning, imitation learning, and motion planning.
-- [ROS Bridge](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/ros2_tutorials/ros2_landing_page.html): Integration with Robot Operating System (ROS).
-- [Synthetic Data Generation](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/synthetic_data_generation/index.html): Collection of SDG tools
+- [Isaac Lab](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/isaac_lab_tutorials/index.html): GPU-accelerated framework built for reinforcement learning, imitation learning, and motion planning.
+- [ROS Bridge](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/ros2_tutorials/ros2_landing_page.html): Integration with Robot Operating System (ROS).
+- [Synthetic Data Generation](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/synthetic_data_generation/index.html): Collection of SDG tools
 
 ## Documentation
 
 For the latest Isaac Sim documentation, see [Isaac Sim Documentation](https://docs.isaacsim.omniverse.nvidia.com/latest/index.html).
 Follow these links to get started:
 
-- [Tutorials](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/introduction/quickstart_index.html)
-- [Assets](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/assets/usd_assets_overview.html)
+- [Tutorials](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/introduction/quickstart_index.html)
+- [Assets](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/assets/usd_assets_overview.html)
 
 
 ## Prerequisites and Environment Setup
@@ -69,9 +73,15 @@ Ensure your system is set up with the following before building Isaac Sim:
 
 - [**Git LFS**](https://git-lfs.com/): For managing large files within the repository
 
-- **(Windows - C++ Only) Microsoft Visual Studio (2019 or 2022)**: You can install the latest version from [Visual Studio Downloads](https://visualstudio.microsoft.com/downloads/). Ensure that the **Desktop development with C++** workload is selected.  [Additional information on Windows development configuration](docs/readme/windows_developer_configuration.md)
+- **(Windows - C++ Only) Microsoft Visual Studio 2022**: 
 
-- **(Windows - C++ Only) Windows SDK**: Install this alongside MSVC. You can find it as part of the Visual Studio Installer. [Additional information on Windows development configuration](docs/readme/windows_developer_configuration.md)
+- Install Visual Studio 2022, Windows SDK, MSVC using Winget by running the following command in PowerShell:
+
+  ```powershell
+  winget install --id=Microsoft.VisualStudio.2022.Community -e --override "--add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended"
+  ```
+  [Additional information on Windows development configuration](docs/readme/windows_developer_configuration.md)
+
 
 - **(Linux) build-essentials**: A package that includes `make` and other essential tools for building applications.  For Ubuntu, install with:
 

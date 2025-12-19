@@ -87,7 +87,7 @@ class "IsaacLinkAPI"
 }
 
 
-class "IsaacReferencePointAPI"
+class "IsaacSiteAPI"
 (
     inherits = </APISchemaBase>
     customData = {
@@ -102,7 +102,6 @@ class "IsaacReferencePointAPI"
 }
 
 
-
 class "IsaacJointAPI"
 (
 inherits = </APISchemaBase>
@@ -111,16 +110,13 @@ inherits = </APISchemaBase>
     }
 )
 {
-    int isaac:physics:Rot_X:DoFOffset = 0
-    int isaac:physics:Rot_Y:DoFOffset = 1
-    int isaac:physics:Rot_Z:DoFOffset = 2
-    int isaac:physics:Tr_X:DoFOffset = 3
-    int isaac:physics:Tr_Y:DoFOffset = 4
-    int isaac:physics:Tr_Z:DoFOffset = 5
     string isaac:NameOverride = ""
-    float[] isaac:physics:AccelerationLimit = [-1,-1,-1,-1,-1,-1]
-    float[] isaac:physics:JerkLimit = [-1, -1 ,-1 ,-1 ,-1 ,-1 ,-1]
-    bool[] isaac:actuator = [0,0,0,0,0,0]
+    token[] isaac:physics:DofOffsetOpOrder = [] (
+        doc = """
+        Ordered list describing the sequence of DoF offsets to expose for the joint.
+        """        
+    )
+    bool[] isaac:actuator = []
 }
 
 class "IsaacSurfaceGripper"

@@ -43,14 +43,22 @@ class IsaacConnectionItem(NucleusItem):
         fields = FileBrowserItemFields(name, datetime.now(), 0, access)
         super().__init__(path, fields, is_folder=True)
         self._models = (ui.SimpleStringModel(name), datetime.now(), ui.SimpleStringModel(""))
+        self.icon = f"{ICON_PATH}/folder.svg"
 
 
 class IsaacCollection(CollectionItem):
     def __init__(self):
+        protocol = ""
+        default_asset_root = carb.settings.get_settings().get_as_string("/persistent/isaac/asset_root/default")
+        if default_asset_root.startswith("omniverse://"):
+            protocol = "omniverse"
+        elif default_asset_root.startswith("https://"):
+            protocol = "https"
         super().__init__(
-            "https",
-            "Isaac Sim",
-            f"{ICON_PATH}/cloud.svg",
+            identifier="Isaac Sim",
+            title="Isaac Sim",
+            protocol=protocol,
+            icon=f"{ICON_PATH}/cloud.svg",
             access=omni.client.AccessFlags.READ,
             populated=False,
             order=5,

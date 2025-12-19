@@ -21,14 +21,14 @@ from isaacsim.robot.manipulators.grippers.parallel_gripper import ParallelGrippe
 
 
 class PickPlaceController(manipulators_controllers.PickPlaceController):
-    """[summary]
+    """Pick and place controller for the Franka robot.
 
     Args:
-        name (str): [description]
-        gripper (ParallelGripper): [description]
-        robot_articulation (SingleArticulation): [description]
-        end_effector_initial_height (Optional[float], optional): [description]. Defaults to None.
-        events_dt (Optional[List[float]], optional): [description]. Defaults to None.
+        name: Name identifier for the controller.
+        gripper: The parallel gripper to use.
+        robot_articulation: The robot articulation to control.
+        end_effector_initial_height: Initial height of end effector. Defaults to None.
+        events_dt: Timesteps for pick/place events. Defaults to None.
     """
 
     def __init__(

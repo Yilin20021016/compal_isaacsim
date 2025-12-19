@@ -1,5 +1,5 @@
 [package]
-version = "1.4.4"
+version = "1.7.2"
 category = "Simulation"
 title = "Isaac Sim Core Simulation Manager"
 description = "The Core Simulation Manager extension provides a set of APIs to control and query the simulation's state and the different callbacks available."
@@ -10,7 +10,8 @@ icon = "data/icon.png"
 writeTarget.kit = true
 
 [dependencies]
-"isaacsim.core.utils" = {}
+"isaacsim.core.experimental.utils" = {}
+"omni.physics" = {}
 "omni.physics.physx" = {}
 "omni.physics.stageupdate" = {}
 "omni.physx.tensors" = {}
@@ -30,9 +31,11 @@ recursive = false
 [[test]]
 enabled = true
 dependencies = [
+    "isaacsim.core.utils",
+    "omni.hydra.scene_delegate", # required for fabric time to update,
+    "omni.isaac.ml_archive",
     "omni.kit.test",
-    "omni.physx.ui",
-    "omni.hydra.scene_delegate" # required for fabric time to update
+    "omni.physx.ui"
 ]
 args = [
     "--enable",

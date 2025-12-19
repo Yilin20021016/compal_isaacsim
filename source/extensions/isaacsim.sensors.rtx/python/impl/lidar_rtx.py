@@ -318,8 +318,20 @@ class LidarRtx(BaseSensor):
             observer_name="isaacsim.sensors.rtx.LidarRtx.initialize._stage_open_callback",
         )
         timeline = omni.timeline.get_timeline_interface()
-        self._timer_reset_callback = timeline.get_timeline_event_stream().create_subscription_to_pop(
-            self._timeline_timer_callback_fn
+        self._timer_reset_callback_pause = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.timeline.GLOBAL_EVENT_PAUSE,
+            on_event=self._timeline_pause_callback_fn,
+            observer_name="isaacsim.sensors.rtx.LidarRtx.initialize._timeline_pause_callback",
+        )
+        self._timer_reset_callback_stop = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.timeline.GLOBAL_EVENT_STOP,
+            on_event=self._timeline_stop_callback_fn,
+            observer_name="isaacsim.sensors.rtx.LidarRtx.initialize._timeline_stop_callback",
+        )
+        self._timer_reset_callback_play = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.timeline.GLOBAL_EVENT_PLAY,
+            on_event=self._timeline_play_callback_fn,
+            observer_name="isaacsim.sensors.rtx.LidarRtx.initialize._timeline_play_callback",
         )
         return
 
@@ -327,25 +339,40 @@ class LidarRtx(BaseSensor):
         """Handle stage open event by cleaning up callbacks.
 
         Args:
-            param event (carb.events.IEvent): The stage open event.
+            param event (carb.eventdispatcher.Event): The stage open event.
         """
         self._acquisition_callback = None
         self._stage_open_callback = None
-        self._timer_reset_callback = None
+        self._timer_reset_callback_pause = None
+        self._timer_reset_callback_stop = None
+        self._timer_reset_callback_play = None
         return
 
-    def _timeline_timer_callback_fn(self, event):
-        """Handle timeline timer events for pausing and resuming the sensor.
+    def _timeline_pause_callback_fn(self, event):
+        """Handle timeline pause event.
 
         Args:
-            param event (carb.events.IEvent): The timeline event.
+            param event (carb.eventdispatcher.Event): The timeline pause event.
         """
-        if event.type == int(omni.timeline.TimelineEventType.PAUSE) or event.type == int(
-            omni.timeline.TimelineEventType.STOP
-        ):
-            self.pause()
-        elif event.type == int(omni.timeline.TimelineEventType.PLAY):
-            self.resume()
+        self.pause()
+        return
+
+    def _timeline_stop_callback_fn(self, event):
+        """Handle timeline stop event.
+
+        Args:
+            param event (carb.eventdispatcher.Event): The timeline stop event.
+        """
+        self.pause()
+        return
+
+    def _timeline_play_callback_fn(self, event):
+        """Handle timeline play event.
+
+        Args:
+            param event (carb.eventdispatcher.Event): The timeline play event.
+        """
+        self.resume()
         return
 
     def post_reset(self) -> None:
@@ -724,15 +751,32 @@ class LidarRtx(BaseSensor):
     @staticmethod
     def get_object_ids(obj_ids: np.ndarray) -> List[int]:
         """Get Object IDs from the GenericModelOutput object ID buffer.
-        The buffer is an array of dtype uint8 that must be converted
-        to a list of dtype uint128 (stride 16). Each uint128 is a unique stable
-        ID for a prim in the scene, which can be used to look up the prim
-        path in the map provided by the StableIdMap annotator (see above).
+        The buffer is an array that must be converted to a list of dtype uint128
+        (stride 16 bytes). Each uint128 is a unique stable ID for a prim in the
+        scene, which can be used to look up the prim path in the map provided by
+        the StableIdMap annotator (see above).
 
         Args:
-            obj_ids (np.ndarray): The GenericModelOutput object ID buffer.
+            obj_ids (np.ndarray): The object ID buffer. Can be either:
+                - uint8 array with stride 16 (from GenericModelOutput)
+                - uint32 array with stride 4 (from IsaacCreateRTXLidarScanBuffer)
 
         Returns:
             List[int]: The object IDs as a list of uint128.
         """
-        return [int.from_bytes(item, byteorder="little") for item in obj_ids.view(np.dtype("<U4"))]
+        obj_ids = np.ascontiguousarray(obj_ids)
+
+        # Determine the reshape size based on dtype to ensure 16-byte (128-bit) object IDs
+        if obj_ids.dtype == np.uint8:
+            # uint8: 16 elements = 16 bytes = 128 bits
+            obj_ids = obj_ids.reshape(-1, 16)
+        elif obj_ids.dtype == np.uint32:
+            # uint32: 4 elements = 16 bytes = 128 bits
+            obj_ids = obj_ids.reshape(-1, 4)
+        elif obj_ids.dtype == np.uint64:
+            # uint64: 2 elements = 64 bytes = 128 bits
+            obj_ids = obj_ids.reshape(-1, 2)
+        else:
+            raise ValueError(f"Unsupported dtype for object IDs: {obj_ids.dtype}. Expected uint8, uint32, or uint64.")
+
+        return [int.from_bytes(group.tobytes(), byteorder="little") for group in obj_ids]

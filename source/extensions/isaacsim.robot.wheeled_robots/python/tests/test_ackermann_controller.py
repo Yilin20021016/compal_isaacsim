@@ -76,21 +76,21 @@ class TestAckermannController(omni.kit.test.AsyncTestCase):
             # command (np.ndarray): [desired steering angle (rad), steering_angle_velocity (rad/s), desired velocity of robot (m/s), acceleration (m/s^2), delta time (s)]
             actions = controller.forward([desired_steering_angle, 0.0, desired_forward_vel, 0.0, 0.0])
 
-            self.assertNotEquals(actions.joint_positions[0], None)
-            self.assertNotEquals(actions.joint_positions[1], None)
+            self.assertNotEqual(actions.joint_positions[0], None)
+            self.assertNotEqual(actions.joint_positions[1], None)
 
-            self.assertAlmostEquals(actions.joint_positions[0], expected_steering_angle_left, delta=0.001)
-            self.assertAlmostEquals(actions.joint_positions[1], expected_steering_angle_right, delta=0.001)
+            self.assertAlmostEqual(actions.joint_positions[0], expected_steering_angle_left, delta=0.001)
+            self.assertAlmostEqual(actions.joint_positions[1], expected_steering_angle_right, delta=0.001)
 
-            self.assertNotEquals(actions.joint_velocities[0], None)
-            self.assertNotEquals(actions.joint_velocities[1], None)
-            self.assertNotEquals(actions.joint_velocities[2], None)
-            self.assertNotEquals(actions.joint_velocities[3], None)
+            self.assertNotEqual(actions.joint_velocities[0], None)
+            self.assertNotEqual(actions.joint_velocities[1], None)
+            self.assertNotEqual(actions.joint_velocities[2], None)
+            self.assertNotEqual(actions.joint_velocities[3], None)
 
-            self.assertAlmostEquals(actions.joint_velocities[0], wheel_speed_front_l, delta=0.001)
-            self.assertAlmostEquals(actions.joint_velocities[1], wheel_speed_front_r, delta=0.001)
-            self.assertAlmostEquals(actions.joint_velocities[2], wheel_speed_back_l, delta=0.001)
-            self.assertAlmostEquals(actions.joint_velocities[3], wheel_speed_back_r, delta=0.001)
+            self.assertAlmostEqual(actions.joint_velocities[0], wheel_speed_front_l, delta=0.001)
+            self.assertAlmostEqual(actions.joint_velocities[1], wheel_speed_front_r, delta=0.001)
+            self.assertAlmostEqual(actions.joint_velocities[2], wheel_speed_back_l, delta=0.001)
+            self.assertAlmostEqual(actions.joint_velocities[3], wheel_speed_back_r, delta=0.001)
 
         # Case 1
         desired_angular_vel = 0.4  # rad/s
@@ -174,20 +174,20 @@ class TestAckermannController(omni.kit.test.AsyncTestCase):
                 [desired_steering_angle, steering_velocity, desired_forward_vel, acceleration, dt]
             )
 
-            self.assertNotEquals(actions.joint_positions[0], None)
-            self.assertNotEquals(actions.joint_positions[1], None)
+            self.assertNotEqual(actions.joint_positions[0], None)
+            self.assertNotEqual(actions.joint_positions[1], None)
 
             if i < num_iterations_steering:
                 self.assertLess(actions.joint_positions[0], expected_joint_values[0])
                 self.assertLess(actions.joint_positions[1], expected_joint_values[1])
             else:
-                self.assertAlmostEquals(actions.joint_positions[0], expected_joint_values[0], delta=0.01)
-                self.assertAlmostEquals(actions.joint_positions[1], expected_joint_values[1], delta=0.01)
+                self.assertAlmostEqual(actions.joint_positions[0], expected_joint_values[0], delta=0.01)
+                self.assertAlmostEqual(actions.joint_positions[1], expected_joint_values[1], delta=0.01)
 
-            self.assertNotEquals(actions.joint_velocities[0], None)
-            self.assertNotEquals(actions.joint_velocities[1], None)
-            self.assertNotEquals(actions.joint_velocities[2], None)
-            self.assertNotEquals(actions.joint_velocities[3], None)
+            self.assertNotEqual(actions.joint_velocities[0], None)
+            self.assertNotEqual(actions.joint_velocities[1], None)
+            self.assertNotEqual(actions.joint_velocities[2], None)
+            self.assertNotEqual(actions.joint_velocities[3], None)
 
             if i < num_iterations_acceleration:
                 self.assertLess(actions.joint_velocities[0], expected_joint_values[2])
@@ -195,10 +195,10 @@ class TestAckermannController(omni.kit.test.AsyncTestCase):
                 self.assertLess(actions.joint_velocities[2], expected_joint_values[4])
                 self.assertLess(actions.joint_velocities[3], expected_joint_values[5])
             else:
-                self.assertAlmostEquals(actions.joint_velocities[0], expected_joint_values[2], delta=0.01)
-                self.assertAlmostEquals(actions.joint_velocities[1], expected_joint_values[3], delta=0.01)
-                self.assertAlmostEquals(actions.joint_velocities[2], expected_joint_values[4], delta=0.01)
-                self.assertAlmostEquals(actions.joint_velocities[3], expected_joint_values[5], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[0], expected_joint_values[2], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[1], expected_joint_values[3], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[2], expected_joint_values[4], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[3], expected_joint_values[5], delta=0.01)
 
         # Case 2
         desired_angular_vel = 0.15  # rad/s
@@ -227,20 +227,20 @@ class TestAckermannController(omni.kit.test.AsyncTestCase):
                 [desired_steering_angle, steering_velocity, desired_forward_vel, acceleration, dt]
             )
 
-            self.assertNotEquals(actions.joint_positions[0], None)
-            self.assertNotEquals(actions.joint_positions[1], None)
+            self.assertNotEqual(actions.joint_positions[0], None)
+            self.assertNotEqual(actions.joint_positions[1], None)
 
             if i < num_iterations_steering:
                 self.assertLess(actions.joint_positions[0], expected_joint_values[0])
                 self.assertLess(actions.joint_positions[1], expected_joint_values[1])
             else:
-                self.assertAlmostEquals(actions.joint_positions[0], expected_joint_values[0], delta=0.01)
-                self.assertAlmostEquals(actions.joint_positions[1], expected_joint_values[1], delta=0.01)
+                self.assertAlmostEqual(actions.joint_positions[0], expected_joint_values[0], delta=0.01)
+                self.assertAlmostEqual(actions.joint_positions[1], expected_joint_values[1], delta=0.01)
 
-            self.assertNotEquals(actions.joint_velocities[0], None)
-            self.assertNotEquals(actions.joint_velocities[1], None)
-            self.assertNotEquals(actions.joint_velocities[2], None)
-            self.assertNotEquals(actions.joint_velocities[3], None)
+            self.assertNotEqual(actions.joint_velocities[0], None)
+            self.assertNotEqual(actions.joint_velocities[1], None)
+            self.assertNotEqual(actions.joint_velocities[2], None)
+            self.assertNotEqual(actions.joint_velocities[3], None)
 
             if i < num_iterations_acceleration:
                 self.assertLess(actions.joint_velocities[0], expected_joint_values[2])
@@ -248,10 +248,10 @@ class TestAckermannController(omni.kit.test.AsyncTestCase):
                 self.assertLess(actions.joint_velocities[2], expected_joint_values[4])
                 self.assertLess(actions.joint_velocities[3], expected_joint_values[5])
             else:
-                self.assertAlmostEquals(actions.joint_velocities[0], expected_joint_values[2], delta=0.01)
-                self.assertAlmostEquals(actions.joint_velocities[1], expected_joint_values[3], delta=0.01)
-                self.assertAlmostEquals(actions.joint_velocities[2], expected_joint_values[4], delta=0.01)
-                self.assertAlmostEquals(actions.joint_velocities[3], expected_joint_values[5], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[0], expected_joint_values[2], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[1], expected_joint_values[3], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[2], expected_joint_values[4], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[3], expected_joint_values[5], delta=0.01)
 
         # Case 3
         desired_angular_vel = 0.5  # rad/s
@@ -280,20 +280,20 @@ class TestAckermannController(omni.kit.test.AsyncTestCase):
                 [desired_steering_angle, steering_velocity, desired_forward_vel, acceleration, dt]
             )
 
-            self.assertNotEquals(actions.joint_positions[0], None)
-            self.assertNotEquals(actions.joint_positions[1], None)
+            self.assertNotEqual(actions.joint_positions[0], None)
+            self.assertNotEqual(actions.joint_positions[1], None)
 
             if i < num_iterations_steering:
                 self.assertLess(actions.joint_positions[0], expected_joint_values[0])
                 self.assertLess(actions.joint_positions[1], expected_joint_values[1])
             else:
-                self.assertAlmostEquals(actions.joint_positions[0], expected_joint_values[0], delta=0.01)
-                self.assertAlmostEquals(actions.joint_positions[1], expected_joint_values[1], delta=0.01)
+                self.assertAlmostEqual(actions.joint_positions[0], expected_joint_values[0], delta=0.01)
+                self.assertAlmostEqual(actions.joint_positions[1], expected_joint_values[1], delta=0.01)
 
-            self.assertNotEquals(actions.joint_velocities[0], None)
-            self.assertNotEquals(actions.joint_velocities[1], None)
-            self.assertNotEquals(actions.joint_velocities[2], None)
-            self.assertNotEquals(actions.joint_velocities[3], None)
+            self.assertNotEqual(actions.joint_velocities[0], None)
+            self.assertNotEqual(actions.joint_velocities[1], None)
+            self.assertNotEqual(actions.joint_velocities[2], None)
+            self.assertNotEqual(actions.joint_velocities[3], None)
 
             if i < num_iterations_acceleration:
                 self.assertLess(actions.joint_velocities[0], expected_joint_values[2])
@@ -301,10 +301,10 @@ class TestAckermannController(omni.kit.test.AsyncTestCase):
                 self.assertLess(actions.joint_velocities[2], expected_joint_values[4])
                 self.assertLess(actions.joint_velocities[3], expected_joint_values[5])
             else:
-                self.assertAlmostEquals(actions.joint_velocities[0], expected_joint_values[2], delta=0.01)
-                self.assertAlmostEquals(actions.joint_velocities[1], expected_joint_values[3], delta=0.01)
-                self.assertAlmostEquals(actions.joint_velocities[2], expected_joint_values[4], delta=0.01)
-                self.assertAlmostEquals(actions.joint_velocities[3], expected_joint_values[5], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[0], expected_joint_values[2], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[1], expected_joint_values[3], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[2], expected_joint_values[4], delta=0.01)
+                self.assertAlmostEqual(actions.joint_velocities[3], expected_joint_values[5], delta=0.01)
 
 
 class TestAckermannControllerOgn(ogts.OmniGraphTestCase):
@@ -450,13 +450,13 @@ class TestAckermannControllerOgn(ogts.OmniGraphTestCase):
             ang_vel = og.Controller.attribute("outputs:angularVelocity", compute_odom_node).get()
 
             # Compare forward linear velocity in x axis to desired
-            self.assertAlmostEquals(lin_vel[0], desired_forward_vel, delta=0.2)
+            self.assertAlmostEqual(lin_vel[0], desired_forward_vel, delta=0.2)
 
             # Compare angular velocity in z axis to desired
-            self.assertAlmostEquals(ang_vel[2], desired_ang_vel, delta=0.2)
+            self.assertAlmostEqual(ang_vel[2], desired_ang_vel, delta=0.2)
 
             # Compare linear acceleration in x axis to 0
-            self.assertAlmostEquals(acceleration[0], 0.0, delta=0.3)
+            self.assertAlmostEqual(acceleration[0], 0.0, delta=0.3)
 
         # Simulate quarter of circle turn
         await simulate_async(total_expected_time / 4.0)
@@ -466,9 +466,9 @@ class TestAckermannControllerOgn(ogts.OmniGraphTestCase):
         des_pose = calculate_pose(turning_radius, desired_ang_vel, total_expected_time / 4.0)
         curr_orientation = 2.0 * np.arctan2(orientation[2], orientation[3])
         # Compare pose to desired pose
-        self.assertAlmostEquals(des_pose[0], position[0], delta=1)
-        self.assertAlmostEquals(des_pose[1], position[1], delta=1)
-        self.assertAlmostEquals(des_pose[2], curr_orientation, delta=0.3)
+        self.assertAlmostEqual(des_pose[0], position[0], delta=1)
+        self.assertAlmostEqual(des_pose[1], position[1], delta=1)
+        self.assertAlmostEqual(des_pose[2], curr_orientation, delta=0.3)
         self._timeline.stop()
         await omni.kit.app.get_app().next_update_async()
 
@@ -493,9 +493,9 @@ class TestAckermannControllerOgn(ogts.OmniGraphTestCase):
         orientation = og.Controller.attribute("outputs:orientation", compute_odom_node).get()
         curr_orientation = 2.0 * np.arctan2(orientation[2], orientation[3])
         # Compare pose to desired pose
-        self.assertAlmostEquals(np.fabs(des_pose[0]), np.fabs(position[0]), delta=1)
-        self.assertAlmostEquals(np.fabs(des_pose[1]), np.fabs(position[1]), delta=1)
-        self.assertAlmostEquals(np.fabs(des_pose[2]), np.fabs(curr_orientation), delta=0.3)
+        self.assertAlmostEqual(np.fabs(des_pose[0]), np.fabs(position[0]), delta=1)
+        self.assertAlmostEqual(np.fabs(des_pose[1]), np.fabs(position[1]), delta=1)
+        self.assertAlmostEqual(np.fabs(des_pose[2]), np.fabs(curr_orientation), delta=0.3)
 
     # ----------------------------------------------------------------------
 
@@ -594,15 +594,15 @@ class TestAckermannControllerOgn(ogts.OmniGraphTestCase):
         self.assertLess(curr_lin_vel[0], desired_forward_vel)
 
         # Compare linear acceleration in x axis to desired
-        self.assertAlmostEquals(curr_accel[0], acceleration, delta=0.1)
+        self.assertAlmostEqual(curr_accel[0], acceleration, delta=0.1)
 
         await simulate_async(4.0)
 
         # Compare forward linear velocity in x axis to desired
-        self.assertAlmostEquals(curr_lin_vel[0], desired_forward_vel, delta=0.2)
+        self.assertAlmostEqual(curr_lin_vel[0], desired_forward_vel, delta=0.2)
 
         # Compare linear acceleration in x axis to 0
-        self.assertAlmostEquals(curr_accel[0], 0.0, delta=0.1)
+        self.assertAlmostEqual(curr_accel[0], 0.0, delta=0.1)
 
     async def test_ackermann_controller_robot_steer_velocity(self):
         # Add forklift USD
@@ -691,8 +691,8 @@ class TestAckermannControllerOgn(ogts.OmniGraphTestCase):
         if og.Controller.attribute("outputs:deltaSeconds", play_node).get():
             sign = -1.0
 
-        self.assertAlmostEquals(sign * joint_pos[left_rotator_joint_index], 0.0, delta=0.05)
-        self.assertAlmostEquals(sign * joint_pos[right_rotator_joint_index], 0.0, delta=0.05)
+        self.assertAlmostEqual(sign * joint_pos[left_rotator_joint_index], 0.0, delta=0.05)
+        self.assertAlmostEqual(sign * joint_pos[right_rotator_joint_index], 0.0, delta=0.05)
 
         desired_forward_vel = 0.0  # m/s
         desired_steer_angle = 0.4  # rad
@@ -712,8 +712,8 @@ class TestAckermannControllerOgn(ogts.OmniGraphTestCase):
 
         await simulate_async(2.0)
         joint_pos = robot.get_joint_positions()
-        self.assertAlmostEquals(sign * joint_pos[left_rotator_joint_index], desired_steer_angle, delta=0.2)
-        self.assertAlmostEquals(sign * joint_pos[right_rotator_joint_index], desired_steer_angle, delta=0.2)
+        self.assertAlmostEqual(sign * joint_pos[left_rotator_joint_index], desired_steer_angle, delta=0.2)
+        self.assertAlmostEqual(sign * joint_pos[right_rotator_joint_index], desired_steer_angle, delta=0.2)
 
         self._timeline.stop()
         await omni.kit.app.get_app().next_update_async()
@@ -735,8 +735,8 @@ class TestAckermannControllerOgn(ogts.OmniGraphTestCase):
         if og.Controller.attribute("outputs:deltaSeconds", play_node).get():
             sign = -1.0
 
-        self.assertAlmostEquals(sign * joint_pos[left_rotator_joint_index], 0.0, delta=0.05)
-        self.assertAlmostEquals(sign * joint_pos[right_rotator_joint_index], 0.0, delta=0.05)
+        self.assertAlmostEqual(sign * joint_pos[left_rotator_joint_index], 0.0, delta=0.05)
+        self.assertAlmostEqual(sign * joint_pos[right_rotator_joint_index], 0.0, delta=0.05)
 
         desired_forward_vel = 0.0  # m/s
         desired_steer_angle = -0.4  # rad
@@ -756,5 +756,5 @@ class TestAckermannControllerOgn(ogts.OmniGraphTestCase):
 
         await simulate_async(4.0)
         joint_pos = robot.get_joint_positions()
-        self.assertAlmostEquals(sign * joint_pos[left_rotator_joint_index], desired_steer_angle, delta=0.2)
-        self.assertAlmostEquals(sign * joint_pos[right_rotator_joint_index], desired_steer_angle, delta=0.2)
+        self.assertAlmostEqual(sign * joint_pos[left_rotator_joint_index], desired_steer_angle, delta=0.2)
+        self.assertAlmostEqual(sign * joint_pos[right_rotator_joint_index], desired_steer_angle, delta=0.2)

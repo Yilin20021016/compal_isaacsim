@@ -90,7 +90,7 @@ class TestCameraContextMenu(OmniUiTest):
             return count
 
         n_items = count_menu_items(camera_menu_dict)
-        expected_items = 1 + 4 + 2 + 7 + 1 + 1  # equal to 16 based on extension definition.
+        expected_items = 3 + 4 + 2 + 7 + 1 + 1  # equal to 16 based on extension definition.
         self.assertEqual(
             n_items,
             expected_items,

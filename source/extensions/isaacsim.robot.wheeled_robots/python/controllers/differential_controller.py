@@ -26,14 +26,14 @@ class DifferentialController(BaseController):
 
         .. math::
 
-            \omega_R = \\frac{1}{2r}(2V + \omega b) \n
-            \omega_L = \\frac{1}{2r}(2V - \omega b)
+            \\omega_R = \\frac{1}{2r}(2V + \\omega b) \n
+            \\omega_L = \\frac{1}{2r}(2V - \\omega b)
 
-    where :math:`\omega` is the desired angular velocity, :math:`V` is the desired linear velocity, :math:`r` is the radius of the wheels, and :math:`b` is the distance between them.
+    where :math:`\\omega` is the desired angular velocity, :math:`V` is the desired linear velocity, :math:`r` is the radius of the wheels, and :math:`b` is the distance between them.
 
 
     Args:
-        name (str): [description]
+        name (str): Name identifier for the controller.
         wheel_radius (float): Radius of left and right wheels in cms
         wheel_base (float): Distance between left and right wheels in cms
         max_linear_speed (float): OPTIONAL: limits the maximum linear speed that will be produced by the controller. Defaults to 1E20.

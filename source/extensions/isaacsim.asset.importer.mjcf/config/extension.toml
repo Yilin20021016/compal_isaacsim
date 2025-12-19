@@ -1,8 +1,8 @@
 [package]
-version = "2.5.13"
+version = "2.5.15"
 category = "Simulation"
 title = "Omniverse MJCF Importer"
-description = "MJCF Importer"
+description = "Imports MuJoCo's MJCF (MuJoCo XML Format) robot description files into Omniverse USD scenes, converting meshes, joints, and physics properties for robotics simulation."
 keywords = ["mjcf", "mujoco", "importer", "isaac"]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"
@@ -38,9 +38,9 @@ recursive = false
 
 [[test]]
 dependencies = [ 
-    "omni.hydra.usdrt_delegate",
-    "isaacsim.test.docstring",
     "isaacsim.core.experimental.utils",
+    "isaacsim.test.docstring",
+    "omni.hydra.usdrt_delegate",
 ]
 # this is to catch issues where our assimp is out of sync with the one that comes with
 # asset importer as this can cause segfaults due to binary incompatibility.

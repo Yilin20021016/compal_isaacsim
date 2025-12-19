@@ -34,6 +34,8 @@ class OgnDope:
     def compute(db) -> bool:
         """Compute the outputs from the current input"""
 
+        db.log_warn("Deprecation warning: OgnDope has been deprecated and will be removed in the next major release.")
+
         return_data_dtype = np.dtype(
             [
                 ("semanticId", "<u4"),

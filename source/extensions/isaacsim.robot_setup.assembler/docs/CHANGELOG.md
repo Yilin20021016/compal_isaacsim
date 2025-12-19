@@ -1,4 +1,28 @@
 # Changelog
+## [3.1.5] - 2025-12-16
+### Changed
+- Consume Asset Changed events for UI update
+
+## [3.1.4] - 2025-12-15
+### Changed
+- Fix event name usage.
+
+## [3.1.3] - 2025-12-05
+### Changed
+- Migrate to Events 2.0.
+
+## [3.1.2] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
+## [3.1.1] - 2025-10-18
+### Changed
+- Remove extra carb settings from tests
+
+## [3.1.0] - 2025-10-17
+### Changed
+- Migrate PhysX subscription and simulation control interfaces to Omni Physics
+
 ## [3.0.11] - 2025-10-01
 ### Fixed
 - Issues with scenegraph instancing when fabric is disabled
@@ -62,7 +86,7 @@
 
 ## [2.1.12] - 2025-05-07
 ### Changed
-- switch to omni.physics interface
+- Switch to omni.physics interface
 
 ## [2.1.11] - 2025-04-09
 ### Changed

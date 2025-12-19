@@ -43,11 +43,6 @@ class TestRobotAssembler(omni.kit.test.AsyncTestCase):
 
         self._timeline = omni.timeline.get_timeline_interface()
 
-        carb.settings.get_settings().set_bool("/app/runLoops/main/rateLimitEnabled", True)
-        carb.settings.get_settings().set_int("/app/runLoops/main/rateLimitFrequency", self._physics_fps)
-        carb.settings.get_settings().set_int("/persistent/simulation/minFrameRate", self._physics_fps)
-        omni.timeline.get_timeline_interface().set_target_framerate(self._physics_fps)
-
         ext_manager = omni.kit.app.get_app().get_extension_manager()
         ext_id = ext_manager.get_enabled_extension_id("isaacsim.robot_setup.assembler")
 
@@ -57,7 +52,6 @@ class TestRobotAssembler(omni.kit.test.AsyncTestCase):
 
         self.stage = omni.usd.get_context().get_stage()
         self.stage.DefinePrim(Sdf.Path("/World"), "Xform")
-        omni.usd.get_context().get_stage().SetTimeCodesPerSecond(self._physics_fps)
 
         await self._prepare_stage()
 

@@ -25,6 +25,7 @@ from isaacsim.core.prims import SingleXFormPrim
 from isaacsim.core.utils.semantics import add_labels
 from isaacsim.core.utils.stage import create_new_stage_async, update_stage_async
 from isaacsim.sensors.camera import Camera
+from isaacsim.sensors.camera.camera import R_U_TRANSFORM
 from omni.kit.viewport.utility import get_active_viewport
 
 
@@ -875,6 +876,90 @@ class TestCameraSensor(omni.kit.test.AsyncTestCase):
 
         self.camera.set_projection_mode("orthographic")
         self.assertEqual(self.camera.get_projection_mode(), "orthographic")
+
+    async def test_view_matrix_ros(self):
+        """Test getting camera view matrix."""
+        self.camera.set_resolution((640, 480))
+        self.camera.set_horizontal_aperture(1.0)
+        self.camera.set_vertical_aperture(0.75)
+        self.camera.set_focal_length(10.0)
+
+        # Check 1: The camera's world position should map to the origin in camera (ROS) frame
+        # Get the view matrix
+        view_matrix = self.camera.get_view_matrix_ros(device="cpu")
+        self.assertEqual(view_matrix.shape, (4, 4))
+        cam_pos_world, _ = self.camera.get_world_pose()
+        cam_pos_world_h = np.array([cam_pos_world[0], cam_pos_world[1], cam_pos_world[2], 1.0], dtype=np.float32)
+        cam_pos_in_cam = view_matrix @ cam_pos_world_h
+        self.assertTrue(np.allclose(cam_pos_in_cam, np.array([0.0, 0.0, 0.0, 1.0], dtype=np.float32), atol=1e-5))
+
+        # Check 2:from USD camera convention to ROS camera convention
+        # R_U_TRANSFORM = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+
+        # Identity pose -> view matrix = R_U_TRANSFORM
+        self.camera.set_world_pose(position=[0.0, 0.0, 0.0], orientation=[1.0, 0.0, 0.0, 0.0], camera_axes="usd")
+        await update_stage_async()
+        view_matrix_identity = self.camera.get_view_matrix_ros(device="cpu")
+        self.assertTrue(np.allclose(view_matrix_identity, R_U_TRANSFORM.astype(np.float32), atol=1e-5))
+
+        # Translation only -> view matrix = R_U_TRANSFORM @ T(-t). T(-t): inverse(world_from_cam)
+        self.camera.set_world_pose(position=[2.0, -1.0, 5.0], orientation=[1.0, 0.0, 0.0, 0.0], camera_axes="usd")
+        await update_stage_async()
+        view_matrix_translation_only = self.camera.get_view_matrix_ros(device="cpu")
+        T_minus = np.array([[1, 0, 0, -2.0], [0, 1, 0, 1.0], [0, 0, 1, -5.0], [0, 0, 0, 1.0]], dtype=np.float32)
+        self.assertTrue(
+            np.allclose(view_matrix_translation_only, R_U_TRANSFORM.astype(np.float32) @ T_minus, atol=1e-5)
+        )
+
+        # Rotation only -> view matrix = R_U_TRANSFORM @ R.T
+        # Rotate 90 degrees about +z axis
+        R = np.array([[0, -1, 0, 0], [1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], dtype=np.float32)
+        self.camera.set_world_pose(
+            position=[0.0, 0.0, 0.0],
+            orientation=rot_utils.euler_angles_to_quats(np.array([0, 0, 90]), degrees=True),
+            camera_axes="usd",
+        )
+        await update_stage_async()
+        view_matrix_rotation_only = self.camera.get_view_matrix_ros(device="cpu")
+        self.assertTrue(np.allclose(view_matrix_rotation_only, R_U_TRANSFORM.astype(np.float32) @ R.T, atol=1e-5))
+
+        # Rotation and translation -> view matrix = R_U_TRANSFORM @ R.T @ T(-t)
+        self.camera.set_world_pose(
+            position=[2.0, -1.0, 5.0],
+            orientation=rot_utils.euler_angles_to_quats(np.array([0, 0, 90]), degrees=True),
+            camera_axes="usd",
+        )
+        await update_stage_async()
+        view_matrix_rotation_and_translation = self.camera.get_view_matrix_ros(device="cpu")
+        self.assertTrue(
+            np.allclose(
+                view_matrix_rotation_and_translation, R_U_TRANSFORM.astype(np.float32) @ R.T @ T_minus, atol=1e-5
+            )
+        )
+
+        # Check 3: For any pixel and depth, the camera-space point from intrinsics-only
+        #              must match the camera-space point obtained by transforming the corresponding
+        #              world-space point with the view matrix.
+        # Pick two pixels and depths well inside the image.
+        pixels = np.array([[320.0, 240.0], [100.0, 80.0]], dtype=np.float32)
+        depths = np.array([3.0, 7.5], dtype=np.float32)
+        view_matrix = self.camera.get_view_matrix_ros(device="cpu")
+
+        # Camera points via intrinsics-only
+        cam_points_from_intrinsics = self.camera.get_camera_points_from_image_coords(pixels, depths)
+        self.assertEqual(cam_points_from_intrinsics.shape, (2, 3))
+
+        # Corresponding world points from the same pixels and depths
+        world_points = self.camera.get_world_points_from_image_coords(pixels, depths)
+        self.assertEqual(world_points.shape, (2, 3))
+
+        # Transform world points using the view matrix
+        world_points_h = np.concatenate([world_points.astype(np.float32), np.ones((2, 1), dtype=np.float32)], axis=1)
+        cam_points_from_view = (view_matrix @ world_points_h.T).T[:, :3]
+
+        # Both methods must agree
+        self.assertTrue(np.allclose(cam_points_from_view, cam_points_from_intrinsics, atol=1e-4))
+        return
 
     async def test_intrinsics_matrix(self):
         """Test getting camera intrinsics matrix."""

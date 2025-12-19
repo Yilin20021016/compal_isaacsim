@@ -14,6 +14,7 @@
 # limitations under the License.
 from enum import Enum, IntEnum
 from functools import partial
+from math import inf
 
 import carb
 import numpy as np
@@ -72,6 +73,14 @@ class TestJointItem(TableItem):
         self.values_scale = 1.0
         if dof_type == physics_tensors.DofType.Rotation:
             self.values_scale = 180.0 / np.pi
+        if np.isinf(step_max) or step_max > 1e10:
+            step_max = float("inf")
+        else:
+            step_max = step_max * self.values_scale
+        if np.isinf(step_min) or step_min < -1e10:
+            step_min = float("-inf")
+        else:
+            step_min = step_min * self.values_scale
         self.model_cols = [
             ui.SimpleStringModel(name),
             ui.SimpleBoolModel(test),
@@ -80,8 +89,8 @@ class TestJointItem(TableItem):
             ui.SimpleFloatModel(offset * self.values_scale),
             ui.SimpleFloatModel(period),
             ui.SimpleFloatModel(phase),
-            ui.SimpleFloatModel(step_max * self.values_scale),
-            ui.SimpleFloatModel(step_min * self.values_scale),
+            ui.SimpleFloatModel(step_max),
+            ui.SimpleFloatModel(step_min),
             ui.SimpleStringModel(user_provided),
         ]
         self.joint_index = joint_index
@@ -489,7 +498,7 @@ class TestJointModel(TableModel):
 
         self._children = [
             TestJointItem(
-                name=self._gains_tuner._joint_names[joint_index],
+                name=self._gains_tuner._joint_entries[i].display_name,
                 joint_index=joint_index,
                 test=True,
                 sequence=i,
@@ -508,8 +517,7 @@ class TestJointModel(TableModel):
         ]
 
     def is_joint_testable(self, joint_index):
-        joint_name = self._articulation.dof_names[joint_index]
-        joint = self._gains_tuner._joint_map[joint_name]
+        joint = self._gains_tuner._joint_entries[joint_index].joint
         return not (pxr.UsdPhysics.FixedJoint(joint) or is_joint_mimic(joint))
 
     @property

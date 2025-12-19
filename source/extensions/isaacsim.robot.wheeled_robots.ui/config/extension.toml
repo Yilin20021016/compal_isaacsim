@@ -1,5 +1,5 @@
 [package]
-version = "2.1.23"
+version = "2.1.24"
 category = "Simulation"
 title = "Wheeled Robots UI"
 description = "This extension provides the UI elements for the wheeled_robots extension"
@@ -23,7 +23,9 @@ writeTarget.kit = true
 name = "isaacsim.robot.wheeled_robots.ui"
 
 [[test]]
-dependencies = []
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
     "--enable",
     "omni.kit.loop-isaac",
@@ -72,8 +74,19 @@ args = [
     "--/app/window/scaleToMonitor=false",
 ]
 
+stdoutFailPatterns.exclude = [    
+    '*The NumPy module was reloaded*',
+]
+
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
+]
+
+stdoutFailPatterns.exclude = [    
+    '*The NumPy module was reloaded*',
 ]

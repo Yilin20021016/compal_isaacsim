@@ -22,6 +22,7 @@ from functools import partial
 from pathlib import Path
 
 import carb
+import carb.eventdispatcher
 import omni.client
 import omni.ext
 import omni.kit.app
@@ -102,7 +103,7 @@ class Extension(omni.ext.IExt):
         self.window = UrdfImporter(ext_id)
 
         self._delegate = UrdfImporterDelegate(
-            "Urdf Importer", ["(.*\\.urdf$)|(.*\\.URDF$)"], ["Urdf Files (*.urdf, *.URDF)"], ext_id
+            "Urdf Importer", [r"(.*\.urdf$)|(.*\.URDF$)"], ["Urdf Files (*.urdf, *.URDF)"], ext_id
         )
         ai.register_importer(self._delegate)
 
@@ -151,6 +152,7 @@ class UrdfImporter(object):
     def reset_config(self):
         # Set defaults
         self._config.set_merge_fixed_joints(True)
+        self._config.set_merge_fixed_ignore_inertia(False)
         self._config.set_replace_cylinders_with_capsules(False)
         self._config.set_convex_decomp(False)
         self._config.set_import_inertia_tensor(True)
@@ -488,16 +490,19 @@ class UrdfImporter(object):
         if self._window.visible:
             # self.build_ui()
             self._events = self._usd_context.get_stage_event_stream()
-            self._stage_event_sub = self._events.create_subscription_to_pop(
-                self._on_stage_event, name="urdf importer stage event"
+            self._stage_event_sub = carb.eventdispatcher.get_eventdispatcher().observe_event(
+                event_name=self._usd_context.stage_event_name(omni.usd.StageEventType.OPENED),
+                on_event=self._on_stage_opened,
+                observer_name="isaacsim.asset.importer.urdf._on_stage_opened",
             )
         else:
             self._events = None
             self._stage_event_sub = None
 
-    def _on_stage_event(self, event):
+    def _on_stage_opened(self, event):
+        """Stage opened event callback - update config based on stage settings."""
         stage = self._usd_context.get_stage()
-        if event.type == int(omni.usd.StageEventType.OPENED) and stage:
+        if stage:
             if UsdGeom.GetStageUpAxis(stage) == UsdGeom.Tokens.y:
                 self._config.set_up_vector(0, 1, 0)
             if UsdGeom.GetStageUpAxis(stage) == UsdGeom.Tokens.z:

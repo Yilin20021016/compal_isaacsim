@@ -1,4 +1,12 @@
 # Changelog
+## [1.1.14] - 2025-12-07
+### Changed
+- Update description
+
+## [1.1.13] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
 ## [1.1.12] - 2025-07-07
 ### Fixed
 - Correctly enable omni.kit.loop-isaac in test dependency (fixes issue from 1.1.11)
@@ -151,11 +159,11 @@
 
 ## [0.18.2] - 2023-10-09
 ### Changed
-- changed carter bench mark tests from Carter V2 to Carter V1
+- Changed carter bench mark tests from Carter V2 to Carter V1
 
 ## [0.18.1] - 2023-08-21
 ### Changed
-- duration of test_benchmark_rtx_radar test from 10 app updates to 600
+- Duration of test_benchmark_rtx_radar test from 10 app updates to 600
 
 ## [0.18.0] - 2023-08-17
 ### Added
@@ -197,12 +205,12 @@
 
 ## [0.15.0] - 2023-07-06
 ### Changed
-- use sync stage load function to get better behavior
-- reuse viewport rp for first camera.
+- Use sync stage load function to get better behavior
+- Reuse viewport rp for first camera.
 
 ## [0.14.0] - 2023-07-04
 ### Added
-- added sync load parameters to setUp in base isaac benchmark class
+- Added sync load parameters to setUp in base isaac benchmark class
 
 ### Changed
 - Update ROS camera test to use render products
@@ -210,15 +218,15 @@
 
 ## [0.13.2] - 2023-07-04
 ### Added
-- runtime and frametime recorder to sdg benchmark phase
+- Runtime and frametime recorder to sdg benchmark phase
 
 ## [0.13.1] - 2023-07-03
 ### Added
-- moved wait_until_stage_is_fully_loaded_async to helper.py
+- Moved wait_until_stage_is_fully_loaded_async to helper.py
 
 ### Fixed
-- unrolled scene generation benchmark loops
-- sdg using step_async loop + wait_until_complete_async to make sure data is written to disk in the benchmark phase
+- Unrolled scene generation benchmark loops
+- Sdg using step_async loop + wait_until_complete_async to make sure data is written to disk in the benchmark phase
 
 ## [0.13.0] - 2023-06-30
 ### Added
@@ -252,11 +260,11 @@
 
 ## [0.8.1] - 2023-06-21
 ### Fixed
-- new (fixed) stage for SDG benchmark
+- New (fixed) stage for SDG benchmark
 
 ## [0.8.0] - 2023-06-21
 ### Added
-- rtx lidar benchmark
+- Rtx lidar benchmark
 
 ## [0.7.3] - 2023-06-21
 ### Fixed
@@ -279,11 +287,11 @@
 
 ## [0.6.1] - 2023-05-16
 ### Added
-- made SDG benchmark names more descriptive
+- Made SDG benchmark names more descriptive
 
 ## [0.6.0] - 2023-05-05
 ### Added
-- phase label to cpu/memory metrics
+- Phase label to cpu/memory metrics
 
 ## [0.5.0] - 2023-04-23
 ### Added
@@ -292,7 +300,7 @@
 
 ## [0.4.1] - 2022-11-17
 ### Fixed
-- missing extensions
+- Missing extensions
 
 ## [0.4.0] - 2022-11-16
 ### Added
@@ -300,7 +308,7 @@
 - RTX lidar benchmark tests
 
 ### Fixed
-- deleting existing sensors/robots/cameras that's already on stage when new rounds of tests start
+- Deleting existing sensors/robots/cameras that's already on stage when new rounds of tests start
 
 ## [0.3.1] - 2022-10-28
 ### Changed

@@ -1,5 +1,5 @@
 [package]
-version = "1.1.20"
+version = "1.1.21"
 category = "Simulation"
 title = "Ros2 Robot Description URDF Importer"
 description = "This extensions expands the URDF Importer by enabling importing the robot description from a given ROS node"
@@ -21,6 +21,9 @@ writeTarget.kit = true
 name = "isaacsim.ros2.urdf"
 
 [[test]]
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
     "--enable",
     "omni.kit.loop-isaac",
@@ -68,10 +71,18 @@ args = [
 
 stdoutFailPatterns.exclude = [
     '*[Error] [carb] [Plugin: omni.sensors.nv.lidar.ext.plugin] Dependency: [omni::sensors::lidar::IGenericModelOutputIOFactory v0.1] failed to be resolved.*', # feature not included in Windows
+    '*The NumPy module was reloaded*',
 ]
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
+]
+
+stdoutFailPatterns.exclude = [
+    '*The NumPy module was reloaded*',
 ]

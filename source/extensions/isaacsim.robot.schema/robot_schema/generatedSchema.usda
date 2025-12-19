@@ -53,7 +53,7 @@ class "IsaacLinkAPI"
     string isaac:nameOverride = ""
 }
 
-class "IsaacReferencePointAPI"
+class "IsaacSiteAPI"
 {
     string isaac:Description = ""
     uniform token isaac:forwardAxis = "X" (
@@ -63,16 +63,13 @@ class "IsaacReferencePointAPI"
 
 class "IsaacJointAPI"
 {
-    bool[] isaac:actuator = [0, 0, 0, 0, 0, 0]
+    bool[] isaac:actuator = []
     string isaac:NameOverride = ""
-    float[] isaac:physics:AccelerationLimit = [-1, -1, -1, -1, -1, -1]
-    float[] isaac:physics:JerkLimit = [-1, -1, -1, -1, -1, -1, -1]
-    int isaac:physics:Rot_X:DoFOffset = 0
-    int isaac:physics:Rot_Y:DoFOffset = 1
-    int isaac:physics:Rot_Z:DoFOffset = 2
-    int isaac:physics:Tr_X:DoFOffset = 3
-    int isaac:physics:Tr_Y:DoFOffset = 4
-    int isaac:physics:Tr_Z:DoFOffset = 5
+    token[] isaac:physics:DofOffsetOpOrder = [] (
+        doc = """\r
+        Ordered list describing the sequence of DoF offsets to expose for the joint.\r
+        """
+    )
 }
 
 class "IsaacSurfaceGripper"

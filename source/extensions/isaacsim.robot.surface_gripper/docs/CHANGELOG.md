@@ -1,4 +1,23 @@
 # Changelog
+## [3.3.6] - 2025-12-07
+### Changed
+- Fix clang tidy issues in cpp code
+
+## [3.3.5] - 2025-11-07
+### Changed
+- Update to Kit 109 and Python 3.12
+
+## [3.3.4] - 2025-10-29
+### Changed
+- Performance Updates
+
+## [3.3.3] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
+## [3.3.2] - 2025-10-23
+### Changed
+- Update test cases to use Python's compliant regex when instantiating the view class
 
 ## [3.3.1] - 2025-08-30
 ### Changed

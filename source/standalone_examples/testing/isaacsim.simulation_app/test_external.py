@@ -21,17 +21,17 @@ from isaacsim.core.utils.extensions import disable_extension, enable_extension
 
 simulation_app.update()
 
-enable_extension("semantics.schema.editor")
-simulation_app.update()
-disable_extension("semantics.schema.editor")
-simulation_app.update()
-enable_extension("omni.cuopt.examples")
-simulation_app.update()
-disable_extension("omni.cuopt.examples")
-simulation_app.update()
-enable_extension("omni.anim.people")
-simulation_app.update()
-disable_extension("omni.anim.people")
-simulation_app.update()
+extensions_to_test = [
+    "semantics.schema.editor",
+    "omni.cuopt.examples",
+    "omni.anim.people",
+]
+
+for extension_name in extensions_to_test:
+    enable_extension(extension_name)
+    simulation_app.update()
+    disable_extension(extension_name)
+    simulation_app.update()
+
 # Cleanup application
 simulation_app.close()

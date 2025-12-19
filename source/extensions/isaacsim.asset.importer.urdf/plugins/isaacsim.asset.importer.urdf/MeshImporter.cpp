@@ -196,6 +196,7 @@ pxr::SdfPath waitForConverter(OmniConverterFuture* future,
     {
         CARB_LOG_WARN(
             "Asset convert failed with error status: %s (%s)", StatusToString(status).c_str(), meshStagePath.c_str());
+        return pxr::SdfPath();
     }
 
     // Open the mesh stage and get the mesh prims

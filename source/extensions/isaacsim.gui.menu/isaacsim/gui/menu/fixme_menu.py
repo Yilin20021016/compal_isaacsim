@@ -71,7 +71,6 @@ class FixmeMenuExtension:
                             MenuLayout.Item("Quick Load", source="Window_Layout/Quick Load", remove=True),
                         ],
                     ),
-                    MenuLayout.Item("Isaac Sim App Selector", source="Help/Isaac Sim App Selector"),
                 ],
             ),
         ]

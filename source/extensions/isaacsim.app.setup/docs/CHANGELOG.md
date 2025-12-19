@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.7.1] - 2025-12-10
+### Changed
+- Add wait for viewport to be ready before printing app ready status
+
+## [1.7.0] - 2025-12-08
+### Changed
+- Change startup behavior so that app ready status is delayed until after the app has started
+- Remove unused imports
+
+## [1.6.2] - 2025-10-31
+### Changed
+- Remove unused omni.pip.cloud from test dependencies
+- Remove extra omni.rtx.settings.core from test dependencies
+
+## [1.6.1] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
 ## [1.6.0] - 2025-09-18
 ### Added
 - Added setting to enable ROS Simulation Control extension on startup
@@ -9,7 +27,7 @@
 - Remove app selector launcher
 - Moved help menu links to isaacsim.gui.menu
 - Added Exec field to Isaac Sim desktop file so icon can launch app
-- removed /persistent/exts/omni.anim.navigation.core/navMesh/config/autoRebakeOnChanges setting as its already specified in isaacsim.exp.base.kit
+- Removed /persistent/exts/omni.anim.navigation.core/navMesh/config/autoRebakeOnChanges setting as its already specified in isaacsim.exp.base.kit
 
 ## [1.4.10] - 2025-07-22
 ### Fixed
@@ -29,7 +47,7 @@
 
 ## [1.4.6] - 2025-06-05
 ### Changed
-- removed the duplicated replicator menu hack
+- Removed the duplicated replicator menu hack
 
 ## [1.4.5] - 2025-06-04
 ### Changed
@@ -42,7 +60,7 @@
 ## [1.4.3] - 2025-05-29
 ### Changed
 - Update replicator menu entry name to match Isaac Sim menu
-- removed Isaac Sim Assets [Beta] from default layouts
+- Removed Isaac Sim Assets [Beta] from default layouts
 
 ## [1.4.2] - 2025-05-19
 ### Changed
@@ -70,7 +88,7 @@
 
 ## [1.3.8] - 2025-03-31
 ### Changed
-- added SDG Layout to menu, cleaned up layout folder
+- Added SDG Layout to menu, cleaned up layout folder
 
 ## [1.3.7] - 2025-03-26
 ### Changed
@@ -86,7 +104,7 @@
 
 ## [1.3.4] - 2024-12-09
 ### Changed
-- menu entries names to reverse some hacks in the menu gui
+- Menu entries names to reverse some hacks in the menu gui
 
 ## [1.3.3] - 2024-12-07
 ### Fixed
@@ -110,7 +128,7 @@
 
 ## [1.1.0] - 2024-11-06
 ### Changed
-- enabled default and visual scripting layout. moved layout folder.
+- Enabled default and visual scripting layout. moved layout folder.
 
 ## [1.0.2] - 2024-11-01
 ### Changed
@@ -139,11 +157,11 @@
 
 ## [0.13.2] - 2024-05-01
 ### Fixed
-- update for set_phase api change
+- Update for set_phase api change
 
 ## [0.13.1] - 2024-03-19
 ### Fixed
-- include for benchmark services
+- Include for benchmark services
 
 ## [0.13.0] - 2024-03-18
 ### Added
@@ -201,7 +219,7 @@
 
 ## [0.8.0] - 2023-02-08
 ### Changed
-- set omnigraph default settings on app start
+- Set omnigraph default settings on app start
 
 ## [0.7.0] - 2023-01-23
 ### Changed

@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import asyncio
+from typing import List
 
 import carb.settings
 import omni.ext
@@ -31,6 +32,12 @@ class FolderOptionsMenu(FolderOptionsMenu):
     """
 
     def __init__(self, *args, **kwargs):
+        """Initializes the folder options menu.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+        """
         super().__init__(*args, **kwargs)
 
         # Do not use default menu items
@@ -48,6 +55,7 @@ class FolderOptionsMenu(FolderOptionsMenu):
         self.__await_new_scene = asyncio.ensure_future(self._assets_check_window())
 
     def _set_defaults(self):
+        """Sets default values."""
         # do not display sever check pop-up on start up
         self._assets_check = False
         self._startup_run = True
@@ -57,15 +65,26 @@ class FolderOptionsMenu(FolderOptionsMenu):
         self._assets_server = None
 
     def destroy(self) -> None:
+        """Destroys the options menu."""
         super().destroy()
         self._server_window = None
         self._check_success = None
 
     def set_add_collection_fn(self, on_add_collection_fn: callable) -> None:
+        """Sets the add collection function.
+
+        Args:
+            on_add_collection_fn: The function to call when adding a collection.
+        """
         # Do not override "Refresh Assets" since "Add Collection" is removed
         pass
 
     def _open_browser(self, path):
+        """Opens the browser.
+
+        Args:
+            path: The path to open.
+        """
         import platform
         import subprocess
         import webbrowser
@@ -77,6 +96,7 @@ class FolderOptionsMenu(FolderOptionsMenu):
             subprocess.Popen(["xdg-open", path])
 
     def _menu_callback(self):
+        """Callback for the menu."""
         if self._cancel_download_btn and self._cancel_download_btn.visible:
             self._server_window.visible = True
         else:
@@ -89,6 +109,7 @@ class FolderOptionsMenu(FolderOptionsMenu):
             asyncio.ensure_future(self._assets_check_window())
 
     async def _assets_check_success_window(self):
+        """Shows the assets check success window."""
         self._check_success = ui.Window(
             "Isaac Sim Assets Check Successful",
             style={"alignment": ui.Alignment.CENTER},
@@ -118,6 +139,7 @@ class FolderOptionsMenu(FolderOptionsMenu):
         await omni.kit.app.get_app().next_update_async()
 
     async def _assets_check_window(self):
+        """Shows the assets check window."""
         if self._assets_check is False and self._startup_run:
             self._startup_run = False
             pass

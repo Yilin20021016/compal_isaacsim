@@ -170,13 +170,22 @@ class IsaacSensorCreateRtxSensor(omni.kit.commands.Command):
             rotation = Gf.Rotation(self._orientation)
             euler_angles_as_vec = rotation.Decompose(Gf.Vec3d.XAxis(), Gf.Vec3d.YAxis(), Gf.Vec3d.ZAxis())
             euler_angles = (euler_angles_as_vec[0], euler_angles_as_vec[1], euler_angles_as_vec[2])
-            # Construct prim
-            if self._prim_path.startswith("/"):
-                self._prim_path = self._prim_path[1:]
+
+            # First, construct the full path
+            full_path = self._parent or ""
+            full_path += "" if self._path.startswith("/") else "/"
+            full_path += self._path
+
+            # Then, split the full path into components
+            components = full_path.split("/")
+            if len(components) > 2 or components[0]:
+                self._parent = "/".join(components[:-1])
+            self._path = components[-1]
+
             return self._replicator_api(
                 position=position,
                 rotation=euler_angles,
-                name=self._prim_path,
+                name=self._path,
                 parent=self._parent,
                 **self._prim_creation_kwargs,
             )

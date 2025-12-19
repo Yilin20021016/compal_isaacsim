@@ -14,12 +14,14 @@
 # limitations under the License.
 
 import carb
-import torch
 from isaacsim.core.api.articulations import ArticulationSubset
+from isaacsim.core.deprecation_manager import import_module
 from isaacsim.core.prims import SingleArticulation
 from isaacsim.core.utils.types import ArticulationAction
 
 from .motion_policy_interface import MotionPolicy
+
+torch = import_module("torch")
 
 
 class ArticulationMotionPolicy:

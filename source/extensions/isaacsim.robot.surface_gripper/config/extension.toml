@@ -1,5 +1,5 @@
 [package]
-version = "3.3.1"
+version = "3.3.6"
 category = "Simulation"
 title = "Isaac Sim Surface Gripper"
 description = "Helper to model Suction and Distance based grippers"
@@ -35,10 +35,14 @@ exclude = ["Ogn*Database.py"]
 # Ensure the plugin path and dependencies are correctly specified
 
 [[test]]
-dependencies = []
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 stdoutFailPatterns.exclude = [
     "*[Error] [carb.glinterop.plugin] GLInteropContext::init: carb::windowing is not available*",
+    '*The NumPy module was reloaded*',
 ]
+
 args = [
     "--enable",
     "omni.kit.loop-isaac",
@@ -82,4 +86,16 @@ args = [
     "--/rtx/materialDb/syncLoads=1",
     "--/rtx/newDenoiser/enabled=1",
     "--/rtx/reservedDescriptors=900000",
+]
+
+[[test]]
+name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
+args = [
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
+]
+stdoutFailPatterns.exclude = [    
+    '*The NumPy module was reloaded*',
 ]

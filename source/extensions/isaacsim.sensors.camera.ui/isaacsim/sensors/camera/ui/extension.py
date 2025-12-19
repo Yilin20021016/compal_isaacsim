@@ -29,13 +29,6 @@ from omni.kit.menu.utils import MenuItemDescription, add_menu_items, remove_menu
 class Extension(omni.ext.IExt):
     # Define sensors data organized by vendor and sensor name
     SENSORS = {
-        "Intel": {
-            "Intel Realsense D455": {
-                "prim_prefix": "/Realsense",
-                "usd_path": "/Isaac/Sensors/Intel/RealSense/rsd455.usd",
-                "is_depth_sensor": True,
-            }
-        },
         "Orbbec": {
             "Orbbec Gemini 2": {
                 "prim_prefix": "/Gemini2",
@@ -61,6 +54,23 @@ class Extension(omni.ext.IExt):
         "Leopard Imaging": {
             "Hawk": {"prim_prefix": "/Hawk", "usd_path": "/Isaac/Sensors/LeopardImaging/Hawk/hawk_v1.1_nominal.usd"},
             "Owl": {"prim_prefix": "/Owl", "usd_path": "/Isaac/Sensors/LeopardImaging/Owl/owl.usd"},
+        },
+        "RealSense": {
+            "Realsense D455": {
+                "prim_prefix": "/RealsenseD455",
+                "usd_path": "/Isaac/Sensors/RealSense/D455/rsd455.usd",
+                "is_depth_sensor": True,
+            },
+            "Realsense D457": {
+                "prim_prefix": "/RealsenseD455",
+                "usd_path": "/Isaac/Sensors/RealSense/D457/rsd457.usd",
+                "is_depth_sensor": True,
+            },
+            "Realsense D555": {
+                "prim_prefix": "/RealsenseD555",
+                "usd_path": "/Isaac/Sensors/RealSense/D555/rsd555.usd",
+                "is_depth_sensor": True,
+            },
         },
         "Sensing": {
             "Sensing SG2-AR0233C-5200-G2A-H100F1A": {
@@ -141,9 +151,9 @@ class Extension(omni.ext.IExt):
         camera_and_depth_sensors_dict = {
             "name": {
                 "Camera and Depth Sensors": [
-                    vendor_dicts.get("Intel", {}),
                     vendor_dicts.get("Orbbec", {}),
                     vendor_dicts.get("Leopard Imaging", {}),
+                    vendor_dicts.get("RealSense", {}),
                     vendor_dicts.get("Sensing", {}),
                     vendor_dicts.get("SICK", {}),
                     vendor_dicts.get("Stereolabs", {}),

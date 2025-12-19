@@ -1,8 +1,8 @@
 [package]
-version = "4.7.4"
+version = "4.11.2"
 category = "Simulation"
 title = "Isaac Sim Samples"
-description = "Sample extensions for Isaac Sim"
+description = "Provides interactive sample extensions demonstrating Isaac Sim features including robot manipulation, path planning, gamepad control, bin filling, and Cortex behavior framework usage."
 keywords = ["isaac", "samples", "manipulation"]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"
@@ -12,25 +12,25 @@ writeTarget.kit = true
 
 [dependencies]
 "isaacsim.core.api" = {}
+"isaacsim.core.experimental.utils" = {}
 "isaacsim.core.prims" = {}
 "isaacsim.cortex.behaviors" = {}
 "isaacsim.cortex.framework" = {}
+"isaacsim.examples.base" = {}
 "isaacsim.examples.browser" = {}
 "isaacsim.examples.extension" = {}
 "isaacsim.gui.components" = {}
 "isaacsim.robot.manipulators" = {}
 "isaacsim.robot.manipulators.examples" = {}
-"isaacsim.robot.policy.examples" = {}
 "isaacsim.robot.wheeled_robots" = {}
 "isaacsim.robot_motion.motion_generation" = {}
 "isaacsim.storage.native" = {}
 "omni.graph.action" = {}
 "omni.graph.core" = {}
 "omni.graph.nodes" = {}
-"omni.isaac.dynamic_control" = {}
 "omni.kit.uiapp" = {}
-"omni.physx" = {}
-"isaacsim.core.experimental.utils" = {}
+"omni.physics" = {}
+"omni.physics.physx" = {}
 
 [[python.module]]
 name = "isaacsim.examples.interactive.tests"
@@ -45,13 +45,7 @@ name = "isaacsim.examples.interactive.omnigraph_keyboard"
 name = "isaacsim.examples.interactive.follow_target"
 
 [[python.module]]
-name = "isaacsim.examples.interactive.ur_follow_target"
-
-[[python.module]]
 name = "isaacsim.examples.interactive.path_planning"
-
-[[python.module]]
-name = "isaacsim.examples.interactive.simple_stack"
 
 [[python.module]]
 name = "isaacsim.examples.interactive.bin_filling"
@@ -72,9 +66,6 @@ name = "isaacsim.examples.interactive.replay_follow_target"
 name = "isaacsim.examples.interactive.surface_gripper"
 
 [[python.module]]
-name = "isaacsim.examples.interactive.quadruped"
-
-[[python.module]]
 name = "isaacsim.examples.interactive.user_examples"
 
 [[python.module]]
@@ -84,22 +75,16 @@ name = "isaacsim.examples.interactive.ur10_palletizing"
 name = "isaacsim.examples.interactive.franka_cortex"
 
 [[python.module]]
-name = "isaacsim.examples.interactive.humanoid"
-
-[[python.module]]
 name = "isaacsim.examples.interactive.getting_started"
-
-[[python.module]]
-name = "isaacsim.examples.interactive.franka"
-
-[[python.module]]
-name = "isaacsim.examples.interactive.pick_place"
 
 [[test]]
 timeout = 900
-
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 stdoutFailPatterns.exclude = [
     '*[Error] [carb] [Plugin: omni.sensors.nv.lidar.ext.plugin] Dependency: [omni::sensors::lidar::IGenericModelOutputIOFactory v0.1] failed to be resolved.*', # feature not included in Windows
+    '*The NumPy module was reloaded*',
 ]
 
 args = [
@@ -152,6 +137,12 @@ args = [
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
+]
+stdoutFailPatterns.exclude = [    
+    '*The NumPy module was reloaded*',
 ]

@@ -17,12 +17,13 @@ from functools import partial
 
 import numpy as np
 from isaacsim.replicator.writers.scripts.utils import calculate_truncation_ratio_simple
-from omni.replicator.core import AnnotatorRegistry, BackendDispatch, Writer
-from omni.replicator.core.scripts.functional import write_image, write_json
+from omni.replicator.core import AnnotatorRegistry, Writer
+from omni.replicator.core import functional as F
+from omni.replicator.core.scripts.backends import BackendDispatch, BackendGroup, BaseBackend
 from PIL import Image, ImageDraw
 from pxr import Gf
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 class PoseWriter(Writer):
@@ -30,7 +31,7 @@ class PoseWriter(Writer):
 
     Args:
         output_dir:
-            Output directory string that indicates the directory to save the results.
+            Output directory string that indicates the directory to save the results when no backend is supplied.
         use_subfolders:
             If True, the writer will create subfolders for each render product, otherwise all data is saved in the same folder.
         visibility_threshold:
@@ -43,6 +44,11 @@ class PoseWriter(Writer):
             Pad the frame number with leading zeroes.  Default: ``4``
         format:
             Specifies which format the data will be outputted as. Default: ``None`` (will write most of the available data)
+        backend:
+            Backend instance used to handle I/O scheduling. Prefer using this argument, for example with
+            ``rep.backends.get("DiskBackend")``.
+        image_output_format:
+            Image file format for RGB and debug outputs (``jpeg``, ``jpg``, ``png`` or ``exr``).
     """
 
     RGB_ANNOT_NAME = "rgb"
@@ -56,7 +62,7 @@ class PoseWriter(Writer):
 
     def __init__(
         self,
-        output_dir: str,
+        output_dir: str = None,
         use_subfolders: bool = False,
         visibility_threshold: float = 0.0,
         skip_empty_frames: bool = True,
@@ -67,14 +73,43 @@ class PoseWriter(Writer):
         s3_bucket: str = None,
         s3_endpoint_url: str = None,
         s3_region: str = None,
+        backend: BaseBackend = None,
+        image_output_format: str = "png",
     ):
         self.version = __version__
         self.data_structure = "renderProduct"
-        if not use_s3:
-            self.backend = BackendDispatch(output_dir=output_dir)
-        else:
-            self.backend = BackendDispatch(
+
+        if backend is not None and not isinstance(backend, BaseBackend):
+            raise TypeError("`backend` must inherit from omni.replicator.core.scripts.backends.BaseBackend.")
+
+        if not image_output_format:
+            raise ValueError("`image_output_format` must be a non-empty string.")
+
+        self._image_output_format = image_output_format.lower()
+        if self._image_output_format not in {"jpeg", "jpg", "png", "exr"}:
+            raise ValueError("Unsupported `image_output_format`. Valid options are {'jpeg', 'jpg', 'png', 'exr'}.")
+
+        dispatch_backend = None
+        if use_s3:
+            dispatch_backend = BackendDispatch(
                 key_prefix=output_dir, bucket=s3_bucket, endpoint_url=s3_endpoint_url, region=s3_region
+            )
+        elif output_dir:
+            dispatch_backend = BackendDispatch(output_dir=output_dir)
+
+        if backend and dispatch_backend:
+            if isinstance(backend, BackendGroup):
+                existing_backends = list(backend._backends)
+            else:
+                existing_backends = [backend]
+            self.backend = BackendGroup([*existing_backends, *dispatch_backend._backends])
+        elif backend:
+            self.backend = backend
+        elif dispatch_backend:
+            self.backend = dispatch_backend
+        else:
+            raise ValueError(
+                "No backend configured. Provide `backend`, `output_dir`, or enable S3 parameters via `use_s3`."
             )
 
         self._use_subfolders = use_subfolders
@@ -340,11 +375,11 @@ class PoseWriter(Writer):
     def _write_frame_data(self, rgb_data: dict, render_product_subfolder: str = ""):
         # Write frame data to as a JSON file
         file_path_json = f"{render_product_subfolder}{self._frame_id:0{self._frame_padding}}.json"
-        self.backend.schedule(write_json, path=file_path_json, data=self._frame_data, indent=2)
+        self.backend.schedule(F.write_json, path=file_path_json, data=self._frame_data, indent=2)
 
         # Write image to disk
-        rgb_file_path = f"{render_product_subfolder}{self._frame_id:0{self._frame_padding}}.png"
-        self.backend.schedule(write_image, path=rgb_file_path, data=rgb_data)
+        rgb_file_path = f"{render_product_subfolder}{self._frame_id:0{self._frame_padding}}.{self._image_output_format}"
+        self.backend.schedule(F.write_image, path=rgb_file_path, data=rgb_data)
 
     # Write overlay debug data to disk
     def _write_debug_data(self, rgb_data: dict, render_product_subfolder: str = ""):
@@ -378,8 +413,11 @@ class PoseWriter(Writer):
         # Overlay the world frame axes on the bottom left part of the RGB image
         self._draw_world_frame_axes_bottom_left(draw, camera_view_matrix, camera_projection_matrix, screen_size)
 
-        file_path = f"{render_product_subfolder}{self._frame_id:0{self._frame_padding}}_overlay.png"
-        self.backend.schedule(write_image, path=file_path, data=np.asarray(rgb_img))
+        file_path = (
+            f"{render_product_subfolder}{self._frame_id:0{self._frame_padding}}_overlay.{self._image_output_format}"
+        )
+        overlay_data = np.asarray(rgb_img) if self._image_output_format == "exr" else rgb_img
+        self.backend.schedule(F.write_image, path=file_path, data=overlay_data)
 
     # Transform a 3D point from world coordinates to camera coordinates
     def _world_point_to_camera_point(self, world_point, view_matrix):

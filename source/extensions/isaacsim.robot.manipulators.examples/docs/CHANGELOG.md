@@ -1,4 +1,28 @@
 # Changelog
+## [1.2.4] - 2025-12-07
+### Changed
+- Updated description
+
+## [1.2.3] - 2025-11-27
+### Changed
+- Add missing docstrings
+
+## [1.2.2] - 2025-11-24
+### Changed
+- Update imports from isaacsim.base_samples to isaacsim.examples.base
+
+## [1.2.1] - 2025-11-21
+### Removed
+- Build window function use
+
+## [1.2.0] - 2025-11-20
+### Added
+- Franka Pick-and-Place and UR10 Follow Target interactive examples
+
+## [1.1.3] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
 ## [1.1.2] - 2025-09-26
 ### Changed
 - Update license headers
@@ -14,7 +38,7 @@
 
 ## [1.0.17] - 2025-07-07
 ### Changed
-- updated path to Universal Robot's config file
+- Updated path to Universal Robot's config file
 
 ## [1.0.16] - 2025-07-07
 ### Fixed
@@ -84,8 +108,8 @@
 
 ## [1.0.0] - 2024-09-30
 ### Changed
-- extension renamed to isaacsim.robot.manipulators.examples (from omni.isaac.manipulators.examples)
+- Extension renamed to isaacsim.robot.manipulators.examples (from omni.isaac.manipulators.examples)
 
 ## [0.1.0] - 2024-08-09
 ### Added
-- franka and universal_robots folder
+- Franka and universal_robots folder

@@ -1,4 +1,27 @@
 # Changelog
+## [0.6.4] - 2025-12-07
+### Changed
+- Update description
+
+## [0.6.3] - 2025-12-02
+### Added
+- Specify --/app/settings/fabricDefaultStageFrameHistoryCount=3 for startup test
+
+### Removed
+- Remove omni.replicator.core as an explicit test dependency
+
+## [0.6.2] - 2025-11-20
+### Changed
+- Add omni.replicator.core as an explicit dependency for image capture utils
+
+## [0.6.1] - 2025-11-10
+### Changed
+- Fix invalid escape sequence
+
+## [0.6.0] - 2025-11-07
+### Added
+- Added `compare_images_in_directories()` function to compare images in two directories
+
 ## [0.5.1] - 2025-09-26
 ### Changed
 - Update license headers
@@ -21,7 +44,7 @@
 
 ## [0.3.0] - 2025-09-15
 ### Changed
-- added file_validation.py for utilities to validate folder contents and file lists
+- Added file_validation.py for utilities to validate folder contents and file lists
 
 ## [0.2.1] - 2025-09-08
 ### Added

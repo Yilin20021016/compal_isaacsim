@@ -1,4 +1,9 @@
 # Changelog
+
+## [1.0.6] - 2025-12-01
+### Changed
+- Update test module import
+
 ## [1.0.5] - 2025-05-19
 ### Changed
 - Update copyright and license to apache v2.0

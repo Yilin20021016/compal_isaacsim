@@ -1,5 +1,5 @@
 [package]
-version = "1.4.10"
+version = "1.6.3"
 category = "Simulation"
 title = "Isaac Sim Cloner"
 description = "The Cloner extension provides a set of APIs to clone prims and environments in an efficient way as well as filtering the collisions across the clones if needed."
@@ -14,7 +14,8 @@ writeTarget.platform = true
 [dependencies]
 "isaacsim.core.deprecation_manager" = {}
 "isaacsim.core.simulation_manager" = {}
-"omni.isaac.ml_archive" = {}  # needed for torch
+"omni.physics" = {}
+"omni.physics.physx" = {}
 "omni.physx" = {}
 "omni.usd" = {}
 "omni.usd.libs" = {}
@@ -24,7 +25,7 @@ name = "isaacsim.core.cloner"
 
 [[test]]
 dependencies = [
-    "isaacsim.core.api",
+    "isaacsim.storage.native",
     "omni.physx.ui",
 ]
 args = [

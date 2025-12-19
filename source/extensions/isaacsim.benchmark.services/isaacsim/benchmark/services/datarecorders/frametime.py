@@ -22,6 +22,8 @@ import carb
 
 from .. import utils
 
+logger = utils.set_up_logging(__name__)
+
 if TYPE_CHECKING:
     from ..settings import BenchmarkSettings
 
@@ -108,7 +110,7 @@ class FrametimeStats:
             result["max"] = round(max(metric), 2)
             result["one_percent"] = round(self.get_one_percent_high(metric), 2)
         except Exception as e:
-            carb.log_warn(f"Unable to calculate frametime stats: {e}")
+            logger.warning(f"Unable to calculate frametime stats: {e}")
         return result
 
     def calc_stats(self) -> None:

@@ -1,6 +1,6 @@
 [package]
 # Semantic Versioning is used: https://semver.org/
-version = "1.3.7"
+version = "1.3.8"
 category = "Simulation"
 title = "Isaac Loop Runner"
 description = "Custom Loop Runner for Isaac Sim"

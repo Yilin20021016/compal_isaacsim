@@ -1,4 +1,36 @@
 # Changelog
+## [1.7.2] - 2025-12-07
+### Changed
+- Run clang tidy
+
+## [1.7.1] - 2025-12-02
+### Changed
+- Raise a RuntimeError if the physics dt is being set while simulation is running/playing
+
+## [1.7.0] - 2025-11-26
+### Added
+- Add the `SimulationEvent` enum
+- Allow to perform a fabric update when stepping physics
+
+### Changed
+- Mark as deprecated the `IsaacEvents` enum and the backend-related methods
+
+## [1.6.2] - 2025-11-25
+### Changed
+- Make set_physics_dt a classmethod
+- Add unit tests for SimulationManager
+
+## [1.6.1] - 2025-11-07
+### Changed
+- Update to Kit 109 and Python 3.12
+
+## [1.6.0] - 2025-10-27
+### Changed
+- Replace the use of deprecated core utils functions by the core experimental implementations
+
+## [1.5.0] - 2025-10-17
+### Changed
+- Migrate PhysX subscription and simulation control interfaces to Omni Physics
 
 ## [1.4.4] - 2025-10-09
 ### Fixed
@@ -118,7 +150,7 @@
 
 ## [0.4.2] - 2025-05-07
 ### Changed
-- switch to omni.physics interface
+- Switch to omni.physics interface
 
 ## [0.4.1] - 2025-04-30
 ### Changed

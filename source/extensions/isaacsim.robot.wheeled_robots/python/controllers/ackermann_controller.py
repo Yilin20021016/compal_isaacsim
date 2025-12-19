@@ -26,7 +26,7 @@ class AckermannController(BaseController):
 
     Args:
 
-        name (str): [description]
+        name (str): Name identifier for the controller.
         wheel_base (float): Distance between front and rear axles in m
         track_width (float): Distance between left and right wheels of the robot in m
         front_wheel_radius (float): Radius of the front wheels of the robot in m. Defaults to 0.0 m but will equal back_wheel_radius if no value is inputted.

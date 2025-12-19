@@ -76,7 +76,7 @@ class BaseSample(object):
         """used to setup anything in the world, adding tasks happen here for instance.
 
         Args:
-            scene (Scene): [description]
+            scene (Scene): The scene to set up with sample assets.
         """
         return
 

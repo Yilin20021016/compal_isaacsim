@@ -128,13 +128,25 @@ class TestTrajectoryGenerator(omni.kit.test.AsyncTestCase):
         orientation_target = rotvecs_to_quats(np.array([np.pi, 0, 0]))
 
         await self._test_lula_c_space_traj_gen(
-            usd_path, robot_name, robot_prim_path, ee_frame, task_space_traj, orientation_target
+            usd_path,
+            robot_name,
+            robot_prim_path,
+            ee_frame,
+            task_space_traj,
+            orientation_target,
+            distance_thresh=0.02,
         )
 
         task_space_traj = np.array([[0.5, 0, 0.5], [0, 0.5, 0.5], [-0.5, 0, 0.5]])
 
         await self._test_lula_c_space_traj_gen(
-            usd_path, robot_name, robot_prim_path, ee_frame, task_space_traj, orientation_target
+            usd_path,
+            robot_name,
+            robot_prim_path,
+            ee_frame,
+            task_space_traj,
+            orientation_target,
+            distance_thresh=0.02,
         )
 
         timestamps = np.array([0.0, 3, 6.0])

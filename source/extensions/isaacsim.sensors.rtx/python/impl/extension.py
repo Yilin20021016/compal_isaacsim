@@ -145,9 +145,6 @@ class Extension(omni.ext.IExt):
             name=annotator_name,
             input_rendervars=[
                 "GenericModelOutputPtr",
-                omni.syntheticdata.SyntheticData.NodeConnectionTemplate(
-                    "RtxSensorMetadataPtr", attributes_mapping={"outputs:dataPtr": "inputs:metadataPtr"}
-                ),
             ],
             node_type_id="isaacsim.sensors.rtx.IsaacCreateRTXLidarScanBuffer",
             init_params={"enablePerFrameOutput": True},
@@ -156,35 +153,78 @@ class Extension(omni.ext.IExt):
         )
         self.registered_annotators.append(annotator_name)
 
+        def _on_attach_isaac_create_rtx_lidar_scan_buffer(node: og.Node):
+            # Repeat annotator name definition in callback to avoid scope issues
+            annotator_name = "IsaacCreateRTXLidarScanBuffer"
+
+            return self._on_attach_callback_base(
+                annotator_name=annotator_name,
+                connections=[
+                    (
+                        "omni.syntheticdata.SdOnNewRenderProductFrame",
+                        "renderProductPath",
+                        node.get_prim_path(),
+                        "renderProductPath",
+                    ),
+                ],
+                node=node,
+            )
+
         annotator_name = "IsaacCreateRTXLidarScanBuffer"
         register_annotator_from_node_with_telemetry(
             name=annotator_name,
             input_rendervars=[
                 "GenericModelOutputPtr",
-                omni.syntheticdata.SyntheticData.NodeConnectionTemplate(
-                    "RtxSensorMetadataPtr", attributes_mapping={"outputs:dataPtr": "inputs:metadataPtr"}
-                ),
             ],
             node_type_id="isaacsim.sensors.rtx.IsaacCreateRTXLidarScanBuffer",
             output_data_type=np.float32,
             output_channels=3,
+            on_attach_callback=_on_attach_isaac_create_rtx_lidar_scan_buffer,
         )
         self.registered_annotators.append(annotator_name)
+
+        def _on_attach_isaac_create_rtx_lidar_scan_buffer_for_flatscan(node: og.Node):
+            # Repeat annotator name definition in callback to avoid scope issues
+            annotator_name = "IsaacCreateRTXLidarScanBuffer" + "ForFlatScan"
+
+            return self._on_attach_callback_base(
+                annotator_name=annotator_name,
+                connections=[
+                    (
+                        "omni.syntheticdata.SdOnNewRenderProductFrame",
+                        "renderProductPath",
+                        node.get_prim_path(),
+                        "renderProductPath",
+                    ),
+                ],
+                node=node,
+            )
 
         annotator_name = "IsaacCreateRTXLidarScanBuffer" + "ForFlatScan"
         register_annotator_from_node_with_telemetry(
             name=annotator_name,
             input_rendervars=[
                 "GenericModelOutputPtr",
-                omni.syntheticdata.SyntheticData.NodeConnectionTemplate(
-                    "RtxSensorMetadataPtr", attributes_mapping={"outputs:dataPtr": "inputs:metadataPtr"}
-                ),
             ],
             node_type_id="isaacsim.sensors.rtx.IsaacCreateRTXLidarScanBuffer",
             init_params={"outputAzimuth": True, "outputDistance": True, "outputIntensity": True},
             output_data_type=np.float32,
             output_channels=3,
             hidden=True,
+            on_attach_callback=_on_attach_isaac_create_rtx_lidar_scan_buffer_for_flatscan,
+        )
+        self.registered_annotators.append(annotator_name)
+
+        annotator_name = "IsaacCreateRTXRadarPointCloud"
+        register_annotator_from_node_with_telemetry(
+            name=annotator_name,
+            input_rendervars=[
+                "GenericModelOutputPtr",
+            ],
+            node_type_id="isaacsim.sensors.rtx.IsaacCreateRTXLidarScanBuffer",
+            init_params={"enablePerFrameOutput": True},
+            output_data_type=np.float32,
+            output_channels=3,
         )
         self.registered_annotators.append(annotator_name)
 
@@ -211,9 +251,6 @@ class Extension(omni.ext.IExt):
             name=annotator_name,
             input_rendervars=[
                 "IsaacCreateRTXLidarScanBuffer" + "ForFlatScan",
-                omni.syntheticdata.SyntheticData.NodeConnectionTemplate(
-                    "RtxSensorMetadataPtr", attributes_mapping={"outputs:dataPtr": "inputs:metaDataPtr"}
-                ),
             ],
             node_type_id="isaacsim.sensors.rtx.IsaacComputeRTXLidarFlatScan",
             output_data_type=np.float32,

@@ -154,9 +154,9 @@ if deltas:
     print(f"Steps:         {len(deltas)}")
     print(f"Average delay: {avg_delay:.3f} ms")
     print(f"Max delay:     {max_delay:.3f} ms")
-    print("Status:        ", "PASS ✅" if avg_delay < 0.5 else "FAIL ❌")
+    print("Status:        ", "PASS ✅" if avg_delay < 0.5 else "[fatal] ❌")
 else:
-    print("\n[ERROR] No messages received.")
+    print("\n[error] No messages received.")
 
 # Cleanup
 node.destroy_node()

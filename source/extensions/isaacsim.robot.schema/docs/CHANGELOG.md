@@ -1,5 +1,32 @@
 # Changelog
 
+## [4.0.3] - 2025-12-16
+### Changed
+- Add source link in compute backwards bodies from joint
+
+## [4.0.2] - 2025-12-07
+### Changed
+- Add missing docstrings
+
+## [4.0.1] - 2025-11-26
+### Changed
+- Fixed parsing of robot tree to ignore bodies in joints that are not rigid bodies
+
+## [4.0.0] - 2025-11-14
+### Changed
+- Updated Robot Schema definitions:
+   - Removed Attributes for DofOrder
+   - Created DofOrderOP list to be used with DofType tokens
+- Updated Add RobotAPI util such that it automatically scans the robot prim for Links and joints and populates it in the traversal order
+
+## [3.6.2] - 2025-11-07
+### Changed
+- Update to Kit 109 and Python 3.12
+
+## [3.6.1] - 2025-10-30
+### Changed
+- Fixed issue in `__init__.py` with running with `coverage.py`
+
 ## [3.6.0] - 2025-07-10
 ### Added
 - Added `robot_type`, `license`, `version`, `source`, and `changelog` to the Isaac Robot API.
@@ -22,7 +49,7 @@
 
 ## [3.4.0] - 2025-05-09
 ### Changed
-- fixed minor errors on Applying surface gripper API types
+- Fixed minor errors on Applying surface gripper API types
 
 ### Added
 - Added Robot Parsing Utils to generate  Robot Kinematic tree based on the joints available on the schema and their parent-child relationships.
@@ -76,12 +103,12 @@
 
 ## [3.1.1] - 2024-11-12
 ### Changed
-- minor update to Robot Schema
+- Minor update to Robot Schema
 
 ## [3.1.0] - 2024-10-31
 ### Added
 - First Version of Robot schema as a codeless implementation
-- a few utilities in a c header and python utils fashion to deal with the codeless schema
+- A few utilities in a c header and python utils fashion to deal with the codeless schema
 
 ## [3.0.1] - 2024-10-24
 ### Changed
@@ -111,7 +138,7 @@
 
 ## [1.1.0] - 2023-01-21
 ### Added
-- named Override Attribute
+- Named Override Attribute
 
 ## [1.0.0] - 2022-09-29
 ### Removed

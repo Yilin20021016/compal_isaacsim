@@ -189,5 +189,5 @@ class TestURFollowTarget(omni.kit.test.AsyncTestCase):
             # Now test the actual assertion
             self.assertTrue(
                 self.follow_target.target_reached(threshold=0.08),
-                f"After moving robot towards target, target_reached(0.1) should return True. Final distance: {final_distance:.4f}m",
+                f"After moving robot towards target, target_reached(0.08) should return True. Final distance: {final_distance:.4f}m",
             )

@@ -13,5 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from isaacsim.test.docstring.tests.test_async_doctest import *
-from isaacsim.test.docstring.tests.test_standalone_doctest import *
+scan_for_test_modules = True

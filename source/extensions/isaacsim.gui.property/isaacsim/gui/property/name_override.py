@@ -34,6 +34,12 @@ from omni.kit.window.property.templates import (
 from pxr import Gf, Sdf, Tf, Usd
 from usd.schema.isaac import robot_schema
 
+_ROBOT_SCHEMA_CLASSES = (
+    robot_schema.Classes.ROBOT_API,
+    robot_schema.Classes.LINK_API,
+    robot_schema.Classes.JOINT_API,
+)
+
 
 def Singleton(class_):
     """A singleton decorator"""
@@ -45,6 +51,15 @@ def Singleton(class_):
         return instances[class_]
 
     return getinstance
+
+
+def _prim_has_robot_schema(prim):
+    if not prim:
+        return False
+    for schema in _ROBOT_SCHEMA_CLASSES:
+        if prim.HasAPI(schema.value):
+            return True
+    return False
 
 
 @Singleton
@@ -82,17 +97,21 @@ class NameOverrideWidget(UsdPropertiesWidget):
                 prim = stage.GetPrimAtPath(item)
             elif isinstance(item, Usd.Prim):
                 prim = item
+            else:
+                prim = None
+            if not prim or _prim_has_robot_schema(prim):
+                continue
             if not prim.HasAttribute(robot_schema.Attributes.NAME_OVERRIDE.name):
                 return True
-            else:
-                return False
-        return True
+        return False
 
     def _button_onclick(self, payload: PrimSelectionPayload):
         stage = self._payload.get_stage()
         for path in payload:
             if path:
                 prim = stage.GetPrimAtPath(path)
+                if _prim_has_robot_schema(prim):
+                    continue
                 if not prim.HasAttribute(robot_schema.Attributes.NAME_OVERRIDE.name):
                     prim.CreateAttribute(
                         robot_schema.Attributes.NAME_OVERRIDE.name, Sdf.ValueTypeNames.String, True
@@ -124,7 +143,11 @@ class NameOverrideWidget(UsdPropertiesWidget):
             stage = self._payload.get_stage()
             if stage:
                 prim = stage.GetPrimAtPath(prim_path)
-                if prim and prim.HasAttribute(robot_schema.Attributes.NAME_OVERRIDE.name):
+                if (
+                    prim
+                    and not _prim_has_robot_schema(prim)
+                    and prim.HasAttribute(robot_schema.Attributes.NAME_OVERRIDE.name)
+                ):
                     return prim
         return None
 

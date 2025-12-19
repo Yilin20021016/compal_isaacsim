@@ -1,8 +1,8 @@
 [package]
-version = "3.1.1"
+version = "3.4.0"
 category = "Simulation"
 title = "Benchmark Services"
-description = "This extension provides benchmarking utilities"
+description = "Provides a comprehensive framework for performance benchmarking including data collection, metrics recording, and report generation for CPU, GPU, memory, and frame time analysis."
 keywords = ["isaac", "benchmark", "analyze"]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"
@@ -14,6 +14,8 @@ writeTarget.kit = true
 "isaacsim.core.api" = {}
 "isaacsim.storage.native" = {}
 "omni.kit.test" = {} # we derrive from the base test class and need this dependency
+"omni.physics" = {}
+"omni.physics.physx" = {}
 
 [[python.module]]
 name = "isaacsim.benchmark.services"
@@ -33,6 +35,7 @@ exts."isaacsim.benchmark.services".metrics.randomize_filename_prefix = false
 
 [[test]]
 dependencies = [
+    "omni.isaac.ml_archive",
     "omni.physx.ui",
 ]
 args = [
@@ -78,4 +81,13 @@ args = [
     "--/rtx/materialDb/syncLoads=1",
     "--/rtx/newDenoiser/enabled=1",
     "--/rtx/reservedDescriptors=900000",
+]
+
+[[test]]
+name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
+args = [
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

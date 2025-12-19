@@ -1,5 +1,5 @@
 [package]
-version = "0.2.7"
+version = "0.3.2"
 category = "Utility"
 title = "Deprecation manager"
 description = "Manage deprecated OmniGraph nodes and app/extension settings"

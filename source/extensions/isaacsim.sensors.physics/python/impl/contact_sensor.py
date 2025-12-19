@@ -19,7 +19,7 @@ import numpy as np
 import omni.isaac.IsaacSensorSchema as IsaacSensorSchema
 import omni.kit.commands
 from isaacsim.core.api.sensors.base_sensor import BaseSensor
-from isaacsim.core.nodes.bindings import _isaacsim_core_nodes
+from isaacsim.core.simulation_manager import SimulationManager
 from isaacsim.core.utils.prims import get_prim_at_path, is_prim_path_valid
 from isaacsim.core.utils.stage import traverse_stage
 from isaacsim.sensors.physics import _sensor
@@ -96,7 +96,6 @@ class ContactSensor(BaseSensor):
         self._current_frame = dict()
         self._current_frame["time"] = 0
         self._current_frame["physics_step"] = 0
-        self._core_nodes = _isaacsim_core_nodes.acquire_interface()
         return
 
     def initialize(self, physics_sim_view=None) -> None:
@@ -146,7 +145,7 @@ class ContactSensor(BaseSensor):
                         device=self._device,
                     )
                     self._current_frame["contacts"].append(contact_frame)
-            self._current_frame["physics_step"] = float(self._core_nodes.get_physics_num_steps())
+            self._current_frame["physics_step"] = float(SimulationManager.get_num_physics_steps())
         return self._current_frame
 
     def add_raw_contact_data_to_frame(self) -> None:

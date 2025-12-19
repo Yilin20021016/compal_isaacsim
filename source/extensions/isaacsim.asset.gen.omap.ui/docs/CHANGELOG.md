@@ -1,4 +1,19 @@
 # Changelog
+## [2.4.1] - 2025-12-05
+### Changed
+- Migrate to Events 2.0.
+
+## [2.4.0] - 2025-11-05
+### Changed
+- Refactor codebase and improve docstrings
+
+## [2.3.0] - 2025-10-30
+### Changed
+- Migrate extension implementation to core experimental API
+
+## [2.2.4] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
 
 ## [2.2.3] - 2025-10-08
 ### Changed

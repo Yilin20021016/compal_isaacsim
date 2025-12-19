@@ -107,7 +107,7 @@ UrdfRobot UrdfImporter::createAsset()
 
     if (config.mergeFixedJoints)
     {
-        collapseFixedJoints(robot);
+        collapseFixedJoints(robot, config.mergeFixedIgnoreInertia);
     }
 
     if (config.collisionFromVisuals)
@@ -1164,7 +1164,9 @@ void UrdfImporter::addLinksAndJoints(std::unordered_map<std::string, pxr::UsdSta
                         // if (!parentLink.softs.size() && !childLink.softs.size()) // rigid parent, rigid child
                         {
                             if (urdfJoint.type != UrdfJointType::FIXED || !config.mergeFixedJoints ||
-                                urdfJoint.dontCollapse || (childLink.inertial.hasMass && childLink.inertial.mass > 0.0f))
+                                urdfJoint.dontCollapse ||
+                                (!config.mergeFixedIgnoreInertia &&
+                                 (childLink.inertial.hasMass && childLink.inertial.mass > 0.0f)))
                             {
 
                                 addRigidBody(stages, childLink, poseLinkToWorld, robotPrim, robot);

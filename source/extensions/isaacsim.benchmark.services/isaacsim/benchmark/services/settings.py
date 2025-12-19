@@ -24,6 +24,8 @@ import omni.kit.test
 
 from . import utils
 
+logger = utils.set_up_logging(__name__)
+
 
 @dataclass
 class BenchmarkSettings:
@@ -134,7 +136,7 @@ def get_benchmark_settings_from_extension(
         ext_id = manager.get_extension_id_by_module(extension_dotted_name)
         extension_info_dict = manager.get_extension_dict(ext_id)
         if not extension_info_dict:
-            carb.log_error(f"Couldn't find extension info for {extension_dotted_name} {ext_id}")
+            logger.error(f"Couldn't find extension info for {extension_dotted_name} {ext_id}")
             return all_settings
 
     test_settings = extension_info_dict["test"]
@@ -146,9 +148,9 @@ def get_benchmark_settings_from_extension(
                 setattr(settings_inst, key, value)
         settings_inst.test_name = setting["name"]
         if not settings_inst.test_name or not settings_inst.stage_path:
-            carb.log_error(f"Couldn't find test_name/stage_path attributes for test {setting} skipping")
+            logger.error(f"Couldn't find test_name/stage_path attributes for test {setting} skipping")
         else:
-            carb.log_info(f"found test {settings_inst.test_name}")
+            logger.info(f"found test {settings_inst.test_name}")
             # NOTE: Note sure why we're returning a list of a list
             all_settings.append([settings_inst])
     return all_settings
@@ -174,7 +176,7 @@ def get_all_nucleus_config_files(root_folder: str) -> List[str]:
     if not root_folder.endswith("/"):
         root_folder += "/"
 
-    carb.log_info(f"get_all_nucleus_config_files: Root folder = {root_folder}")
+    logger.info(f"get_all_nucleus_config_files: Root folder = {root_folder}")
     all_stage_folders = []  # List of all stage folders.
     all_config_files = []  # List of all config files.
 
@@ -194,7 +196,7 @@ def get_all_nucleus_config_files(root_folder: str) -> List[str]:
                     config_file = stage_folder + file.relative_path
                     all_config_files.append(config_file)
 
-    carb.log_info(f"get_all_nucleus_config_files: Returning {len(all_config_files)} results")
+    logger.info(f"get_all_nucleus_config_files: Returning {len(all_config_files)} results")
     return all_config_files
 
 
@@ -212,12 +214,12 @@ def _read_json_config_file_from_nucleus(
             for key in test:
                 value = test[key]
                 setattr(settings_cls_instance, key, value)
-        carb.log_info(
+        logger.info(
             f"_read_json_config_file_from_nucleus: Created BenchmarkTestSettings {settings_cls_instance.test_name}"
         )
         return settings_cls_instance
 
-    carb.log_warn("_read_json_config_file_from_nucleus: Failed to load config file.")
+    logger.warning("_read_json_config_file_from_nucleus: Failed to load config file.")
     return settings_cls_instance
 
 

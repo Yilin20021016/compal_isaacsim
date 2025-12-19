@@ -15,7 +15,7 @@
 
 import omni.ext
 import omni.usd
-from omni.physx import get_physx_interface
+from omni.physics.core import get_physics_simulation_interface
 
 from .. import _range_sensor
 from .proximity_sensor import ProximitySensorManager, clear_sensors
@@ -24,7 +24,9 @@ from .proximity_sensor import ProximitySensorManager, clear_sensors
 class Extension(omni.ext.IExt):
     def on_startup(self):
         # step the sensor every physics step
-        self._physics_step_subscription = get_physx_interface().subscribe_physics_step_events(self._on_update)
+        self._physics_step_subscription = get_physics_simulation_interface().subscribe_physics_on_step_events(
+            pre_step=False, order=0, on_update=self._on_update
+        )
         self._proximity_sensor_manager = ProximitySensorManager()  # Store instance to sensor manager singleton
         self._lidar = _range_sensor.acquire_lidar_sensor_interface()
         self._generic = _range_sensor.acquire_generic_sensor_interface()
@@ -41,6 +43,6 @@ class Extension(omni.ext.IExt):
         _range_sensor.release_generic_sensor_interface(self._generic)
         _range_sensor.release_lightbeam_sensor_interface(self._lightbeam)
 
-    def _on_update(self, dt):
+    def _on_update(self, dt, context):
         self._proximity_sensor_manager.update()
         pass

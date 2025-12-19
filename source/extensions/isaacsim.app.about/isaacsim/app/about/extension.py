@@ -60,7 +60,6 @@ class AboutExtension(omni.ext.IExt):
         if self.kit_version:
             kit_version, _ = self.kit_version.split("+")
             self.kit_version = kit_version
-        self.nucleus_version = DISCONNECTED
         self.client_library_version = omni.client.get_version()
         # Minimize Client Library version for release
         if self.client_library_version:
@@ -114,7 +113,6 @@ class AboutExtension(omni.ext.IExt):
                     ui.Label(f"App Version: {self.app_version}", style={"font_size": 18})
                     ui.Label(f"Kit SDK Version: {self.kit_version}", style={"font_size": 18})
                     ui.Label(f"Client Library Version: {self.client_library_version}", style={"font_size": 18})
-                    # ui.Label(f"Nucleus Server Version: {self.nucleus_version}", style={"font_size": 18})    # TODO JS
                     ui.Spacer(height=16)
                     ui.Label("Loaded plugins", style={"font_size": 16})
                     ui.Separator()

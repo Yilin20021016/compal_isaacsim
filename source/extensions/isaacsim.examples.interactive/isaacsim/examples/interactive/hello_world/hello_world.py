@@ -13,7 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from isaacsim.examples.interactive.base_sample import BaseSample
+import isaacsim.core.experimental.utils.stage as stage_utils
+from isaacsim.examples.base.base_sample_experimental import BaseSample
+from isaacsim.storage.native import get_assets_root_path
 
 # Note: checkout the required tutorials at https://docs.isaacsim.omniverse.nvidia.com/latest/index.html
 
@@ -21,22 +23,22 @@ from isaacsim.examples.interactive.base_sample import BaseSample
 class HelloWorld(BaseSample):
     def __init__(self) -> None:
         super().__init__()
-        return
 
     def setup_scene(self):
-
-        world = self.get_world()
-        world.scene.add_default_ground_plane()
-        return
+        # Add ground plane environment for physics simulation
+        ground_plane = stage_utils.add_reference_to_stage(
+            usd_path=get_assets_root_path() + "/Isaac/Environments/Grid/default_environment.usd",
+            path="/World/ground",
+        )
 
     async def setup_post_load(self):
-        return
+        pass
 
     async def setup_pre_reset(self):
-        return
+        pass
 
     async def setup_post_reset(self):
-        return
+        pass
 
     def world_cleanup(self):
-        return
+        pass

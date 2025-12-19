@@ -46,6 +46,11 @@ struct ImportConfig
     bool mergeFixedJoints = true;
 
     /**
+     * @brief Whether to merge fixed joints even if the child link has inertia
+     */
+    bool mergeFixedIgnoreInertia = false;
+
+    /**
      * @brief Whether to replace cylinder geometries with capsule geometries
      */
     bool replaceCylindersWithCapsules = false;

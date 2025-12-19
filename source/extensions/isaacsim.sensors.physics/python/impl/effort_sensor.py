@@ -16,11 +16,14 @@ import copy
 from typing import Optional
 
 import carb
+import carb.eventdispatcher
 import numpy as np
 import omni.kit.utils
+import omni.physics.core
+import omni.timeline
 import omni.usd
-from isaacsim.core.nodes.bindings import _isaacsim_core_nodes
 from isaacsim.core.prims import SingleArticulation
+from isaacsim.core.simulation_manager import SimulationManager
 
 
 class EsSensorReading:
@@ -47,7 +50,6 @@ class EffortSensor(SingleArticulation):
         self.data_buffer_size = 10
         self.sensor_reading_buffer = [EsSensorReading() for i in range(self.data_buffer_size)]
         self.interpolation_buffer = copy.deepcopy(self.sensor_reading_buffer)
-        self.core_nodes = _isaacsim_core_nodes.acquire_interface()
         self.physics_num_steps = 0
         self.is_initialized = False
         self.dof = None
@@ -60,17 +62,26 @@ class EffortSensor(SingleArticulation):
         return
 
     def initialize_callbacks(self) -> None:
-        self._acquisition_callback = omni.physx.get_physx_interface().subscribe_physics_step_events(
-            self._data_acquisition_callback
+        self._acquisition_callback = (
+            omni.physics.core.get_physics_simulation_interface().subscribe_physics_on_step_events(
+                pre_step=False, order=0, on_update=self._data_acquisition_callback
+            )
         )
-        self._stage_open_callback = (
-            omni.usd.get_context()
-            .get_stage_event_stream()
-            .create_subscription_to_pop_by_type(int(omni.usd.StageEventType.OPENED), self._stage_open_callback_fn)
+        self._stage_open_callback = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.usd.get_context().stage_event_name(omni.usd.StageEventType.OPENED),
+            on_event=self._stage_open_callback_fn,
+            observer_name="isaacsim.sensors.physics.EffortSensor.initialize._stage_open_callback",
         )
         timeline = omni.timeline.get_timeline_interface()
-        self._timer_reset_callback = timeline.get_timeline_event_stream().create_subscription_to_pop(
-            self._timeline_timer_callback_fn
+        self._timer_reset_callback_stop = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.timeline.GLOBAL_EVENT_STOP,
+            on_event=self._timeline_stop_callback_fn,
+            observer_name="isaacsim.sensors.physics.EffortSensor.initialize._timeline_stop_callback",
+        )
+        self._timer_reset_callback_play = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.timeline.GLOBAL_EVENT_PLAY,
+            on_event=self._timeline_play_callback_fn,
+            observer_name="isaacsim.sensors.physics.EffortSensor.initialize._timeline_play_callback",
         )
 
     def lerp(self, start: float, end: float, time: float) -> float:
@@ -78,26 +89,28 @@ class EffortSensor(SingleArticulation):
 
     def _stage_open_callback_fn(self, event=None) -> None:
         self._acquisition_callback = None
-        self._timer_reset_callback = None
+        self._timer_reset_callback_stop = None
+        self._timer_reset_callback_play = None
         self._stage_open_callback = None
         return
 
-    def _timeline_timer_callback_fn(self, event) -> None:
-        if event.type == int(omni.timeline.TimelineEventType.STOP):
-            self.current_time = 0
-            self.sensor_time = 0
-            self.sensor_reading_buffer = [EsSensorReading() for i in range(self.data_buffer_size)]
-            self.interpolation_buffer = copy.deepcopy(self.sensor_reading_buffer)
-            self.physics_num_steps = 0
-        elif event.type == int(omni.timeline.TimelineEventType.PLAY):
-            self.is_initialized = False
+    def _timeline_stop_callback_fn(self, event) -> None:
+        self.current_time = 0
+        self.sensor_time = 0
+        self.sensor_reading_buffer = [EsSensorReading() for i in range(self.data_buffer_size)]
+        self.interpolation_buffer = copy.deepcopy(self.sensor_reading_buffer)
+        self.physics_num_steps = 0
         return
 
-    def _data_acquisition_callback(self, step_size: float) -> None:
+    def _timeline_play_callback_fn(self, event) -> None:
+        self.is_initialized = False
+        return
+
+    def _data_acquisition_callback(self, step_size: float, context) -> None:
         # update sensor reading pair
         self.step_size = step_size
-        self.current_time = float(self.core_nodes.get_sim_time())
-        self.physics_num_steps = float(self.core_nodes.get_physics_num_steps())
+        self.current_time = float(SimulationManager.get_simulation_time())
+        self.physics_num_steps = float(SimulationManager.get_num_physics_steps())
         if self.physics_num_steps <= 2:
             return
 

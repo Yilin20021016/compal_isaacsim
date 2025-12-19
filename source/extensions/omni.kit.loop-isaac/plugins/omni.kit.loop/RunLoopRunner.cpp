@@ -830,6 +830,15 @@ static void SetManualStepSize(const double dt, const std::string& name = "")
 }
 static void SetManualMode(const bool enabled, const std::string& name = "")
 {
+    if (m_runLoops.size() == 0)
+    {
+        auto settings = getCachedInterface<settings::ISettings>();
+        if (settings)
+        {
+            settings->setBool("/app/runLoops/main/manualModeEnabled", enabled);
+        }
+        return;
+    }
     for (auto& l : m_runLoops)
     {
         if (name.compare("") != 0)

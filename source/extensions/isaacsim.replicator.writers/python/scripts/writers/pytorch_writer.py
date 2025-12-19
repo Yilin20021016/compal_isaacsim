@@ -14,11 +14,13 @@
 # limitations under the License.
 
 import carb
-import torch
 import warp as wp
+from isaacsim.core.deprecation_manager import import_module
 from omni.replicator.core import AnnotatorRegistry, BackendDispatch, Writer
 
 from . import PytorchListener
+
+torch = import_module("torch")
 
 __version__ = "0.0.1"
 

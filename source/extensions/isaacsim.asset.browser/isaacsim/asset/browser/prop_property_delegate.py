@@ -15,13 +15,14 @@
 
 import asyncio
 import os
+import urllib.error
+import urllib.request
 from typing import List
 
 import omni.kit.app
 import omni.ui as ui
 import omni.usd
-import requests
-from isaacsim.core.utils.stage import get_next_free_path, open_stage
+from isaacsim.core.experimental.utils.stage import generate_next_free_path, open_stage
 from omni.kit.browser.folder.core import BrowserPropertyDelegate, FileDetailItem
 from omni.kit.notification_manager import post_notification
 from pxr import Usd
@@ -33,10 +34,11 @@ class PropAssetPropertyDelegate(BrowserPropertyDelegate):
     """
 
     def accepted(self, items: List[FileDetailItem]) -> bool:
-        """BrowserPropertyDelegate method override"""
+        """BrowserPropertyDelegate method override."""
         return len(items) == 1
 
     def build_widgets(self, items: List[FileDetailItem]) -> None:
+        """BrowserPropertyDelegate method override."""
         item = items[0]
 
         def get_file_size(url):
@@ -47,10 +49,10 @@ class PropAssetPropertyDelegate(BrowserPropertyDelegate):
             except FileNotFoundError:
                 try:
                     # remote files
-                    response = requests.head(url)
-                    if response.status_code == 200:
+                    request = urllib.request.Request(url, method="HEAD")
+                    with urllib.request.urlopen(request) as response:
                         file_size_raw = int(response.headers.get("content-length", 0))
-                except requests.exceptions.RequestException as e:
+                except (urllib.error.URLError, urllib.error.HTTPError) as e:
                     print(e)
             except Exception as e:
                 print(e)
@@ -95,9 +97,14 @@ class PropAssetPropertyDelegate(BrowserPropertyDelegate):
                         download_btn.set_clicked_fn(lambda: self.download_file(item))
 
     def _build_thumbnail(self, item: FileDetailItem):
+        """Builds thumbnail frame and resizes.
+
+        Args:
+            item: The item to build the thumbnail for.
+        """
         if item.thumbnail is None:
             return
-        """Builds thumbnail frame and resizes"""
+
         self._thumbnail_frame = ui.Frame(height=0)
         self._thumbnail_frame.set_computed_content_size_changed_fn(self._on_thumbnail_frame_size_changed)
 
@@ -113,6 +120,8 @@ class PropAssetPropertyDelegate(BrowserPropertyDelegate):
                     )
 
     def _on_thumbnail_frame_size_changed(self):
+        """Called when thumbnail frame size changes."""
+
         # Dynamic change thumbnail size to be half of frame width
         async def __change_thumbnail_size_async():
             await omni.kit.app.get_app().next_update_async()
@@ -122,6 +131,11 @@ class PropAssetPropertyDelegate(BrowserPropertyDelegate):
         asyncio.ensure_future(__change_thumbnail_size_async())
 
     def _build_variant_options(self, item: FileDetailItem):
+        """Builds variant options for the item.
+
+        Args:
+            item: The item to build variants for.
+        """
         url = item.url
         self.has_variants = False
         if self.file_size > 50:
@@ -177,6 +191,11 @@ class PropAssetPropertyDelegate(BrowserPropertyDelegate):
             self.variant_overwrite[name] = self.variant_dict[name][checked]
 
     def load_as_reference(self, item: FileDetailItem):
+        """Loads the item as a reference.
+
+        Args:
+            item: The item to load.
+        """
         url = item.url
         robot_filename = item.name
         stage = omni.usd.get_context().get_stage()
@@ -185,8 +204,10 @@ class PropAssetPropertyDelegate(BrowserPropertyDelegate):
             base_prim_path = default_prim.GetPath().pathString
         else:
             base_prim_path = "/"
+        if not base_prim_path.endswith("/"):
+            base_prim_path += "/"
         robot_name, _ = os.path.splitext(robot_filename)
-        asset_stage_path = get_next_free_path(robot_name, base_prim_path)
+        asset_stage_path = generate_next_free_path(base_prim_path + robot_name)
         ref_prim = stage.DefinePrim(asset_stage_path, "Xform")
         ref_prim.GetReferences().AddReference(url)
 
@@ -197,6 +218,11 @@ class PropAssetPropertyDelegate(BrowserPropertyDelegate):
                 variant_set.SetVariantSelection(variant)
 
     def open_asset(self, item: FileDetailItem):
+        """Opens the asset.
+
+        Args:
+            item: The item to open.
+        """
         open_stage(item.url)
         # update the variant set if there is any
         if self.has_variants:
@@ -206,6 +232,11 @@ class PropAssetPropertyDelegate(BrowserPropertyDelegate):
                 variant_set.SetVariantSelection(variant)
 
     def download_file(self, item: FileDetailItem):
+        """Downloads the file.
+
+        Args:
+            item: The item to download.
+        """
         url = item.url
         filename = item.name
 
@@ -214,11 +245,13 @@ class PropAssetPropertyDelegate(BrowserPropertyDelegate):
         download_path = download_folder + filename
 
         try:
-            with requests.get(url, stream=True) as r:
-                r.raise_for_status()
+            with urllib.request.urlopen(url) as response:
                 with open(download_path, "wb") as f:
-                    for chunk in r.iter_content(chunk_size=8192):
+                    while True:
+                        chunk = response.read(8192)
+                        if not chunk:
+                            break
                         f.write(chunk)
             post_notification(f"Downloaded {filename} to {download_path}")
-        except requests.exceptions.RequestException as e:
+        except (urllib.error.URLError, urllib.error.HTTPError) as e:
             post_notification(f"Failed to download {filename}: {e}")

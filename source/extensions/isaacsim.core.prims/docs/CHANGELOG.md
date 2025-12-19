@@ -1,4 +1,24 @@
 # Changelog
+## [0.8.3] - 2025-12-05
+### Changed
+- Migrate to Events 2.0.
+
+## [0.8.2] - 2025-12-03
+### Changed
+- Remove TODOs.
+
+## [0.8.1] - 2025-12-01
+### Fixed
+- Fix the `PhysxCollisionAPI` schema when checking for collision properties
+
+## [0.8.0] - 2025-10-27
+### Changed
+- Replace import statements with the deprecation function when importing PyTorch
+- Make omni.isaac.ml_archive an explicit test dependency
+
+## [0.7.0] - 2025-10-17
+### Changed
+- Migrate PhysX subscription and simulation control interfaces to Omni Physics
 
 ## [0.6.1] - 2025-09-16
 ### Fixed
@@ -118,8 +138,8 @@
 
 ## [0.2.0] - 2024-10-31
 ### Changed
-- changed .initialize and .post_reset methods to be event triggered
-- changed physX warmup and simulation context creation to be event trigerred
+- Changed .initialize and .post_reset methods to be event triggered
+- Changed physX warmup and simulation context creation to be event trigerred
 
 ## [0.1.1] - 2024-10-24
 ### Changed

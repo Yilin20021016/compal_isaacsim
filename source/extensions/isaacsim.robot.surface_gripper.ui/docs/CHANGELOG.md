@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.3] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
 ## [3.0.2] - 2025-05-30
 ### Changed
 - Update to typed name for schema instead of hard-coded strings
@@ -26,7 +30,7 @@
 
 ## [2.1.0] - 2024-11-01
 ### Changed
-- menu name
+- Menu name
 
 ## [2.0.1] - 2024-10-24
 ### Changed

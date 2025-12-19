@@ -44,10 +44,6 @@ class TestHangBugs(omni.kit.test.AsyncTestCase):
 
         await update_stage_async()
 
-        carb.settings.get_settings().set_bool("/app/runLoops/main/rateLimitEnabled", True)
-        carb.settings.get_settings().set_int("/app/runLoops/main/rateLimitFrequency", int(1 / self._physics_dt))
-        carb.settings.get_settings().set_int("/persistent/simulation/minFrameRate", int(1 / self._physics_dt))
-
         pass
 
     # After running each test

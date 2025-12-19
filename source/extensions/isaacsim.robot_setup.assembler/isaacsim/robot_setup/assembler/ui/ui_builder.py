@@ -113,20 +113,26 @@ class UIBuilder:
 
         self._repopulate_all_dropdowns()
 
-    def on_stage_event(self, event: omni.usd.StageEventType):
+    def on_stage_event(self, event):
         """Callback for Stage Events
 
         Args:
-            event (omni.usd.StageEventType): Event Type
+            event: Stage event object (Events 2.0 uses ``carb.eventdispatcher.Event``).
         """
 
-        if event.type == int(omni.usd.StageEventType.ASSETS_LOADED):
+        event_name = event.event_name
+        usd_context = omni.usd.get_context()
+        if event_name == usd_context.stage_event_name(omni.usd.StageEventType.ASSETS_LOADED):
             self._repopulate_all_dropdowns()
-        elif event.type == int(omni.usd.StageEventType.OPENED):
+        elif event_name == usd_context.stage_event_name(omni.usd.StageEventType.OPENED):
             self.reset_ui()
-        elif event.type == int(omni.usd.StageEventType.SIMULATION_START_PLAY):  # Timeline played
+        elif event_name == usd_context.stage_event_name(
+            omni.usd.StageEventType.SIMULATION_START_PLAY
+        ):  # Timeline played
             self._wait_and_reselect_articulations()
-        elif event.type == int(omni.usd.StageEventType.SIMULATION_STOP_PLAY):  # Timeline played
+        elif event_name == usd_context.stage_event_name(
+            omni.usd.StageEventType.SIMULATION_STOP_PLAY
+        ):  # Timeline played
             if self._timeline.is_stopped():
                 self._reselect_articulations()
                 self._articulation_options = []

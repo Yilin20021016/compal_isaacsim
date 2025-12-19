@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.10] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
 ## [0.1.9] - 2025-09-30
 ### Fixed
 - Add dialog message for incorrect occupancy map paths

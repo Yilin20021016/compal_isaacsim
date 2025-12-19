@@ -18,7 +18,7 @@ import os
 import carb.settings
 import omni.kit.commands
 import omni.usd
-from isaacsim.core.utils.stage import open_stage
+from isaacsim.core.experimental.utils.stage import open_stage
 from omni.kit.browser.core import DetailItem
 from omni.kit.browser.folder.core import FileSystemFolder, TreeFolderBrowserModel
 from pxr import Sdf, Tf, Usd
@@ -27,17 +27,25 @@ SETTING_FOLDER = "/exts/isaacsim.asset.browser/folders"
 
 
 class AssetBrowserModel(TreeFolderBrowserModel):
-    """
-    Represent asset browser model
-    """
+    """Represent asset browser model."""
 
     def __init__(self, *args, **kwargs):
+        """Initializes the asset browser model.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+        """
         settings = carb.settings.get_settings()
         self.__default_folders = settings.get(SETTING_FOLDER)
         ext_manager = omni.kit.app.get_app().get_extension_manager()
         ext_id = ext_manager.get_enabled_extension_id("isaacsim.asset.browser")
         extension_path = ext_manager.get_extension_path(ext_id)
         cache_path = os.path.abspath(os.path.join(f"{extension_path}", "cache/isaacsim.asset.browser.cache.json"))
+
+        # Ensure the cache directory exists
+        cache_dir = os.path.dirname(cache_path)
+        os.makedirs(cache_dir, exist_ok=True)
 
         super().__init__(
             *args,
@@ -52,10 +60,17 @@ class AssetBrowserModel(TreeFolderBrowserModel):
         )
 
     def create_folder_object(self, name: str, url: str, **kwargs) -> FileSystemFolder:
-        """
-        Create a folder object when a root folder appended. Default using FileSystemFolder.
-        User could overridden to create own folder object for special usage.
-        Args and keyword args please reference to FileSystemFolder.
+        """Create a folder object when a root folder appended.
+
+        Default using FileSystemFolder. User could overridden to create own folder object for special usage.
+
+        Args:
+            name: Folder name.
+            url: Folder url.
+            **kwargs: Keyword arguments.
+
+        Returns:
+             FileSystemFolder: The folder object.
         """
         if self.__default_folders and any(url.startswith(folder) for folder in self.__default_folders):
             # OM-75191: For folders in default settings, hide file without thumbnail
@@ -64,10 +79,11 @@ class AssetBrowserModel(TreeFolderBrowserModel):
         return FileSystemFolder(name, url, **kwargs)
 
     def execute(self, item: DetailItem) -> None:
-        """
-        action when double clicked on an item: open the original file
-        """
+        """Action when double clicked on an item: open the original file.
 
+        Args:
+            item: The item that was double clicked.
+        """
         usd_filetypes = [".usd", ".usda", ".usdc", ".usdz"]
         if item.name.endswith(tuple(usd_filetypes)):
             stage = omni.usd.get_context().get_stage()
@@ -81,15 +97,15 @@ class AssetBrowserModel(TreeFolderBrowserModel):
         # stage = omni.usd.get_context().get_stage()
         # if not stage:
         #     return
-
+        #
         # new_prim_path = self._make_prim_path(stage, item.url)
         # as_instanceable = carb.settings.get_settings().get("/persistent/app/stage/instanceableOnCreatingReference")
-
+        #
         # # Determine if we should create a payload or reference
         # create_as_payload = carb.settings.get_settings().get("/persistent/app/stage/dragDropImport") == "payload"
-
+        #
         # print("creating something", create_as_payload)
-
+        #
         # # Add asset to stage
         # cmd_name = "CreatePayloadCommand" if create_as_payload else "CreateReferenceCommand"
         # omni.kit.commands.execute(
@@ -101,7 +117,17 @@ class AssetBrowserModel(TreeFolderBrowserModel):
         # )
 
     def _make_prim_path(self, stage: Usd.Stage, url: str, prim_path: Sdf.Path = None, prim_name: str = None):
-        """Make a new/unique prim path for the given url"""
+        """Make a new/unique prim path for the given url.
+
+        Args:
+            stage: The USD stage.
+            url: The url of the asset.
+            prim_path: The path of the prim.
+            prim_name: The name of the prim.
+
+        Returns:
+            Sdf.Path: The unique prim path.
+        """
         if prim_path is None or prim_path.isEmpty:
             if stage.HasDefaultPrim():
                 prim_path = stage.GetDefaultPrim().GetPath()

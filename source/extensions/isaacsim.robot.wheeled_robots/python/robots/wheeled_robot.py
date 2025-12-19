@@ -97,7 +97,7 @@ class WheeledRobot(Robot):
         if robot_path is not None:
             robot_path = "/" + robot_path
             # regex: remove all prefixing "/", need at least one prefix "/" to work
-            robot_path = re.sub("^([^\/]*)\/*", "", "/" + robot_path)
+            robot_path = re.sub(r"^([^\/]*)\/*", "", "/" + robot_path)
             prim_path = prim_path + "/" + robot_path
 
         super().__init__(
@@ -110,28 +110,28 @@ class WheeledRobot(Robot):
 
     @property
     def wheel_dof_indices(self):
-        """[summary]
+        """Get the wheel DOF indices in the articulation.
 
         Returns:
-            int: [description]
+            Indices of the wheel joints in the articulation.
         """
         return self._wheel_dof_indices
 
     def get_wheel_positions(self):
-        """[summary]
+        """Get the current positions of the wheel joints.
 
         Returns:
-            List[float]: [description]
+            List of wheel joint positions.
         """
         full_dofs_positions = self.get_joint_positions()
         wheel_joint_positions = [full_dofs_positions[i] for i in self._wheel_dof_indices]
         return wheel_joint_positions
 
     def set_wheel_positions(self, positions) -> None:
-        """[summary]
+        """Set the positions of the wheel joints.
 
         Args:
-            positions (Tuple[float, float]): [description]
+            positions: Target positions for each wheel joint.
         """
         full_dofs_positions = [None] * self.num_dof
         for i in range(self._num_wheel_dof):
@@ -140,10 +140,10 @@ class WheeledRobot(Robot):
         return
 
     def get_wheel_velocities(self):
-        """[summary]
+        """Get the current velocities of the wheel joints.
 
         Returns:
-            Tuple[np.ndarray, np.ndarray]: [description]
+            List of wheel joint velocities.
         """
 
         full_dofs_velocities = self.get_joint_velocities()
@@ -151,10 +151,10 @@ class WheeledRobot(Robot):
         return wheel_dof_velocities
 
     def set_wheel_velocities(self, velocities) -> None:
-        """[summary]
+        """Set the velocities of the wheel joints.
 
         Args:
-            velocities (Tuple[float, float]): [description]
+            velocities: Target velocities for each wheel joint.
         """
         full_dofs_velocities = [None] * self.num_dof
         for i in range(self._num_wheel_dof):
@@ -166,7 +166,7 @@ class WheeledRobot(Robot):
         """applying action to the wheels to move the robot
 
         Args:
-            actions (ArticulationAction): [description]
+            actions (ArticulationAction): Action containing positions, velocities, or efforts for wheel joints.
         """
         actions_length = actions.get_length()
         if actions_length is not None and actions_length != self._num_wheel_dof:
@@ -188,7 +188,7 @@ class WheeledRobot(Robot):
         return
 
     def initialize(self, physics_sim_view=None) -> None:
-        """[summary]"""
+        """Initialize the wheeled robot and resolve wheel DOF indices."""
         super().initialize(physics_sim_view=physics_sim_view)
         if self._wheel_dof_names is not None:
             self._wheel_dof_indices = [
@@ -202,7 +202,7 @@ class WheeledRobot(Robot):
         return
 
     def post_reset(self) -> None:
-        """[summary]"""
+        """Reset callback to switch control mode to velocity."""
         super().post_reset()
         self._articulation_controller.switch_control_mode(mode="velocity")
         return

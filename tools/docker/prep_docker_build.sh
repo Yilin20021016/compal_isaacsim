@@ -86,13 +86,13 @@ fi
 
 
 # Goes a bit faster if you have used PM_PATH_TO_SANDBOX="_"
-if ! python3 -m pip install -r tools/docker/requirements.txt; then
+if ! tools/packman/python.sh -m pip install -r tools/docker/requirements.txt; then
     echo "Failed to install Python requirements" >&2
     exit 1
 fi
 
 
-if ! python3 tools/docker/generate_rsync_script.py --platform ${CONTAINER_PLATFORM} --target isaac-sim-docker --output-folder _container_temp; then
+if ! tools/packman/python.sh tools/docker/generate_rsync_script.py --platform ${CONTAINER_PLATFORM} --target isaac-sim-docker --output-folder _container_temp; then
     echo "Failed to generate rsync script" >&2
     exit 1
 fi

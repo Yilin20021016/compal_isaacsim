@@ -19,17 +19,12 @@ import os
 import tempfile
 from typing import Any
 
-# Local imports
-import isaacsim.core.experimental.prims as prims
-import isaacsim.core.utils.stage as stage_utils
-
-# Third-party imports
+import isaacsim.core.experimental.utils.stage as stage_utils
 import numpy as np
 import omni.kit.actions.core
 import omni.kit.commands
 import omni.kit.test
 from isaacsim.core.experimental.prims import Articulation
-from isaacsim.core.utils.stage import create_new_stage_async, open_stage_async
 from isaacsim.storage.native import get_assets_root_path
 from nvidia.srl.from_usd.to_urdf import UsdToUrdf
 
@@ -163,7 +158,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
         else:
             stage_utils.add_reference_to_stage(usd_path_1, articulation_root_1)
 
-        articulation_1 = prims.Articulation(articulation_root_1)
+        articulation_1 = Articulation(articulation_root_1)
 
         # Load second USD into a new stage
         if "nova_carter" in usd_path_2:
@@ -171,7 +166,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
             robot_2.GetVariantSet("Sensors").SetVariantSelection("None")
         else:
             stage_utils.add_reference_to_stage(usd_path_2, articulation_root_2)
-        articulation_2 = prims.Articulation(articulation_root_2)
+        articulation_2 = Articulation(articulation_root_2)
 
         # Compare using the check function
         articulations = [articulation_1, articulation_2]
@@ -182,7 +177,6 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
         print(f"Comparing articulations from {usd_path_1} and {usd_path_2}")
 
         # Check number of DOFs
-        print(Articulation.num_dofs, " Articulation.num_dofs")
         if not TestUrdfExporter.check(articulations, Articulation.num_dofs, msg=msg):
             self.assertTrue(False, "Number of DOFs don't match")
         else:
@@ -226,7 +220,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
         assets_root_path = get_assets_root_path()[: len(get_assets_root_path())] + "/"
         robot_path = "Isaac/Robots/UniversalRobots/ur10e/ur10e.usd"
         robot_path = os.path.join(assets_root_path, robot_path)
-        await open_stage_async(robot_path)
+        await stage_utils.open_stage_async(robot_path)
         stage = stage_utils.get_current_stage()
 
         # Create a temporary directory for test output
@@ -245,7 +239,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
                 usd_to_urdf = UsdToUrdf(stage, **usd_to_urdf_kwargs)
 
             # Ensure stage is cleared before temp directory cleanup
-            await create_new_stage_async()
+            await stage_utils.create_new_stage_async()
             await omni.kit.app.get_app().next_update_async()
 
     async def test_exporter_2f_140_base(self):
@@ -253,7 +247,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
         assets_root_path = get_assets_root_path()[: len(get_assets_root_path())] + "/"
         robot_path = "Isaac/Robots/Robotiq/2F-140/Robotiq_2F_140_base.usd"
         robot_path = os.path.join(assets_root_path, robot_path)
-        await open_stage_async(robot_path)
+        await stage_utils.open_stage_async(robot_path)
         stage = stage_utils.get_current_stage()
 
         # Create a temporary directory for test output
@@ -272,7 +266,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
                 usd_to_urdf = UsdToUrdf(stage, **usd_to_urdf_kwargs)
 
             # Ensure stage is cleared before temp directory cleanup
-            await create_new_stage_async()
+            await stage_utils.create_new_stage_async()
             await omni.kit.app.get_app().next_update_async()
 
     async def test_exporter_nova_carter(self):
@@ -281,7 +275,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
         assets_root_path = get_assets_root_path()[: len(get_assets_root_path())] + "/"
         robot_path = "Isaac/Robots/NVIDIA/NovaCarter/nova_carter.usd"
         robot_path = os.path.join(assets_root_path, robot_path)
-        await open_stage_async(robot_path)
+        await stage_utils.open_stage_async(robot_path)
         stage = stage_utils.get_current_stage()
 
         # Create a temporary directory for test output
@@ -312,7 +306,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
             stage_utils.save_stage(usd_to_check)
             self.assertTrue(os.path.exists(output_urdf_path), f"Exported URDF file not found for nova_carter")
 
-            await create_new_stage_async()
+            await stage_utils.create_new_stage_async()
 
             _, import_config = omni.kit.commands.execute("URDFCreateImportConfig")
             import_config.merge_fixed_joints = True
@@ -330,7 +324,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
             urdf_to_check = os.path.join(temp_dir, f"nova_carter_exported.usd")
             stage_utils.save_stage(urdf_to_check)
 
-            await create_new_stage_async()
+            await stage_utils.create_new_stage_async()
 
             comparison_result = self.compare_usd_files(
                 usd_path_1=usd_to_check,
@@ -343,7 +337,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
             self.assertTrue(comparison_result, "USD comparison failed")
 
             # Ensure stage is cleared before temp directory cleanup
-            await create_new_stage_async()
+            await stage_utils.create_new_stage_async()
             await omni.kit.app.get_app().next_update_async()
 
         return
@@ -354,7 +348,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
         robot_path = "Isaac/Robots/XHumanoid/Tien Kung/tienkung.usd"
         robot_path = os.path.join(assets_root_path, robot_path)
 
-        await open_stage_async(robot_path)
+        await stage_utils.open_stage_async(robot_path)
         stage = stage_utils.get_current_stage()
         # Create a temporary directory for test output
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp_dir:
@@ -372,7 +366,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
                 usd_to_urdf = UsdToUrdf(stage, **usd_to_urdf_kwargs)
 
             # Ensure stage is cleared before temp directory cleanup
-            await create_new_stage_async()
+            await stage_utils.create_new_stage_async()
             await omni.kit.app.get_app().next_update_async()
 
     async def test_exporter_unitree_go2(self):
@@ -381,7 +375,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
         robot_path = "Isaac/Robots/Unitree/Go2/go2.usd"
         robot_path = os.path.join(assets_root_path, robot_path)
 
-        await open_stage_async(robot_path)
+        await stage_utils.open_stage_async(robot_path)
         stage = stage_utils.get_current_stage()
 
         # Create a temporary directory for test output
@@ -411,7 +405,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
             stage_utils.save_stage(usd_to_check)
             self.assertTrue(os.path.exists(output_urdf_path), f"Exported URDF file not found for go2")
 
-            await create_new_stage_async()
+            await stage_utils.create_new_stage_async()
 
             _, import_config = omni.kit.commands.execute("URDFCreateImportConfig")
             import_config.merge_fixed_joints = False
@@ -429,7 +423,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
             urdf_to_check = os.path.join(temp_dir, f"unitree_go2_exported.usd")
             stage_utils.save_stage(urdf_to_check)
 
-            await create_new_stage_async()
+            await stage_utils.create_new_stage_async()
 
             comparison_result = self.compare_usd_files(
                 usd_path_1=usd_to_check,
@@ -442,7 +436,7 @@ class TestUrdfExporter(omni.kit.test.AsyncTestCase):
             self.assertTrue(comparison_result, "USD comparison failed")
 
             # Ensure stage is cleared before temp directory cleanup
-            await create_new_stage_async()
+            await stage_utils.create_new_stage_async()
             await omni.kit.app.get_app().next_update_async()
 
         return

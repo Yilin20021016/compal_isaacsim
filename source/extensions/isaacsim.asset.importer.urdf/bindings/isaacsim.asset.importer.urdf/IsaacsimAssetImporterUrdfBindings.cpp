@@ -23,18 +23,6 @@
 CARB_BINDINGS("isaacsim.asset.importer.urdf.python")
 PYBIND11_MAKE_OPAQUE(std::map<std::string, isaacsim::asset::importer::urdf::UrdfMaterial>);
 
-namespace isaacsim
-{
-namespace asset
-{
-namespace importer
-{
-namespace urdf
-{
-}
-}
-}
-}
 namespace
 {
 // Helper function that creates a python type for a std::map with a string key and a custom value type
@@ -110,6 +98,8 @@ PYBIND11_MODULE(_urdf, m)
         .def(py::init<>())
         .def_readwrite("merge_fixed_joints", &ImportConfig::mergeFixedJoints,
                        "Consolidating links that are connected by fixed joints")
+        .def_readwrite("merge_fixed_ignore_inertia", &ImportConfig::mergeFixedIgnoreInertia,
+                       "Whether to merge fixed joints even if the child link has inertia")
         .def_readwrite("convex_decomp", &ImportConfig::convexDecomp,
                        "Decompose a convex mesh into smaller pieces for a closer fit")
         .def_readwrite("import_inertia_tensor", &ImportConfig::importInertiaTensor,
@@ -141,6 +131,8 @@ PYBIND11_MODULE(_urdf, m)
             "override_joint_dynamics", &ImportConfig::overrideJointDynamics, "Use default values for all joints")
         // setters for each property
         .def("set_merge_fixed_joints", [](ImportConfig& config, const bool value) { config.mergeFixedJoints = value; })
+        .def("set_merge_fixed_ignore_inertia",
+             [](ImportConfig& config, const bool value) { config.mergeFixedIgnoreInertia = value; })
         .def("set_replace_cylinders_with_capsules",
              [](ImportConfig& config, const bool value) { config.replaceCylindersWithCapsules = value; })
         .def("set_convex_decomp", [](ImportConfig& config, const bool value) { config.convexDecomp = value; })

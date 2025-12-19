@@ -1,5 +1,5 @@
 [package]
-version = "0.8.1"
+version = "0.9.7"
 category = "Simulation"
 title = "Isaac Sim Core (Prims)"
 description = "The Core Prims extension provides a set of APIs to wrap one or more USD prims in the stage in order to manipulate (read/write) their attributes and perform other operations during the simulation."
@@ -14,7 +14,6 @@ writeTarget.kit = true
 "isaacsim.core.deprecation_manager" = {}
 "isaacsim.core.experimental.utils" = {}
 "isaacsim.core.simulation_manager" = {}
-"isaacsim.core.utils" = {}
 "isaacsim.test.docstring" = {} # needed for tests to load in test runner
 "omni.hydra.usdrt_delegate" = {}
 "omni.isaac.core_archive" = {}
@@ -33,6 +32,7 @@ name = "isaacsim.core.experimental.prims.tests"
 timeout = 900
 dependencies = [
     "isaacsim.core.experimental.materials",  # for visual/physics materials
+    "isaacsim.storage.native",
 ]
 args = [
     "--enable",
@@ -78,8 +78,11 @@ args = [
     "--/rtx/newDenoiser/enabled=1",
     "--/rtx/reservedDescriptors=900000",
     ### Extension specific args
-    '--/persistent/physics/enableDeformableBeta=true',
     "--/persistent/omnihydra/useFastSceneDelegate=true",
     "--/persistent/omnihydra/useSceneGraphInstancing=true",
 ]
 pythonTests.include = ["isaacsim.core.experimental.prims.tests.*"]
+
+stdoutFailPatterns.exclude = [    
+    '*The NumPy module was reloaded*',
+]

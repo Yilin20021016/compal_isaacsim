@@ -1,11 +1,24 @@
 # Changelog
+## [1.3.0] - 2025-12-03
+### Changed
+- Added explicit seed to randomizers to make them deterministic
+- Updated sdg pipeline golden images
+
+## [1.2.1] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
+## [1.2.0] - 2025-10-17
+### Changed
+- Migrate PhysX subscription and simulation control interfaces to Omni Physics
+
 ## [1.1.16] - 2025-09-16
 ### Fixed
 - Added kit update after timeline.stop to fix flaky test due to stage loading status
 
 ## [1.1.15] - 2025-09-15
 ### Changed
-- switched to isaacsim.test.utils for golden image comparison in tests
+- Switched to isaacsim.test.utils for golden image comparison in tests
 
 ## [1.1.14] - 2025-07-17
 ### Changed
@@ -76,7 +89,7 @@
 
 ## [1.0.14] - 2025-04-17
 ### Changed
-- changed add_update_semantics to add_labels
+- Changed add_update_semantics to add_labels
 
 ## [1.0.13] - 2025-04-09
 ### Changed

@@ -17,6 +17,7 @@ import io
 import os
 from typing import Dict, List
 
+import carb
 import numpy as np
 from isaacsim.core.utils.mesh import get_mesh_vertices_relative_to
 from omni.replicator.core import AnnotatorRegistry, BackendDispatch, Writer, WriterRegistry
@@ -32,6 +33,9 @@ __version__ = "0.0.1"
 
 class YCBVideoWriter(Writer):
     """Writer capable of writing annotator groundtruth in the YCB Video Dataset format.
+
+    .. deprecated::
+        This class has been deprecated and will be removed in the next major release.
 
     Attributes:
         output_dir:
@@ -82,6 +86,10 @@ class YCBVideoWriter(Writer):
         factor_depth: int = 10000,
         intrinsic_matrix: np.ndarray = None,
     ):
+        carb.log_warn(
+            "Deprecation warning: YCBVideoWriter has been deprecated and will be removed in the next major release."
+        )
+
         self.backend = BackendDispatch({"paths": {"out_dir": output_dir}}, overwrite=True)
         self._backend = self.backend  # Kept for backwards compatibility
         self._output_dir = self.backend.output_dir

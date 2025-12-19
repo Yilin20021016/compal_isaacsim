@@ -25,10 +25,10 @@ class MultiPropertyDelegate(BrowserPropertyDelegate):
     """
 
     def accepted(self, items: List[FileDetailItem]) -> bool:
-        """BrowserPropertyDelegate method override"""
+        """BrowserPropertyDelegate method override."""
         return len(items) > 1
 
     def build_widgets(self, items: List[FileDetailItem]) -> None:
-        """BrowserPropertyDelegate method override"""
+        """BrowserPropertyDelegate method override."""
         label_text = f"Multiple Isaac Assets Selected [{len(items)}]"
         ui.Label(label_text, alignment=ui.Alignment.CENTER)

@@ -1,4 +1,24 @@
 # Changelog
+## [1.6.3] - 2025-12-07
+### Changed
+- Update description
+
+## [1.6.2] - 2025-12-06
+### Changed
+- Add missing docstrings
+- Add docstring tests
+
+## [1.6.1] - 2025-12-01
+### Fixed
+- Update assets path to 6.0 staging
+
+## [1.6.0] - 2025-11-26
+### Added
+- Added `resolve_asset_path` function to synchronously resolve asset paths with the same logic as the async variant.
+
+## [1.5.2] - 2025-11-05
+### Changed
+- Update assets path to development
 
 ## [1.5.1] - 2025-10-10
 ### Changed

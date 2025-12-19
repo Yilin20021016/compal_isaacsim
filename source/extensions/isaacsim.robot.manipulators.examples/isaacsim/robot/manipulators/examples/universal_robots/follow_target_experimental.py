@@ -54,12 +54,9 @@ class UR10FollowTarget:
 
         # Set default target position if none provided
         if target_position is None:
-            self.target_position = np.array([0.5, 0.0, 0.3])
+            self.target_position = [0.5, 0.0, 0.3]
         else:
-            self.target_position = np.array(target_position)
-
-        # Create a new USD stage with default sunlight lighting
-        stage_utils.create_new_stage(template="sunlight")
+            self.target_position = target_position if isinstance(target_position, list) else list(target_position)
 
         # Add ground plane environment for physics simulation
         ground_plane = stage_utils.add_reference_to_stage(
@@ -78,9 +75,9 @@ class UR10FollowTarget:
         cube_shape = Cube(
             paths="/World/TargetCube",
             positions=self.target_position,
-            orientations=np.array([1, 0, 0, 0]),
+            orientations=[1, 0, 0, 0],
             sizes=[1.0],
-            scales=np.array([0.05, 0.05, 0.05]),  # 5cm cube
+            scales=[0.05, 0.05, 0.05],  # 5cm cube
             reset_xform_op_properties=True,
         )
 
@@ -97,7 +94,7 @@ class UR10FollowTarget:
         if self.target_cube is not None:
             position, _ = self.target_cube.get_world_poses()
             return position.numpy().flatten()
-        return self.target_position
+        return np.array(self.target_position)
 
     def get_robot_end_effector_position(self) -> np.ndarray:
         """Get the current robot end effector position.
@@ -134,7 +131,7 @@ class UR10FollowTarget:
             target_pos = self.get_target_position()
             # Use the enhanced UR10Controller's set_end_effector_pose method
             self.robot.set_end_effector_pose(
-                position=target_pos, orientation=np.array([[0.0, 1.0, 0.0, 0.0]]), ik_method=ik_method
+                position=target_pos, orientation=[[0.0, 1.0, 0.0, 0.0]], ik_method=ik_method
             )
 
     def reset_robot(self) -> None:

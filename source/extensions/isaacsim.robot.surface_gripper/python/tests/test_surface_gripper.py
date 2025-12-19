@@ -66,7 +66,7 @@ class TestSurfaceGripper(omni.kit.test.AsyncTestCase):
             gripper_joints = [p.GetPath() for p in self._stage.GetPrimAtPath(gripper_joints_prim_path).GetChildren()]
             attachment_points_rel.SetTargets(gripper_joints)
 
-        self.gripper_view = GripperView(paths="/World/SurfaceGripper*")
+        self.gripper_view = GripperView(paths="/World/SurfaceGripper.*")
         self.gripper_view.set_surface_gripper_properties(
             max_grip_distance=[0.02] * count,
             coaxial_force_limit=[0.005] * count,

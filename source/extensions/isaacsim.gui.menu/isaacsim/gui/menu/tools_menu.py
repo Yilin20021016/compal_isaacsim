@@ -104,7 +104,7 @@ class ToolsMenuExtension:
                             ),
                             MenuLayout.Item("ROS 2 OmniGraphs"),
                             MenuLayout.Seperator("Navigation"),
-                            MenuLayout.Item("Block World Generator"),
+                            MenuLayout.Item("Heightmap Importer"),
                             MenuLayout.Item("Occupancy Map"),
                             MenuLayout.Seperator("Manipulation"),
                             MenuLayout.Item("Grasp Editor"),

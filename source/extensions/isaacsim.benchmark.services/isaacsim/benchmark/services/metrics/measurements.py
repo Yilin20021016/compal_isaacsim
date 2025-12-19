@@ -20,6 +20,10 @@ from typing import Dict, List, Union
 
 import carb
 
+from .. import utils
+
+logger = utils.set_up_logging(__name__)
+
 
 @dataclass
 class Measurement(object):
@@ -173,7 +177,7 @@ class TestPhase(object):
                                 run = cls.from_json(m)
                                 test_runs.append(run)
                         except json.JSONDecodeError:
-                            carb.log_error(
+                            logger.error(
                                 f'aggregate_json_files, problems parsing field {f} with content "{json_file.read()}"'
                             )
         return test_runs

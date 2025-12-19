@@ -16,8 +16,6 @@
 local ext = get_current_extension_info()
 local ogn = get_ogn_project_information(ext, "isaacsim/asset/gen/conveyor")
 
--- Put this project into the omnigraph IDE group
-ext.group = "omnigraph"
 
 project_ext(ext)
 
@@ -44,10 +42,10 @@ libdirs {
 -- Linux-specific compile information
 filter { "system:linux" }
 exceptionhandling("On")
-removeflags { "FatalCompileWarnings", "UndefinedIdentifiers" }
+removeflags { "UndefinedIdentifiers" }
 includedirs {
     target_deps .. "/usd/%{config}/include/boost",
-    target_deps .. "/python/include/python3.11",
+    target_deps .. "/python/include/python3.12",
 }
 filter {}
 

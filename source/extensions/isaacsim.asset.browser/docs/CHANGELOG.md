@@ -1,4 +1,31 @@
 # Changelog
+## [1.4.5] - 2025-12-03
+### Changed
+- Remove TODOs.
+
+## [1.4.4] - 2025-12-01
+### Changed
+- Update assets path to 6.0 staging
+
+## [1.4.3] - 2025-11-21
+### Fixed
+- Update unit tests for kit 109.0
+- Add missing documentation for the asset browser extension
+
+## [1.4.2] - 2025-11-10
+### Fixed
+- Replaced deprecated `onclick_fn` with `onclick_action` in "Isaac Sim Assets" menu item to eliminate deprecation warnings
+- Registered proper toggle action for the asset browser
+- Fix issue where cache json file could not be created if the cache directory did not exist
+
+## [1.4.1] - 2025-11-03
+### Changed
+- Migrate extension implementation to core experimental API
+
+## [1.4.0] - 2025-10-31
+### Changed
+- Remove omni.pip.cloud from extension.toml
+- Remove requests dependency, use urllib instead
 
 ## [1.3.23] - 2025-10-10
 ### Changed
@@ -74,7 +101,7 @@
 
 ## [1.3.5] - 2025-02-13
 ### Changed
-- focus on the browser window when it is opened
+- Focus on the browser window when it is opened
 
 ## [1.3.4] - 2025-01-26
 ### Changed
@@ -82,7 +109,7 @@
 
 ## [1.3.3] - 2025-01-23
 ### Fixed
-- option for non-usd files to be downloaded instead of open on stage
+- Option for non-usd files to be downloaded instead of open on stage
 
 ## [1.3.2] - 2025-01-22
 ### Fixed
@@ -98,7 +125,7 @@
 
 ## [1.2.0] - 2025-01-09
 ### Changed
-- removed default filter for files, so that the browser displays all file types
+- Removed default filter for files, so that the browser displays all file types
 
 ### Added
 - Download option for file types
@@ -128,11 +155,11 @@
 
 ## [1.1.4] - 2024-11-13
 ### Changed
-- separate buttons for loading asset as reference and for opening the original usd
+- Separate buttons for loading asset as reference and for opening the original usd
 
 ## [1.1.3] - 2024-11-12
 ### Fixed
-- fix for browser option panel interference
+- Fix for browser option panel interference
 
 ## [1.1.2] - 2024-11-01
 ### Added

@@ -16,11 +16,13 @@ from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 import omni.replicator.core as rep
-import torch
 import warp as wp
+from isaacsim.core.deprecation_manager import import_module
 from isaacsim.core.prims import XFormPrim
 from isaacsim.core.utils.carb import get_carb_setting
 from pxr import Usd, Vt
+
+torch = import_module("torch")
 
 # from ROS camera convention to USD camera convention
 U_R_TRANSFORM = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
@@ -542,9 +544,17 @@ class CameraView(XFormPrim):
         if tiled:
             shape = (*self.tiled_resolution, spec["channels"])
             if out is None:
-                out = wp.clone(tiled_data[:, :, :3]) if annotator_type == "rgb" else tiled_data.reshape(shape)
+                if annotator_type == "rgb":
+                    rgb_slice = tiled_data[:, :, :3]
+                    out = wp.clone(rgb_slice)
+                else:
+                    out = tiled_data.reshape(shape)
             else:
-                wp.copy(out, tiled_data[:, :, :3] if annotator_type == "rgb" else tiled_data.reshape(shape))
+                if annotator_type == "rgb":
+                    rgb_slice = tiled_data[:, :, :3]
+                    wp.copy(out, rgb_slice)
+                else:
+                    wp.copy(out, tiled_data.reshape(shape))
         # batched images
         else:
             # define internal variables

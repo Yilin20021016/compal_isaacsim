@@ -1,8 +1,8 @@
 [package]
-version = "3.4.3"
+version = "5.1.3"
 category = "Simulation"
 title = "Isaac Sim Core OmniGraph Nodes"
-description = "Common Isaac Sim OmniGraph nodes"
+description = "Provides OmniGraph nodes for Isaac Sim workflows including articulation control, simulation timing, camera info reading, viewport management, and physics step event handling."
 keywords = ["isaac"]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"
@@ -16,7 +16,6 @@ writeTarget.kit = true
 "isaacsim.core.simulation_manager" = {}
 "isaacsim.storage.native" = {}
 "omni.graph" = {}
-"omni.isaac.dynamic_control" = {}
 "omni.kit.viewport.utility" = {}
 "omni.kit.viewport.window" = {}
 "omni.replicator.core" = {}
@@ -38,6 +37,7 @@ exclude = ["Ogn*Database.py"]
 [[test]]
 timeout = 900
 dependencies = [
+    "omni.isaac.ml_archive",
     "omni.kit.viewport.actions"
 ]
 args = [
@@ -99,11 +99,19 @@ stdoutFailPatterns.exclude = [
     "*[Error] [omni.physx.tensors.plugin] Pattern '/panda' did not match any rigid bodies*",
     "*[Error] [omni.physx.tensors.plugin] Provided pattern list did not match any articulations*",
     "*[Error] [omni.graph.core.plugin] /TestGraph/Template_isaacsim_core_nodes_IsaacJointNameResolver: [/TestGraph] OmniGraph Error: no articulation root prim found*",
-    "*Invalid RationalTime - zero denominator*"
+    "*Invalid RationalTime - zero denominator*",
+    '*The NumPy module was reloaded*',
 ]
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
+]
+
+stdoutFailPatterns.exclude = [
+    '*The NumPy module was reloaded*',
 ]

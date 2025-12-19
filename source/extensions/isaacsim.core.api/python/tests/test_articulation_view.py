@@ -24,11 +24,11 @@ import numpy as np
 #   omni.kit.test - std python's unittest module with additional wrapping to add support for async/await tests
 #   For most things refer to unittest docs: https://docs.python.org/3/library/unittest.html
 import omni.kit.test
-import omni.physx as _physx
-import torch
+import omni.physics.core
 import warp as wp
 from isaacsim.core.api import World
 from isaacsim.core.api.objects.cuboid import FixedCuboid
+from isaacsim.core.deprecation_manager import import_module
 
 # Import extension python module we are testing with absolute import path, as if we are external user (other extension)
 from isaacsim.core.prims import Articulation, RigidPrim
@@ -37,6 +37,8 @@ from isaacsim.core.utils.torch.rotations import euler_angles_to_quats
 from isaacsim.storage.native import get_assets_root_path_async
 
 from .common import CoreTestCase
+
+torch = import_module("torch")
 
 INDEXED = [True, False]
 USD_PATH = [True, False]
@@ -805,16 +807,17 @@ class TestArticulationView(CoreTestCase):
 
                     print("index:", indexed, "device:", device)
 
-                    def step_callback_1(step_size):
+                    def step_callback_1(step_size, context):
                         a = self._frankas_view.get_joint_positions()
 
-                    physx_subs = _physx.get_physx_interface().subscribe_physics_step_events(step_callback_1)
-                    # self._my_world.add_physics_callback(callback_name="sim_step", callback_fn=step_callback_1)
+                    physics_sub = omni.physics.core.get_physics_simulation_interface().subscribe_physics_on_step_events(
+                        pre_step=False, order=0, on_update=step_callback_1
+                    )
                     await self._my_world.reset_async()
                     await update_stage_async()
                     await update_stage_async()
                     await self._my_world.reset_async()
-                    physx_subs = None
+                    physics_sub = None
 
     @unittest.skipIf(os.getenv("ETM_ACTIVE"), "skipped in ETM")
     async def test_local_pose_torch(self):

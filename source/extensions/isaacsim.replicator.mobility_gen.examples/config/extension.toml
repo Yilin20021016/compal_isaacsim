@@ -1,5 +1,5 @@
 [package]
-version = "0.1.9"
+version = "0.1.11"
 category = "Simulation"
 title = "MobilityGen Examples"
 description = "Example robot and scenario implementations for MobilityGen"
@@ -27,6 +27,9 @@ name = "isaacsim.replicator.mobility_gen.examples"
 name = "isaacsim.replicator.mobility_gen.examples.tests"
 
 [[test]]
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
     "--enable",
     "omni.kit.loop-isaac",
@@ -72,8 +75,19 @@ args = [
     "--/rtx/reservedDescriptors=900000",
 ]
 
+stdoutFailPatterns.exclude = [    
+    '*The NumPy module was reloaded*',
+]
+
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
+]
+
+stdoutFailPatterns.exclude = [    
+    '*The NumPy module was reloaded*',
 ]

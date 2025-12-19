@@ -1,4 +1,15 @@
 # Changelog
+## [1.1.9] - 2025-12-05
+### Changed
+- Change test to use RealTimePathTracing render mode
+
+## [1.1.8] - 2025-12-03
+### Changed
+- Remove TODOs.
+
+## [1.1.7] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
 
 ## [1.1.6] - 2025-08-21
 ### Changed
@@ -31,7 +42,7 @@
 
 ## [1.0.12] - 2025-06-06
 ### Changed
-- increase timeout for UI tests
+- Increase timeout for UI tests
 
 ## [1.0.11] - 2025-05-31
 ### Changed

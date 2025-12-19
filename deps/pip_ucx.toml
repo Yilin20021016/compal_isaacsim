@@ -1,0 +1,24 @@
+# Target kit 109.x, python 3.12
+# UCX Core dependencies
+[[dependency]]
+python = "../_build/target-deps/python"
+packages = [
+    "libucxx-cu12==0.44.0",             # SWIPAT filed under: https://nvbugs/5585451    # UCX core
+    "libucx-cu12==1.19.0",              # SWIPAT filed under: https://nvbugs/5585468    # UCX core
+    "librmm-cu12==25.6.0",              # SWIPAT filed under: https://nvbugs/5585481    # UCX core
+    "rapids-logger==0.1.1",             # SWIPAT filed under: https://nvbugs/5585556    # UCX core
+    "ucxx-cu12==0.44.0",                # SWIPAT filed under: https://nvbugs/5621603    # UCX nodes Python tests
+    "rmm-cu12==25.6.0",                 # SWIPAT filed under: https://nvbugs/5621610    # UCX nodes Python tests
+    "cuda-python==12.9.2",              # SWIPAT filed under: https://nvbugs/5621654    # UCX nodes Python tests
+    "cupy-cuda12x==13.6.0",             # SWIPAT filed under: https://nvbugs/5621660    # UCX nodes Python tests
+    "fastrlock==0.8.3",                 # SWIPAT filed under: https://nvbugs/5621677    # UCX nodes Python tests
+    "cuda-bindings==12.9.2",
+    "cuda-pathfinder==1.1.0",
+]
+
+target = "../_build/target-deps/pip_ucx_prebundle"
+platforms = ["linux-x86_64", "linux-aarch64"]
+download_only = false
+install_dependencies = false
+append_to_install_folder = true
+gather_licenses_path = "../_build/PACKAGE-LICENSES/PIP-prebundled-LICENSES.txt"

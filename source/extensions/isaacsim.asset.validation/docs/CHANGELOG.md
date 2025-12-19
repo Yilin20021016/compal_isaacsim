@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.0] - 2025-10-17
+### Changed
+- Migrate PhysX subscription and simulation control interfaces to Omni Physics
+
 ## [1.1.0] - 2025-09-19
 ### Added
 - Add diagonal inertia triangle inequality check

@@ -1,5 +1,5 @@
 [package]
-version = "2.2.15"
+version = "2.3.3"
 category = "Simulation"
 title = "Isaac Sim PhysX Sensor Examples"
 description = "Provides example usage and snippets for Isaac Sim PhysX-raycast-based sensors."
@@ -29,6 +29,9 @@ name = "isaacsim.sensors.physx.examples.generic_info"
 name = "isaacsim.sensors.physx.examples.lightbeam_sensor"
 
 [[test]]
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
     "--enable",
     "omni.kit.loop-isaac",
@@ -76,6 +79,9 @@ args = [
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

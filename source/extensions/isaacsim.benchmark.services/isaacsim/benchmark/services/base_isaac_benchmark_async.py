@@ -31,12 +31,14 @@ from isaacsim.storage.native import get_assets_root_path_async
 from .recorders import *
 from .utils import wait_until_stage_is_fully_loaded_async
 
+logger = utils.set_up_logging(__name__)
+
 
 # Sync mode sets settings that blocks the app until all materials are fully loaded
 def set_sync_mode():
     carb_settings = carb.settings.get_settings()
     if carb_settings.get("/app/asyncRendering"):
-        carb.log_warn("Async rendering is enabled, setting sync mode might not work")
+        logger.warning("Async rendering is enabled, setting sync mode might not work")
     carb_settings.set("/omni.kit.plugin/syncUsdLoads", True)
     carb_settings.set("/rtx-defaults/materialDb/syncLoads", True)
     carb_settings.set("/rtx-defaults/hydra/materialSyncLoads", True)
@@ -56,7 +58,7 @@ class BaseIsaacBenchmarkAsync(omni.kit.test.AsyncTestCase):
 
         self.assets_root_path = await get_assets_root_path_async()
         if self.assets_root_path is None:
-            carb.log_error("Could not find Isaac Sim assets folder")
+            logger.error("Could not find Isaac Sim assets folder")
             return
 
         await omni.usd.get_context().new_stage_async()
@@ -93,10 +95,10 @@ class BaseIsaacBenchmarkAsync(omni.kit.test.AsyncTestCase):
         # Generate workflow-level metadata
         self._metadata = []
 
-        carb.log_info("Starting")
+        logger.info("Starting")
         self.benchmark_start_time = time.time()
         self.test_mode = os.getenv("ISAAC_TEST_MODE") == "1"
-        carb.log_info(f"Test mode = {'true' if self.test_mode else 'false'}")
+        logger.info(f"Test mode = {'true' if self.test_mode else 'false'}")
         pass
 
     async def tearDown(self):
@@ -109,14 +111,21 @@ class BaseIsaacBenchmarkAsync(omni.kit.test.AsyncTestCase):
             "/exts/isaacsim.benchmark.services/metrics/randomize_filename_prefix"
         )
 
-        carb.log_info("Stopping")
+        logger.info("Stopping")
         while is_stage_loading():
             print("asset still loading, waiting to finish")
             await omni.kit.app.get_app().next_update_async()
         await omni.kit.app.get_app().next_update_async()
 
-        carb.log_info("Writing metrics data.")
-        carb.log_info(f"Metrics type = {type(self._metrics).__name__}")
+        if not self._test_phases:
+            logger.warning(
+                "No test phases collected. After set_phase(), store_measurements() should be called. "
+                "No metrics will be written."
+            )
+            return
+
+        logger.info("Writing metrics data.")
+        logger.info(f"Metrics type = {type(self._metrics).__name__}")
         # Finalize by adding all test phases to the backend metrics
         for test_phase in self._test_phases:
             self._metrics.add_metrics(test_phase)
@@ -150,23 +159,19 @@ class BaseIsaacBenchmarkAsync(omni.kit.test.AsyncTestCase):
             start_recording_frametime (bool): False to not start recording frametime at start of phase. Default True.
             start_recording_runtime (bool): False to not start recording runtime at start of phase. Default True.
         """
-        carb.log_info(f"Starting phase: {phase}")
+        logger.info(f"Starting phase: {phase}")
         self.context.phase = phase
         if start_recording_frametime:
             self.frametime_recorder.start_collecting()
         if start_recording_runtime:
             self.runtime_recorder.start_time()
 
-    async def store_measurements(self, stop_recording_time: bool = True) -> None:
+    async def store_measurements(self) -> None:
         """Stores measurements, metadata, and artifacts collected by all recorders during the previous phase.
-        Optionally, ends frametime and runtime collection.
-
-        Args:
-            stop_recording_time (bool): False to not stop recording runtime and frametime at end of phase. Default True.
+        Ends frametime and runtime collection.
         """
-        if stop_recording_time:
-            self.frametime_recorder.stop_collecting()
-            self.runtime_recorder.stop_time()
+        self.frametime_recorder.stop_collecting()
+        self.runtime_recorder.stop_time()
 
         if not self._metadata:
             self._metadata = [measurements.StringMetadata(name="workflow_name", data=self.benchmark_name)]
@@ -211,7 +216,7 @@ class BaseIsaacBenchmarkAsync(omni.kit.test.AsyncTestCase):
         if existing_phase:
             # Add the custom measurement to the existing phase
             existing_phase.measurements.append(custom_measurement)
-            carb.log_info(f"Stored {custom_measurement} for phase '{phase_name}'")
+            logger.info(f"Stored {custom_measurement} for phase '{phase_name}'")
         else:
             # If the phase does not exist, create a new test phase
             new_test_phase = measurements.TestPhase(
@@ -224,4 +229,4 @@ class BaseIsaacBenchmarkAsync(omni.kit.test.AsyncTestCase):
             # Add the new test phase to the list of test phases
             self._test_phases.append(new_test_phase)
 
-            carb.log_info(f"Created new phase '{phase_name}' and stored {custom_measurement}")
+            logger.info(f"Created new phase '{phase_name}' and stored {custom_measurement}")

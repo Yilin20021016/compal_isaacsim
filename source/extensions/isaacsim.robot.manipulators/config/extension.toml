@@ -1,8 +1,8 @@
 [package]
-version = "3.3.6"
+version = "3.3.9"
 category = "Simulation"
 title = "Isaac Sim Manipulators"
-description = "Manipulators"
+description = "Provides Python classes for controlling robotic manipulators including single-arm robots, parallel grippers, and surface grippers with pick-and-place and stacking controllers."
 keywords = ["isaac", "manipulators"]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"
@@ -27,10 +27,13 @@ exclude = ["Ogn*Database.py"]
 
 [[test]]
 timeout = 900
-
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 stdoutFailPatterns.exclude = [
     "*[Error] [omni.graph.core.plugin] /TestGraph/Template_isaacsim_robot_manipulators_IsaacGripperController: [/TestGraph] OmniGraph Error: No robot prim found for the articulation controller*",
     "*[Error] [carb.glinterop.plugin] GLInteropContext::init: carb::windowing is not available*",
+    '*The NumPy module was reloaded*',
 ]
 
 args = [
@@ -80,6 +83,13 @@ args = [
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
+]
+
+stdoutFailPatterns.exclude = [    
+    '*The NumPy module was reloaded*',
 ]

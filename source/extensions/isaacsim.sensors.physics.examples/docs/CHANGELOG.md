@@ -1,4 +1,16 @@
 # Changelog
+## [0.2.2] - 2025-12-05
+### Changed
+- Migrate to Events 2.0.
+
+## [0.2.1] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
+## [0.2.0] - 2025-10-17
+### Changed
+- Migrate PhysX subscription and simulation control interfaces to Omni Physics
+
 ## [0.1.15] - 2025-07-07
 ### Fixed
 - Correctly enable omni.kit.loop-isaac in test dependency (fixes issue from 0.1.14)

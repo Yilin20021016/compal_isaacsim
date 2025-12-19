@@ -1,5 +1,5 @@
 [package]
-version = "2.0.14"
+version = "2.0.15"
 category = "Simulation"
 title = "Isaac Cortex Sample Behaviors"
 description = "Library of Sample Behaviors for Isaac Cortex used in our core examples. It contains a pick and place state machine used on a UR10 for bin stacking, and six examples used on a Franka robot, namely a simple decider network and a state machine, block stacking, and Peck game, state machine and decider network behaviors."
@@ -19,7 +19,9 @@ writeTarget.kit = true
 name = "isaacsim.cortex.behaviors"
 
 [[test]]
-
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
     "--enable",
     "omni.kit.loop-isaac",
@@ -67,6 +69,9 @@ args = [
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

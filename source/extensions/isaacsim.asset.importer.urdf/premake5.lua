@@ -24,8 +24,8 @@ staticruntime("Off")
 
 cppdialect("C++17")
 
-flags { "FatalCompileWarnings", "MultiProcessorCompile", "NoPCH", "NoIncrementalLink" }
-removeflags { "FatalCompileWarnings", "UndefinedIdentifiers" }
+flags { "MultiProcessorCompile", "NoPCH", "NoIncrementalLink" }
+removeflags { "UndefinedIdentifiers" }
 
 add_files("impl", "plugins")
 
@@ -35,7 +35,7 @@ includedirs {
     target_deps .. "/usd/%{cfg.buildcfg}/include",
     target_deps .. "/usd_ext_physics/%{cfg.buildcfg}/include",
     target_deps .. "/omni_physics/include",
-    target_deps .. "/python/include/python3.11",
+    target_deps .. "/python/include/python3.12",
     target_deps .. "/tinyxml2/include",
     target_deps .. "/omni_client_library/include",
     "%{target_deps}/rapidjson/include",
@@ -72,7 +72,7 @@ add_usd(extra_usd_libs)
 if os.target() == "linux" then
     includedirs {
         target_deps .. "/usd/%{cfg.buildcfg}/include/boost",
-        target_deps .. "/python/include/python3.11",
+        target_deps .. "/python/include/python3.12",
     }
     libdirs {}
     links {

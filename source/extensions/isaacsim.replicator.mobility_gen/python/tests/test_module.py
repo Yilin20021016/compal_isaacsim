@@ -50,8 +50,8 @@ class TestPathPlanner(omni.kit.test.AsyncTestCase):
 
         module = ModuleB()
 
-        self.assert_("buffer_b" in module.named_buffers())
-        self.assert_("module_a.buffer_a" in module.named_buffers())
+        self.assertTrue("buffer_b" in module.named_buffers())
+        self.assertTrue("module_a.buffer_a" in module.named_buffers())
 
     async def test_module_state_dict(self):
 
@@ -70,9 +70,9 @@ class TestPathPlanner(omni.kit.test.AsyncTestCase):
 
         state_dict = module.state_dict()
 
-        self.assert_("buffer_b" in state_dict)
+        self.assertTrue("buffer_b" in state_dict)
         self.assertEqual(state_dict["buffer_b"], 1)
-        self.assert_("module_a.buffer_a" in state_dict)
+        self.assertTrue("module_a.buffer_a" in state_dict)
         self.assertEqual(state_dict["module_a.buffer_a"], 0)
 
     async def test_module_named_buffer_with_tags(self):
@@ -96,10 +96,10 @@ class TestPathPlanner(omni.kit.test.AsyncTestCase):
         bar_buffers = module.named_buffers(include_tags=["bar"])
         nonbar_buffers = module.named_buffers(exclude_tags=["bar"])
 
-        self.assert_("buffer_b" in foo_buffers)
-        self.assert_("buffer_b" not in bar_buffers)
-        self.assert_("buffer_b" in nonbar_buffers)
+        self.assertTrue("buffer_b" in foo_buffers)
+        self.assertTrue("buffer_b" not in bar_buffers)
+        self.assertTrue("buffer_b" in nonbar_buffers)
 
-        self.assert_("module_a.buffer_a" in foo_buffers)
-        self.assert_("module_a.buffer_a" in bar_buffers)
-        self.assert_("module_a.buffer_a" not in nonbar_buffers)
+        self.assertTrue("module_a.buffer_a" in foo_buffers)
+        self.assertTrue("module_a.buffer_a" in bar_buffers)
+        self.assertTrue("module_a.buffer_a" not in nonbar_buffers)

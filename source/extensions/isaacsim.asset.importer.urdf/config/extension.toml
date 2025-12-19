@@ -9,10 +9,10 @@
 # its affiliates is strictly prohibited.
 
 [package]
-version = "2.4.30"
+version = "2.4.36"
 category = "Simulation"
 title = "Urdf Importer Extension"
-description = "URDF Importer"
+description = "Imports URDF (Unified Robot Description Format) files into Omniverse USD scenes, converting robot models with their visual meshes, collision geometries, joints, and physics properties."
 keywords = ["urdf", "importer", "isaac"]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"
@@ -74,12 +74,13 @@ exts."omni.kit.window.filepicker".detail_width_max = 600
 
 [[test]]
 dependencies = [
-    "omni.hydra.usdrt_delegate",
-    "isaacsim.test.docstring",
     "isaacsim.core.experimental.utils",
+    "isaacsim.test.docstring",
+    "omni.hydra.usdrt_delegate",
 ]
 stdoutFailPatterns.exclude = [
     "*[Error] [isaacsim.asset.importer.urdf] Failed to resolve mesh 'does_not/exist.obj'*",
+    '*The NumPy module was reloaded*',
 ]
 
 args = [

@@ -17,13 +17,48 @@ import doctest
 import inspect
 
 NO_CHECK = doctest.register_optionflag("NO_CHECK")
-"""When specified, run the example and ignore its output, regardless of whether it has any
+"""Custom doctest directive to run an example but ignore its output.
+
+When specified, the example code is executed but no output comparison is performed,
+regardless of whether the example produces output or not. This is useful for examples
+that have non-deterministic output (e.g., memory addresses, timestamps, random values)
+or when you only want to verify that code runs without errors.
+
+The following directives are available for use in docstring examples:
+
+**Custom Directives (this extension):**
+
+* ``# doctest: +NO_CHECK``: Run the example but skip output verification.
+
+**Standard Python doctest Directives:**
+
+* ``# doctest: +SKIP``: Skip this example entirely (don't run it).
+* ``# doctest: +ELLIPSIS``: Allow ``...`` in expected output to match any substring.
+* ``# doctest: +NORMALIZE_WHITESPACE``: Ignore whitespace differences when comparing output.
+* ``# doctest: +IGNORE_EXCEPTION_DETAIL``: Ignore exception message details, only check type.
+
+**Default Flags:**
+
+The ``assertDocTest`` and ``assertDocTests`` methods use these flags by default:
+``doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS | doctest.FAIL_FAST``
 
 Example:
 
 .. code-block:: python
 
+    # Run but don't check output (useful for non-deterministic results)
     >>> print(list(range(20)))  # doctest: +NO_CHECK
+
+    # Skip this example entirely
+    >>> some_dangerous_operation()  # doctest: +SKIP
+
+    # Use ellipsis to match variable parts of output
+    >>> print({"key": "value", "id": 12345})
+    {...'key': 'value'...}
+
+    # Combine multiple directives
+    >>> print(complex_output())  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    ...output pattern...
 """
 
 

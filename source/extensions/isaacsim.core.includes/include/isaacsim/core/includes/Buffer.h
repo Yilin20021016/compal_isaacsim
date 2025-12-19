@@ -214,7 +214,7 @@ public:
      * @param[in] size New size in number of elements
      * @param[in] cudaStream CUDA stream to use for asynchronous operation
      */
-    virtual void resizeAsync(size_t size, cudaStream_t cudaStream = 0)
+    virtual void resizeAsync(size_t size, cudaStream_t cudaStream = nullptr)
     {
         if ((size != m_size && size > 0) || m_buffer == nullptr)
         {
@@ -256,7 +256,7 @@ public:
      * @param[in] size Number of elements to copy
      * @param[in] kind Type of memory copy operation
      */
-    virtual void copy(const void* src, size_t size, enum cudaMemcpyKind kind = cudaMemcpyDeviceToHost)
+    virtual void copy(const void* src, size_t size, cudaMemcpyKind kind = cudaMemcpyDeviceToHost)
     {
         ScopedDevice scopedDevice(m_device);
         CUDA_CHECK(cudaMemcpy(m_buffer, src, size * sizeof(T), kind));
@@ -271,8 +271,8 @@ public:
      */
     virtual void copyAsync(const void* src,
                            size_t size,
-                           enum cudaMemcpyKind kind = cudaMemcpyDeviceToHost,
-                           cudaStream_t cudaStream = 0)
+                           cudaMemcpyKind kind = cudaMemcpyDeviceToHost,
+                           cudaStream_t cudaStream = nullptr)
     {
         ScopedDevice scopedDevice(m_device);
         CUDA_CHECK(cudaMemcpyAsync(m_buffer, src, size * sizeof(T), kind, cudaStream));
@@ -543,7 +543,7 @@ public:
      * @param[in] cudaStream CUDA stream to use for the operation.
      * @return True if the size was changed, false otherwise.
      */
-    virtual void resizeAsync(size_t size, cudaStream_t cudaStream = 0)
+    virtual void resizeAsync(size_t size, cudaStream_t cudaStream = nullptr)
     {
         if (size != m_size || m_buffer == nullptr)
         {
@@ -600,7 +600,7 @@ public:
      * @param[in] size Number of elements to copy.
      * @param[in] cudaStream CUDA stream to use for the operation.
      */
-    virtual void copyToAsync(void* dst, size_t size, cudaStream_t cudaStream = 0)
+    virtual void copyToAsync(void* dst, size_t size, cudaStream_t cudaStream = nullptr)
     {
         if (size > m_size)
         {
@@ -647,7 +647,7 @@ public:
      * @param[in] size Number of elements to copy.
      * @param[in] cudaStream CUDA stream to use for the operation.
      */
-    virtual void copyFromAsync(const void* src, size_t size, cudaStream_t cudaStream = 0)
+    virtual void copyFromAsync(const void* src, size_t size, cudaStream_t cudaStream = nullptr)
     {
         if (size > m_size)
         {
@@ -725,7 +725,7 @@ public:
      * @param[in] cudaStream CUDA stream to use for the operation.
      * @return True if the fill was successful, false otherwise.
      */
-    virtual bool fillAsync(const T& value, cudaStream_t cudaStream = 0)
+    virtual bool fillAsync(const T& value, cudaStream_t cudaStream = nullptr)
     {
         if (m_buffer != nullptr)
         {
@@ -832,11 +832,11 @@ private:
 
 
 /** @brief Type alias for a device buffer of bytes */
-typedef DeviceBufferBase<uint8_t> DeviceBuffer;
+using DeviceBuffer = DeviceBufferBase<uint8_t>;
 /** @brief Type alias for a host buffer of bytes */
-typedef HostBufferBase<uint8_t> HostBuffer;
+using HostBuffer = HostBufferBase<uint8_t>;
 /** @brief Type alias for a generic buffer of bytes */
-typedef GenericBufferBase<uint8_t> GenericBuffer;
+using GenericBuffer = GenericBufferBase<uint8_t>;
 
 }
 }

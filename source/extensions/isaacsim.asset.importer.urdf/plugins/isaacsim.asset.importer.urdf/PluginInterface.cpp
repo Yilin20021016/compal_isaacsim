@@ -73,7 +73,7 @@ isaacsim::asset::importer::urdf::UrdfRobot parseUrdfString(const std::string& ur
 
         if (importConfig.mergeFixedJoints)
         {
-            collapseFixedJoints(robot);
+            collapseFixedJoints(robot, importConfig.mergeFixedIgnoreInertia);
         }
 
         for (auto& joint : robot.joints)
@@ -157,7 +157,7 @@ isaacsim::asset::importer::urdf::UrdfRobot parseUrdf(const std::string& assetRoo
 
         if (importConfig.mergeFixedJoints)
         {
-            collapseFixedJoints(robot);
+            collapseFixedJoints(robot, importConfig.mergeFixedIgnoreInertia);
         }
 
         if (importConfig.collisionFromVisuals)

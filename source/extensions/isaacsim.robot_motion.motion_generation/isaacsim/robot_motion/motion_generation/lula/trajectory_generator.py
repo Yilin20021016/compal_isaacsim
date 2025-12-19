@@ -375,7 +375,7 @@ class LulaCSpaceTrajectoryGenerator:
                 For a "chord length distribution", the time intervals between waypoints are proportional to
                 the Euclidean distance between waypoints:
 
-                  d_k = \|q_(k+1) - q_k\|
+                  d_k = \\|q_(k+1) - q_k\\|
 
                 where q represents the position of the waypoint.
 
@@ -383,7 +383,7 @@ class LulaCSpaceTrajectoryGenerator:
                 For a "centripetal distribution", the time intervals between waypoints are proportional to the
                 square root of the Euclidean distance between waypoints:
 
-                  d_k = \|q_(k+1) - q_k\|^(1/2)
+                  d_k = \\|q_(k+1) - q_k\\|^(1/2)
 
                 where q represents the position of the waypoint.
 

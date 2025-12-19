@@ -57,15 +57,11 @@ class TestDriveGoalCarterv2(omni.kit.test.AsyncTestCase):
         World.clear_instance()
         # This needs to be set so that kit updates match physics updates
         self._physics_rate = 60
-        carb.settings.get_settings().set_bool("/app/runLoops/main/rateLimitEnabled", True)
-        carb.settings.get_settings().set_int("/app/runLoops/main/rateLimitFrequency", int(self._physics_rate))
-        carb.settings.get_settings().set_int("/persistent/simulation/minFrameRate", int(self._physics_rate))
         self._physics_dt = 1 / self._physics_rate
         self._world = World(stage_units_in_meters=1.0, physics_dt=self._physics_dt, rendering_dt=self._physics_dt)
         await self._world.initialize_simulation_context_async()
 
         self._stage = omni.usd.get_context().get_stage()
-        self._stage.SetTimeCodesPerSecond(60.0)
 
         await omni.kit.app.get_app().next_update_async()
         # setup omnigraph
@@ -129,7 +125,6 @@ class TestDriveGoalCarterv2(omni.kit.test.AsyncTestCase):
                 ],
             },
         )
-        omni.timeline.get_timeline_interface().set_time_codes_per_second(60)
 
         pass
 

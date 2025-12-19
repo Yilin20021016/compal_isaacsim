@@ -19,7 +19,7 @@ import sys
 from isaacsim import SimulationApp
 
 # This sample loads a usd stage and starts simulation
-CONFIG = {"width": 1280, "height": 720, "sync_loads": True, "headless": False, "renderer": "RaytracedLighting"}
+CONFIG = {"width": 1280, "height": 720, "sync_loads": True, "headless": False, "renderer": "RealTimePathTracing"}
 
 
 # Set up command line arguments

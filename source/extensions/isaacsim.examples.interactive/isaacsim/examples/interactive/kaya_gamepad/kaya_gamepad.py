@@ -15,10 +15,10 @@
 
 
 import carb
+import isaacsim.core.experimental.utils.stage as stage_utils
 import omni.graph.core as og
 import omni.usd
-from isaacsim.core.api.objects.ground_plane import GroundPlane
-from isaacsim.examples.interactive.base_sample import BaseSample
+from isaacsim.examples.base.base_sample_experimental import BaseSample
 from isaacsim.storage.native import get_assets_root_path
 from pxr import Sdf, UsdLux
 
@@ -26,6 +26,7 @@ from pxr import Sdf, UsdLux
 class KayaGamepad(BaseSample):
     def __init__(self) -> None:
         super().__init__()
+        self._kaya_prim_path = "/kaya"
 
     def setup_scene(self):
         assets_root_path = get_assets_root_path()
@@ -36,13 +37,35 @@ class KayaGamepad(BaseSample):
         # add kaya robot rigged with gamepad controller
         kaya_ogn_usd = assets_root_path + "/Isaac/Robots/NVIDIA/Kaya/kaya_ogn_gamepad.usd"
         stage = omni.usd.get_context().get_stage()
-        graph_prim = stage.DefinePrim("/kaya", "Xform")
+        graph_prim = stage.DefinePrim(self._kaya_prim_path, "Xform")
         graph_prim.GetReferences().AddReference(kaya_ogn_usd)
 
-        # add ground plane and light
-        GroundPlane("/World/ground_plane", visible=True)
+        # add ground plane using experimental API
+        ground_plane = stage_utils.add_reference_to_stage(
+            usd_path=get_assets_root_path() + "/Isaac/Environments/Grid/default_environment.usd",
+            path="/World/ground_plane",
+        )
+
+        # add dome light
         dome_light = stage.DefinePrim("/World/DomeLight", "DomeLight")
         dome_light.CreateAttribute("inputs:intensity", Sdf.ValueTypeNames.Float).Set(450.0)
 
-    def world_cleanup(self):
+    async def setup_post_load(self):
+        """Called after the scene is loaded."""
+        pass
+
+    async def setup_pre_reset(self):
+        """Called before world reset."""
+        pass
+
+    async def setup_post_reset(self):
+        """Called after world reset."""
+        pass
+
+    async def setup_post_clear(self):
+        """Called after clearing the scene."""
+        pass
+
+    def physics_cleanup(self):
+        """Function called when extension shutdowns and starts again, (hot reloading feature)"""
         pass

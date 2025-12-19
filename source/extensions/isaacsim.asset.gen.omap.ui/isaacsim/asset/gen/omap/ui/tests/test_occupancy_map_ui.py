@@ -12,30 +12,34 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import asyncio
-
-import numpy as np
 import omni.kit.test
-
-# from omni.kit.test_suite.helpers import StageEventHandler
 import omni.kit.ui_test as ui_test
-import omni.timeline
-import omni.ui as ui
 
 
 class TestOccupancyMapUI(omni.kit.test.AsyncTestCase):
-    async def setup(self):
-        # wait for material to be preloaded so create menu is complete & menus don't rebuild during tests
-        await omni.kit.material.library.get_mdl_list_async()
+    """Test suite for the Occupancy Map UI extension.
+
+    Tests the UI functionality including menu loading and basic interaction with
+    the occupancy map generation interface.
+    """
+
+    async def setUp(self):
+        """Sets up the test environment.
+
+        Preloads materials and waits for UI to stabilize before running tests.
+        """
         await ui_test.human_delay()
 
-        # TODO: get omni.kit.test_suite.
-        # self._stage_event_handler = StageEventHandler("omni.kit.stage_templates")
-
     async def tearDown(self):
+        """Cleans up after each test."""
         pass
 
     async def testLoading(self):
+        """Tests that the Occupancy Map UI can be loaded from the menu.
+
+        Creates a new stage and navigates through the Tools > Robotics > Occupancy Map
+        menu to verify the extension loads correctly.
+        """
         await omni.usd.get_context().new_stage_async()
         menu_widget = ui_test.get_menubar()
         await menu_widget.find_menu("Tools").click()

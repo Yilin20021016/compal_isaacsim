@@ -21,13 +21,13 @@ from isaacsim.robot.manipulators.controllers.pick_place_controller import PickPl
 
 
 class StackingController(BaseController):
-    """[summary]
+    """Controller for stacking objects in a specified order.
 
     Args:
-        name (str): [description]
-        pick_place_controller (PickPlaceController): [description]
-        picking_order_cube_names (typing.List[str]): [description]
-        robot_observation_name (str): [description]
+        name: Name identifier for the controller.
+        pick_place_controller: The underlying pick and place controller.
+        picking_order_cube_names: Ordered list of cube names to pick and stack.
+        robot_observation_name: Name key for robot observations in the observation dict.
     """
 
     def __init__(
@@ -66,10 +66,10 @@ class StackingController(BaseController):
         return actions
 
     def reset(self, picking_order_cube_names: typing.Optional[typing.List[str]] = None) -> None:
-        """[summary]
+        """Reset the controller state and optionally update the picking order.
 
         Args:
-            picking_order_cube_names (typing.Optional[typing.List[str]], optional): [description]. Defaults to None.
+            picking_order_cube_names: New list of cube names to pick in order. Defaults to None.
         """
         self._current_cube = 0
         self._pick_place_controller.reset()
@@ -78,10 +78,10 @@ class StackingController(BaseController):
         return
 
     def is_done(self) -> bool:
-        """[summary]
+        """Check if all cubes have been stacked.
 
         Returns:
-            bool: [description]
+            True if all cubes have been stacked, False otherwise.
         """
         if self._current_cube >= len(self._picking_order_cube_names):
             return True

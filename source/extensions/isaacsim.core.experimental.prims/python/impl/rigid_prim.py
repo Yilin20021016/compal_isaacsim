@@ -18,15 +18,17 @@ from __future__ import annotations
 import weakref
 
 import carb
+import carb.eventdispatcher
 import isaacsim.core.experimental.utils.backend as backend_utils
 import isaacsim.core.experimental.utils.ops as ops_utils
-import isaacsim.core.utils.numpy as numpy_utils
 import numpy as np
 import omni.physics.tensors
+import omni.timeline
 import warp as wp
 from isaacsim.core.simulation_manager import SimulationManager
 from pxr import Gf, PhysxSchema, Usd, UsdGeom, UsdPhysics
 
+from . import _transform
 from .prim import _MSG_PHYSICS_TENSOR_ENTITY_NOT_VALID, _MSG_PRIM_NOT_VALID
 from .xform_prim import XformPrim
 
@@ -41,6 +43,12 @@ class RigidPrim(XformPrim):
     .. note::
 
         If the prims do not already have the Rigid Body API applied to them, it will be applied.
+
+    .. warning::
+
+        Currently, creating a USD prim and wrapping it using this class during runtime (when the simulation is playing)
+        is only supported on CPU-based simulation. On GPU-based simulation, a PhysX error will be logged:
+        *Unresolved rigid dynamic index!*.
 
     Args:
         paths: Single path or list of paths to USD prims. Can include regular expressions for matching multiple prims.
@@ -116,21 +124,29 @@ class RigidPrim(XformPrim):
         )
         # apply rigid body API
         RigidPrim.ensure_api(self.prims, UsdPhysics.RigidBodyAPI)
+        RigidPrim.ensure_api(self.prims, PhysxSchema.PhysxRigidBodyAPI)
         # initialize instance from arguments
         if masses is not None:
             self.set_masses(masses)
         if densities is not None:
             self.set_densities(densities)
+
         # setup subscriptions
-        self._subscription_to_timeline_stop_event = (
-            SimulationManager._timeline.get_timeline_event_stream().create_subscription_to_pop_by_type(
-                int(omni.timeline.TimelineEventType.STOP),
-                lambda event, obj=weakref.proxy(self): obj._on_timeline_stop(event),
-            )
+        def safe_timeline_stop_callback(event, obj=weakref.proxy(self)):
+            try:
+                obj._on_timeline_stop(event)
+            except ReferenceError:
+                # Object has been garbage collected, ignore the event
+                pass
+
+        self._subscription_to_timeline_stop_event = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.timeline.GLOBAL_EVENT_STOP,
+            on_event=safe_timeline_stop_callback,
+            observer_name="isaacsim.core.experimental.prims.RigidPrim._on_timeline_stop",
         )
         # setup physics-related configuration if simulation is running
         if SimulationManager._physics_sim_view__warp is not None:
-            SimulationManager._physx_sim_interface.flush_changes()
+            SimulationManager._physics_sim_interface.flush_changes()
             self._on_physics_ready(None)
 
     def __del__(self):
@@ -326,7 +342,7 @@ class RigidPrim(XformPrim):
                     ),
                     dtype=np.float32,
                 )
-            local_translations, local_orientations = numpy_utils.transformations.get_local_from_world(
+            local_translations, local_orientations = _transform.local_from_world(
                 parent_transforms, world_positions.numpy(), world_orientations.numpy()
             )
             return (
@@ -402,7 +418,7 @@ class RigidPrim(XformPrim):
                     ),
                     dtype=np.float32,
                 )
-            world_positions, world_orientations = numpy_utils.transformations.get_world_from_local(
+            world_positions, world_orientations = _transform.world_from_local(
                 parent_transforms, translations.numpy(), orientations.numpy()
             )
             self.set_world_poses(positions=world_positions, orientations=world_orientations, indices=indices)

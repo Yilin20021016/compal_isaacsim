@@ -35,13 +35,13 @@ class WheelBasePoseController(BaseController):
         * otherwise proceed forward
 
     Args:
-        name (str): [description]
+        name (str): Name identifier for the controller.
         open_loop_wheel_controller (BaseController): A controller that takes in a command of
                                                     [longitudinal velocity, steering angle] and returns the
                                                     ArticulationAction to be applied to the wheels if non holonomic.
                                                     and [longitudinal velocity, latitude velocity, steering angle]
                                                     if holonomic.
-        is_holonomic (bool, optional): [description]. Defaults to False.
+        is_holonomic (bool, optional): Whether the robot uses holonomic drive. Defaults to False.
     """
 
     def __init__(self, name: str, open_loop_wheel_controller: BaseController, is_holonomic: bool = False) -> None:
@@ -73,7 +73,7 @@ class WheelBasePoseController(BaseController):
             position_tol (float, optional): The position tolerance. Defaults to 4.0.
 
         Returns:
-            ArticulationAction: [description]
+            ArticulationAction: Action containing wheel joint commands to drive toward the goal.
         """
         # Compute steering yaw in world frame
         steering_yaw = math.atan2(goal_position[1] - start_position[1], goal_position[0] - start_position[0])
@@ -107,5 +107,5 @@ class WheelBasePoseController(BaseController):
         return self._open_loop_wheel_controller.forward(command)
 
     def reset(self) -> None:
-        """[summary]"""
+        """Reset the controller state."""
         return

@@ -67,10 +67,10 @@ class TestCreateViewport(ogts.OmniGraphTestCase):
         )
 
         # await og.Controller.evaluate(test_graph)
-        self.assertEquals(len(get_viewport_names()), 1)
+        self.assertEqual(len(get_viewport_names()), 1)
         # check where the joints are after evaluate
         self._timeline.play()
         await omni.kit.app.get_app().next_update_async()
         await omni.kit.app.get_app().next_update_async()
         await omni.kit.app.get_app().next_update_async()
-        self.assertEquals(len(get_viewport_names()), 2)
+        self.assertEqual(len(get_viewport_names()), 2)

@@ -17,13 +17,13 @@ from isaacsim.core.prims import SingleArticulation
 
 
 class RMPFlowController(mg.MotionPolicyController):
-    """[summary]
+    """RMPflow motion controller for the UR10 robot.
 
     Args:
-        name (str): [description]
-        robot_articulation (SingleArticulation): [description]
-        physics_dt (float, optional): [description]. Defaults to 1.0/60.0.
-        attach_gripper (bool, optional): [description]. Defaults to False.
+        name: Name identifier for the controller.
+        robot_articulation: The robot articulation to control.
+        physics_dt: Physics timestep. Defaults to 1.0/60.0.
+        attach_gripper: Whether gripper is attached. Defaults to False.
     """
 
     def __init__(

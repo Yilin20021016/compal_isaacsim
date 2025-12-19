@@ -1,5 +1,5 @@
 [package]
-version = "15.8.4"
+version = "15.11.5"
 category = "Simulation"
 title = "Isaac Sim Isaac Sensor Simulation"
 description = "Provides APIs for RTX-based sensors, including RTX Lidar & RTX Radar."
@@ -42,6 +42,9 @@ name = "isaacsim.sensors.rtx"
 name = "isaacsim.sensors.rtx.generic_model_output"
 
 [[python.module]]
+name = "isaacsim.sensors.rtx.sensor_checker"
+
+[[python.module]]
 name = "isaacsim.sensors.rtx.tests"
 public = false
 
@@ -76,6 +79,9 @@ rtx.materialDb.nonVisualMaterialSemantics.prefix="omni:simready:nonvisual"
 
 [[test]]
 timeout = 1200
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 stdoutFailPatterns.exclude = [
     # This is excluded in at least 3 kit tests.
     "*Missing call to destroyResourceBindingSignature()*",
@@ -93,6 +99,7 @@ stdoutFailPatterns.exclude = [
     "*[Error] [isaacsim.sensors.rtx.impl.nonvisual_materials] Provided prim is not a valid USD prim*",
     "*[Error] [isaacsim.sensors.rtx.impl.nonvisual_materials] Provided prim is not a material prim*",
     "*Annotator parameters cannot be initialized, it is already attached.*",
+    '*The NumPy module was reloaded*',
 ]
 stdoutFailPatterns.include = [
     "*Could not open asset * for reference*",
@@ -145,10 +152,16 @@ args = [
     "--/app/hydraEngine/waitIdle=1",
     "--/app/updateOrder/checkForHydraRenderComplete=1000",
     "--/rtx-transient/stableIds/enabled=true",
+    "--/renderer/raytracingMotion/enabled=true",
+    "--/renderer/raytracingMotion/enableHydraEngineMasking=true",
+    "--/renderer/raytracingMotion/enabledForHydraEngines=0,1,2,3",
 ]
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

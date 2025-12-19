@@ -79,6 +79,19 @@ class GripperView(XformPrim):
         )
         self.count = len(self)
         self.surface_gripper_interface = surface_gripper.acquire_surface_gripper_interface()
+        # Cache prim paths to avoid repeated USD path queries per step
+        self._prim_paths: list[str] = [p.GetPath().pathString for p in self.prims]
+        # Cache frequently accessed attribute handles per prim
+        self._attr_max_grip_distance = [
+            p.GetAttribute(robot_schema.Attributes.MAX_GRIP_DISTANCE.name) for p in self.prims
+        ]
+        self._attr_coaxial_force_limit = [
+            p.GetAttribute(robot_schema.Attributes.COAXIAL_FORCE_LIMIT.name) for p in self.prims
+        ]
+        self._attr_shear_force_limit = [
+            p.GetAttribute(robot_schema.Attributes.SHEAR_FORCE_LIMIT.name) for p in self.prims
+        ]
+        self._attr_retry_interval = [p.GetAttribute(robot_schema.Attributes.RETRY_INTERVAL.name) for p in self.prims]
         self.set_surface_gripper_properties(max_grip_distance, coaxial_force_limit, shear_force_limit, retry_interval)
 
     def __del__(self):
@@ -95,7 +108,7 @@ class GripperView(XformPrim):
             list[str]: Status of the surface grippers ("Open", "Closing", or "Closed"). Shape (M,).
         """
         indices = ops_utils.resolve_indices(indices, count=self.count, device="cpu").numpy()
-        prim_paths = [self.prims[i].GetPath().pathString for i in indices]
+        prim_paths = [self._prim_paths[i] for i in indices]
         return self.surface_gripper_interface.get_gripper_status_batch(prim_paths)
 
     def get_gripped_objects(self, indices: list | np.ndarray | wp.array | None = None) -> list[str]:
@@ -111,7 +124,7 @@ class GripperView(XformPrim):
         """
 
         indices = ops_utils.resolve_indices(indices, count=self.count, device="cpu").numpy()
-        prim_paths = [self.prims[i].GetPath().pathString for i in indices]
+        prim_paths = [self._prim_paths[i] for i in indices]
         return self.surface_gripper_interface.get_gripped_objects_batch(prim_paths)
 
     def get_surface_gripper_properties(
@@ -136,12 +149,10 @@ class GripperView(XformPrim):
 
         indices = ops_utils.resolve_indices(indices, count=self.count, device="cpu").numpy()
         for i in indices:
-            max_grip_distance.append(self.prims[i].GetAttribute(robot_schema.Attributes.MAX_GRIP_DISTANCE.name).Get())
-            coaxial_force_limit.append(
-                self.prims[i].GetAttribute(robot_schema.Attributes.COAXIAL_FORCE_LIMIT.name).Get()
-            )
-            shear_force_limit.append(self.prims[i].GetAttribute(robot_schema.Attributes.SHEAR_FORCE_LIMIT.name).Get())
-            retry_interval.append(self.prims[i].GetAttribute(robot_schema.Attributes.RETRY_INTERVAL.name).Get())
+            max_grip_distance.append(self._attr_max_grip_distance[i].Get())
+            coaxial_force_limit.append(self._attr_coaxial_force_limit[i].Get())
+            shear_force_limit.append(self._attr_shear_force_limit[i].Get())
+            retry_interval.append(self._attr_retry_interval[i].Get())
 
         return max_grip_distance, coaxial_force_limit, shear_force_limit, retry_interval
 
@@ -166,17 +177,10 @@ class GripperView(XformPrim):
             raise ValueError("Length of values must match number of grippers")
 
         indices = ops_utils.resolve_indices(indices, count=self.count, device="cpu").numpy()
-        prim_paths: list[str] = []
-        actions: list[float] = []
-        for i in indices:
-            # Ensure indice has a matching values
-            if i >= len(values):
-                raise ValueError("Indices should be compatible with length of values")
-            prim_paths.append(self.prims[i].GetPath().pathString)
-            actions.append(values[i])
-
+        prim_paths = [self._prim_paths[i] for i in indices]
+        change_values = [values[i] for i in indices]
         if len(prim_paths) > 0:
-            self.surface_gripper_interface.set_gripper_action_batch(prim_paths, actions)
+            self.surface_gripper_interface.set_gripper_action_batch(prim_paths, change_values)
 
         return
 
@@ -217,8 +221,7 @@ class GripperView(XformPrim):
                 # Ensure indice has a matching values
                 if i >= len(max_grip_distance):
                     raise ValueError("Indices should be compatible with length of max_grip_distance")
-
-                self.prims[i].GetAttribute(robot_schema.Attributes.MAX_GRIP_DISTANCE.name).Set(max_grip_distance[i])
+                self._attr_max_grip_distance[i].Set(max_grip_distance[i])
 
         # Setup coaxial force limit if provided
         if coaxial_force_limit is not None:
@@ -230,8 +233,7 @@ class GripperView(XformPrim):
                 # Ensure indice has a matching values
                 if i >= len(coaxial_force_limit):
                     raise ValueError("Indices should be compatible with length of coaxial_force_limit")
-
-                self.prims[i].GetAttribute(robot_schema.Attributes.COAXIAL_FORCE_LIMIT.name).Set(coaxial_force_limit[i])
+                self._attr_coaxial_force_limit[i].Set(coaxial_force_limit[i])
 
         # Setup shear force limit if provided
         if shear_force_limit is not None:
@@ -243,8 +245,7 @@ class GripperView(XformPrim):
                 # Ensure indice has a matching values
                 if i >= len(shear_force_limit):
                     raise ValueError("Indices should be compatible with length of shear_force_limit")
-
-                self.prims[i].GetAttribute(robot_schema.Attributes.SHEAR_FORCE_LIMIT.name).Set(shear_force_limit[i])
+                self._attr_shear_force_limit[i].Set(shear_force_limit[i])
 
         # Setup retry interval if provided
         if retry_interval is not None:
@@ -256,7 +257,6 @@ class GripperView(XformPrim):
                 # Ensure indice has a matching values
                 if i >= len(retry_interval):
                     raise ValueError("Indices should be compatible with length of retry_interval")
-
-                self.prims[i].GetAttribute(robot_schema.Attributes.RETRY_INTERVAL.name).Set(retry_interval[i])
+                self._attr_retry_interval[i].Set(retry_interval[i])
 
         return

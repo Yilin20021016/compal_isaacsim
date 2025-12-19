@@ -166,8 +166,8 @@ struct ISimulationManager
     DLL_EXPORT virtual size_t getNumPhysicsSteps() = 0;
 
     /**
-     * @brief Gets the current simulation time.
-     * @return The current simulation time.
+     * @brief Checks if the simulation is currently running.
+     * @return True if simulation is running, false otherwise.
      */
     DLL_EXPORT virtual bool isSimulating() = 0;
 

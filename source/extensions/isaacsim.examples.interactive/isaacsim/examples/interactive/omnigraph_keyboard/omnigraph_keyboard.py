@@ -14,12 +14,14 @@
 # limitations under the License.
 
 
-import numpy as np
+import isaacsim.core.experimental.utils.stage as stage_utils
 import omni.ext
 import omni.graph.core as og
-from isaacsim.core.api.objects import VisualCuboid
+from isaacsim.core.experimental.materials import PreviewSurfaceMaterial
+from isaacsim.core.experimental.objects import Cube
 from isaacsim.core.utils.viewports import set_camera_view
-from isaacsim.examples.interactive.base_sample import BaseSample
+from isaacsim.examples.base.base_sample_experimental import BaseSample
+from isaacsim.storage.native import get_assets_root_path
 
 
 class OmnigraphKeyboard(BaseSample):
@@ -27,20 +29,28 @@ class OmnigraphKeyboard(BaseSample):
         super().__init__()
         self._gamepad_gains = (40.0, 40.0, 2.0)
         self._gamepad_deadzone = 0.15
+        self._cube = None
+        self._initial_position = [0, 0, 1.0]
+        self._initial_size = 1.0
 
     def setup_scene(self):
-        world = self.get_world()
-        world.scene.add(
-            VisualCuboid(
-                prim_path="/Cube",  # The prim path of the cube in the USD stage
-                name="cube",  # The unique name used to retrieve the object from the scene later on
-                position=np.array([0, 0, 1.0]),  # Using the current stage units which is cms by default.
-                size=1.0,  # most arguments accept mainly numpy arrays.
-                color=np.array([0, 1.0, 1.0]),  # RGB channels, going from 0-1
-            )
+        # Create cube using experimental API
+        self._cube = Cube(
+            "/Cube", positions=self._initial_position, sizes=[self._initial_size], reset_xform_op_properties=True
         )
-        world.scene.add_default_ground_plane()
-        set_camera_view(eye=np.array([5, 5, 3]), target=np.array([0, 0, 0]))
+
+        # Apply cyan color material
+        material = PreviewSurfaceMaterial("/Looks/cyan_material")
+        material.set_input_values("diffuseColor", [0.0, 1.0, 1.0])  # RGB for cyan
+        self._cube.apply_visual_materials(material)
+
+        # Add ground plane environment for physics simulation
+        ground_plane = stage_utils.add_reference_to_stage(
+            usd_path=get_assets_root_path() + "/Isaac/Environments/Grid/default_environment.usd",
+            path="/World/ground",
+        )
+
+        set_camera_view(eye=[5, 5, 3], target=[0, 0, 0])
 
         # setup graph
         keys = og.Controller.Keys
@@ -91,3 +101,22 @@ class OmnigraphKeyboard(BaseSample):
                 ],
             },
         )
+
+    async def setup_post_load(self):
+        """Called after the scene is loaded."""
+        pass
+
+    async def setup_pre_reset(self):
+        """Called before world reset."""
+        pass
+
+    async def setup_post_reset(self):
+        """Called after world reset to restore cube to initial state."""
+        if self._cube:
+            # Reset cube position and size to initial values
+            self._cube.set_world_poses(positions=self._initial_position)
+            self._cube.set_sizes(sizes=[self._initial_size])
+
+    async def setup_post_clear(self):
+        """Called after clearing the scene."""
+        self._cube = None

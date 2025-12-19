@@ -48,12 +48,12 @@ class TestDifferentialController(omni.kit.test.AsyncTestCase):
         angular_speed = 1.0
         command = [linear_speed, angular_speed]
         actions = controller.forward(command)
-        self.assertEquals(actions.joint_velocities.tolist(), [8.125, 11.875])
+        self.assertEqual(actions.joint_velocities.tolist(), [8.125, 11.875])
 
         ## test setting wheel limits
         controller.max_wheel_speed = 9
         actions = controller.forward(command)
-        self.assertEquals(actions.joint_velocities.tolist(), [8.125, 9])
+        self.assertEqual(actions.joint_velocities.tolist(), [8.125, 9])
 
 
 class TestDifferentialControllerNode(ogts.OmniGraphTestCase):

@@ -1,5 +1,5 @@
 [package]
-version = "4.0.8"
+version = "4.0.10"
 category = "Simulation"
 title = "Isaac Sim Lula"
 description = "Extension that provides lula python interface"

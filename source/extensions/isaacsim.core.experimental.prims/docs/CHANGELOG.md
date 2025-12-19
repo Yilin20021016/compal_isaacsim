@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.9.7] - 2025-12-11
+### Removed
+- Remove checking for the deformable beta feature, as it is now active by default
+
+## [0.9.6] - 2025-12-05
+### Changed
+- Migrate to Events 2.0
+
+## [0.9.5] - 2025-12-01
+### Fixed
+- Fix physics setup when a prim instance is created while the simulation is running
+
+## [0.9.4] - 2025-11-26
+### Changed
+- Update check condition on DOF to ensure it checks if it's a valid DOF before checking limits
+
+## [0.9.3] - 2025-11-21
+### Changed
+- Update implementation to Warp 1.10.0
+- Update array output in docstrings example due to changes in the NumPy representation
+
+## [0.9.2] - 2025-10-27
+### Changed
+- Make isaacsim.storage.native an explicit test dependency
+
+## [0.9.1] - 2025-10-22
+### Changed
+- Replace the use of deprecated core utils functions within implementations
+
+## [0.9.0] - 2025-10-17
+### Changed
+- Migrate PhysX subscription and simulation control interfaces to Omni Physics
+
 ## [0.8.1] - 2025-09-24
 ### Fixed
 - Fix deformable prim's docstrings test

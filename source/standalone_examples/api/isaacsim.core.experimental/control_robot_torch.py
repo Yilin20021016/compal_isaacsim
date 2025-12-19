@@ -52,17 +52,41 @@ from isaacsim import SimulationApp
 
 simulation_app = SimulationApp({"headless": False})
 
+import sys
+
 # Any Omniverse level imports must occur after the `SimulationApp` class is instantiated (because APIs are provided
 # by the extension/runtime plugin system, it must be loaded before they will be available to import).
 import isaacsim.core.experimental.utils.stage as stage_utils
 import omni.timeline
-import torch
 import warp as wp
 from isaacsim.core.experimental.materials import PreviewSurfaceMaterial
 from isaacsim.core.experimental.objects import Sphere
 from isaacsim.core.experimental.prims import Articulation, RigidPrim
 from isaacsim.core.simulation_manager import SimulationManager
 from isaacsim.storage.native import get_assets_root_path
+
+try:
+    import torch
+except ImportError:
+    msg = """
+=====================================================
+This example requires PyTorch (GPU) to be installed.
+See https://pytorch.org/get-started/locally.
+=====================================================
+
+ * Isaac Sim - Binary installation (Linux: ./python.sh, Windows: python.bat):
+
+    ./python.sh -m pip install torch
+
+ * Isaac Sim - Python Package (PIP) installation:
+
+    pip install torch
+
+-----------------------------------------------------
+"""
+    print(msg)
+    simulation_app._app.shutdown()
+    sys.exit(1)
 
 # 2. --------------------------------------------------------------------
 

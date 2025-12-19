@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.5.4] - 2025-12-06
+### Changed
+- Run clang tidy
+- Migrate BaseResetNode to Events 2.0.
+
+## [2.5.3] - 2025-11-07
+### Changed
+- Update to Kit 109 and Python 3.12
+
 ## [2.5.2] - 2025-10-02
 ### Changed
 - Use cached physics views for PoseTree.h

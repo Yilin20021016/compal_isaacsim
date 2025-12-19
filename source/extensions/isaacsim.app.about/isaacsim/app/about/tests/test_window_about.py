@@ -49,7 +49,6 @@ class TestAboutWindow(OmniUiTest):
 
         about = isaacsim.app.about.get_instance()
         about.kit_version = "#Version#"
-        about.nucleus_version = "#Nucleus Version#"
         about.client_library_version = "#Client Library Version#"
         about.app_name = "#App Name#"
         about.app_version = "#App Version#"

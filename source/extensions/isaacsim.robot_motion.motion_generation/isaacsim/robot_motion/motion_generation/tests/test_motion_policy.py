@@ -62,13 +62,7 @@ class TestMotionPolicy(omni.kit.test.AsyncTestCase):
         with open(os.path.join(self._polciy_config_dir, "policy_map.json")) as policy_map:
             self._policy_map = json.load(policy_map)
 
-        carb.settings.get_settings().set_bool("/app/runLoops/main/rateLimitEnabled", True)
-        carb.settings.get_settings().set_int("/app/runLoops/main/rateLimitFrequency", self._physics_fps)
-        carb.settings.get_settings().set_int("/persistent/simulation/minFrameRate", self._physics_fps)
-        omni.timeline.get_timeline_interface().set_target_framerate(self._physics_fps)
-
         await create_new_stage_async()
-        omni.usd.get_context().get_stage().SetTimeCodesPerSecond(self._physics_fps)
 
         await update_stage_async()
 
@@ -393,7 +387,6 @@ class TestMotionPolicy(omni.kit.test.AsyncTestCase):
         obstacle_pos=np.array([0.3, 0.1, 0.5]),
     ):
         (result, error) = await open_stage_async(usd_path)
-        omni.usd.get_context().get_stage().SetTimeCodesPerSecond(self._physics_fps)
 
         rmp_config = interface_config_loader.load_supported_motion_policy_config(robot_name, "RMPflow")
         self._motion_policy = RmpFlow(**rmp_config)

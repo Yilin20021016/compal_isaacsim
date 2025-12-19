@@ -17,12 +17,12 @@ from isaacsim.core.prims import SingleArticulation
 
 
 class RMPFlowController(mg.MotionPolicyController):
-    """[summary]
+    """RMPflow motion controller for the Franka robot.
 
     Args:
-        name (str): [description]
-        robot_articulation (SingleArticulation): [description]
-        physics_dt (float, optional): [description]. Defaults to 1.0/60.0.
+        name: Name identifier for the controller.
+        robot_articulation: The robot articulation to control.
+        physics_dt: Physics timestep. Defaults to 1.0/60.0.
     """
 
     def __init__(self, name: str, robot_articulation: SingleArticulation, physics_dt: float = 1.0 / 60.0) -> None:

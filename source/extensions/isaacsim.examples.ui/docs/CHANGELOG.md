@@ -1,4 +1,8 @@
 # Changelog
+## [1.1.9] - 2025-12-01
+### Changed
+- Rename startup.py to test_startup.py
+
 ## [1.1.8] - 2025-05-19
 ### Changed
 - Update copyright and license to apache v2.0
@@ -33,7 +37,7 @@
 
 ## [1.1.0] - 2024-10-29
 ### Changed
-- moved menu entry from "Isaac Examples" to "Window->Examples"
+- Moved menu entry from "Isaac Examples" to "Window->Examples"
 
 ## [1.0.1] - 2024-10-24
 ### Changed

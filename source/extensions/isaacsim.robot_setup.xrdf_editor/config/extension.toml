@@ -1,5 +1,5 @@
 [package]
-version = "3.1.11"
+version = "3.2.4"
 category = "Simulation"
 title = "Robot Description Editor"
 description = "Generates and edit Lula robot_description YAML files"
@@ -16,6 +16,19 @@ writeTarget.kit = true
 "isaacsim.gui.components" = {}
 "isaacsim.robot_motion.lula" = {}
 "omni.kit.uiapp" = {}
+"omni.physics" = {}
+"omni.physics.physx" = {}
 
 [[python.module]]
 name = "isaacsim.robot_setup.xrdf_editor"
+
+[[test]]
+dependencies = [
+    "omni.isaac.ml_archive",
+]
+
+[[test]]
+name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]

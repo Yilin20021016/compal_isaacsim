@@ -77,7 +77,7 @@ print(rgba.size)
 if rgba.size != 1280 * 720 * 4:
     import carb
 
-    carb.log_error(f"[FAIL] RGB buffer has size of {rgba.size} which is not {1280*720*4}")
+    carb.log_error(f"[fatal] RGB buffer has size of {rgba.size} which is not {1280*720*4}")
     sys.exit(1)
 # Cleanup application
 simulation_app.close()

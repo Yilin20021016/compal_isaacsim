@@ -20,18 +20,20 @@ import carb
 
 from . import utils
 
+logger = utils.set_up_logging(__name__)
+
 
 async def convert_chrome_to_tracy(json_path: str, tracy_path: str) -> str:
     """Convert CPU trace JSON file to Tracy format."""
     from omni.kit.profiler.tracy import tracy
 
     # Convert JSON to Tracy.
-    carb.log_info(f"Converting {json_path} to {tracy_path}")
+    logger.info(f"Converting {json_path} to {tracy_path}")
     tracy.convert_json_to_tracy(json_path, tracy_path)
 
     # If there was a problem with tracy, just return the original file
     if not os.path.exists(tracy_path):
-        carb.log_warn(f"Unable to create tracy file for {json_path}...")
+        logger.warning(f"Unable to create tracy file for {json_path}...")
         return json_path
 
     # Compress file.

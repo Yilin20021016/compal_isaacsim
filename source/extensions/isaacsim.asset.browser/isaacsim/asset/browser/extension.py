@@ -33,13 +33,20 @@ EXTENSION_NAME = "Isaac Sim Asset Browser"
 class AssetBrowserExtension(omni.ext.IExt):
     @property
     def window(self) -> Optional[AssetBrowserWindow]:
+        """Returns the asset browser window."""
         return self._window
 
     @property
     def browser_widget(self) -> Optional[TreeFolderBrowserWidgetEx]:
+        """Returns the browser widget."""
         return self._window._widget
 
     def on_startup(self, ext_id):
+        """Called when the extension is started.
+
+        Args:
+            ext_id: The extension id.
+        """
         self._ext_id = ext_id
         self._window = None
         ui.Workspace.set_show_window_fn(
@@ -63,10 +70,12 @@ class AssetBrowserExtension(omni.ext.IExt):
         _extension_instance = self
 
     def on_shutdown(self):
+        """Called when the extension is shut down."""
         ui.Workspace.set_show_window_fn(AssetBrowserWindow.WINDOW_TITLE, None)
         omni.kit.menu.utils.remove_menu_items(self._menu_entry, name=BROWSER_MENU_ROOT)
         action_registry = omni.kit.actions.core.get_action_registry()
         action_registry.deregister_action(self._ext_id, f"open_isaac_sim_asset_browser")
+        action_registry.deregister_action(self._ext_id, f"toggle_isaac_sim_asset_browser")
 
         if self._window is not None:
             self._window.destroy()
@@ -76,6 +85,11 @@ class AssetBrowserExtension(omni.ext.IExt):
         _extension_instance = None
 
     def _show_window(self, visible) -> None:
+        """Shows or hides the asset browser window.
+
+        Args:
+            visible: Whether to show the window.
+        """
         if visible:
             if self._window is None:
                 self._window = AssetBrowserWindow(visible=True)
@@ -87,10 +101,11 @@ class AssetBrowserExtension(omni.ext.IExt):
             self._window.visible = False
 
     def _toggle_window(self):
+        """Toggles the visibility of the asset browser window."""
         self._show_window(not self._is_visible())
 
     def _register_menuitem(self):
-
+        """Registers the menu item for the extension."""
         ## register the menu action
         action_registry = omni.kit.actions.core.get_action_registry()
         action_registry.register_action(
@@ -99,13 +114,22 @@ class AssetBrowserExtension(omni.ext.IExt):
             lambda: self._show_window(True),
             description=f"Open Isaac Sim Asset Browser",
         )
+        action_registry.register_action(
+            "isaacsim.asset.browser",
+            f"toggle_isaac_sim_asset_browser",
+            self._toggle_window,
+            description=f"Toggle Isaac Sim Asset Browser",
+        )
 
         self._menu_entry = [
             omni.kit.menu.utils.MenuItemDescription(
                 name="Browsers",
                 sub_menu=[
                     omni.kit.menu.utils.MenuItemDescription(
-                        name="Isaac Sim Assets", ticked=True, ticked_fn=self._is_visible, onclick_fn=self._toggle_window
+                        name="Isaac Sim Assets",
+                        ticked=True,
+                        ticked_fn=self._is_visible,
+                        onclick_action=("isaacsim.asset.browser", "toggle_isaac_sim_asset_browser"),
                     )
                 ],
             )
@@ -113,11 +137,22 @@ class AssetBrowserExtension(omni.ext.IExt):
         omni.kit.menu.utils.add_menu_items(self._menu_entry, BROWSER_MENU_ROOT)
 
     def _is_visible(self):
+        """Returns True if the window is visible."""
         return self._window.visible if self._window else False
 
     def _on_visibility_changed(self, visible):
+        """Called when visibility changes.
+
+        Args:
+            visible: Whether the window is visible.
+        """
         omni.kit.menu.utils.refresh_menu_items(BROWSER_MENU_ROOT)
 
 
 def get_instance():
+    """Returns the global instance of the AssetBrowserExtension.
+
+    Returns:
+        AssetBrowserExtension: The global instance of the extension.
+    """
     return _extension_instance

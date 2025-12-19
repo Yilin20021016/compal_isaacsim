@@ -56,14 +56,14 @@ TEST_SUITE("isaacsim.core.includes.tests")
         buffer.resizeAsync(5);
         buffer.copyFromAsync(std::vector<int>({ 6, 7, 8, 9, 10 }).data(), 5);
         // - (2) to device
-        cudaMallocAsync(&deviceData, 5 * sizeof(int), 0);
+        cudaMallocAsync(&deviceData, 5 * sizeof(int), nullptr);
         buffer.copyToAsync(deviceData, 5);
         // - (3) from device
         buffer.clear();
         CHECK_UNARY(buffer.data() == nullptr); // ensure buffer is cleared
         buffer.resizeAsync(5);
         buffer.copyFromAsync(deviceData, 5);
-        cudaFreeAsync(deviceData, 0);
+        cudaFreeAsync(deviceData, nullptr);
         // - (4) to host
         buffer.copyToAsync(hostData.data(), 5);
         CHECK_EQ(hostData, std::vector<int>({ 6, 7, 8, 9, 10 }));

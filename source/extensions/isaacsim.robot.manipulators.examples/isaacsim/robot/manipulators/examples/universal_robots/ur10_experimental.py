@@ -260,12 +260,12 @@ class UR10Experimental(Articulation):
         if total_dofs > self._num_arm_dofs:
             # Add gripper DOFs (set to open position)
             gripper_positions = [0.0] * (total_dofs - self._num_arm_dofs)
-            default_positions = np.array([arm_positions + gripper_positions])
+            default_positions = [arm_positions + gripper_positions]
         else:
             # Only arm DOFs
-            default_positions = np.array([arm_positions])
+            default_positions = [arm_positions]
 
-        print(f"Resetting robot with {total_dofs} DOFs, using positions shape: {default_positions.shape}")
+        print(f"Resetting robot with {total_dofs} DOFs, using positions: {len(default_positions[0])} values")
 
         self.set_dof_positions(default_positions)
         self.set_dof_position_targets(default_positions)

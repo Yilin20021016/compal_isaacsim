@@ -18,21 +18,24 @@ from __future__ import annotations
 import weakref
 
 import carb
+import carb.eventdispatcher
 import isaacsim.core.experimental.utils.backend as backend_utils
 import isaacsim.core.experimental.utils.ops as ops_utils
+import isaacsim.core.experimental.utils.prim as prim_utils
 import isaacsim.core.experimental.utils.stage as stage_utils
-import isaacsim.core.utils.numpy as numpy_utils
 import numpy as np
 import omni.kit.app
 import omni.physics.tensors
 import omni.physx
 import omni.physx.bindings
 import omni.physx.bindings._physx
+import omni.timeline
+import usdrt
 import warp as wp
 from isaacsim.core.simulation_manager import SimulationManager
-from isaacsim.core.utils.prims import get_articulation_root_api_prim_path
 from pxr import PhysicsSchemaTools, PhysxSchema, Sdf, Usd, UsdGeom, UsdPhysics
 
+from . import _transform
 from .prim import _MSG_PHYSICS_TENSOR_ENTITY_NOT_INITIALIZED, _MSG_PHYSICS_TENSOR_ENTITY_NOT_VALID, _MSG_PRIM_NOT_VALID
 from .xform_prim import XformPrim
 
@@ -102,9 +105,8 @@ class Articulation(XformPrim):
         # Articulation
         enable_residual_reports: bool = False,
     ) -> None:
+        paths = Articulation.fetch_articulation_root_api_prim_paths(paths)
         # define properties
-        paths = [paths] if isinstance(paths, str) else paths
-        paths = [get_articulation_root_api_prim_path(path) for path in paths]
         # - default state properties
         self._default_linear_velocities = None
         self._default_angular_velocities = None
@@ -151,16 +153,23 @@ class Articulation(XformPrim):
         self._enable_residual_reports = enable_residual_reports
         if enable_residual_reports:
             Articulation.ensure_api(self.prims, PhysxSchema.PhysxResidualReportingAPI)
+
         # setup subscriptions
-        self._subscription_to_timeline_stop_event = (
-            SimulationManager._timeline.get_timeline_event_stream().create_subscription_to_pop_by_type(
-                int(omni.timeline.TimelineEventType.STOP),
-                lambda event, obj=weakref.proxy(self): obj._on_timeline_stop(event),
-            )
+        def safe_timeline_stop_callback(event, obj=weakref.proxy(self)):
+            try:
+                obj._on_timeline_stop(event)
+            except ReferenceError:
+                # Object has been garbage collected, ignore the event
+                pass
+
+        self._subscription_to_timeline_stop_event = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.timeline.GLOBAL_EVENT_STOP,
+            on_event=safe_timeline_stop_callback,
+            observer_name="isaacsim.core.experimental.prims.Articulation._on_timeline_stop",
         )
         # setup physics-related configuration if simulation is running
         if SimulationManager._physics_sim_view__warp is not None:
-            SimulationManager._physx_sim_interface.flush_changes()
+            SimulationManager._physics_sim_interface.flush_changes()
             self._on_physics_ready(None)
 
     def __del__(self):
@@ -546,6 +555,48 @@ class Articulation(XformPrim):
         return self._physics_articulation_view.generalized_mass_matrix_shape
 
     """
+    Static methods.
+    """
+
+    @staticmethod
+    def fetch_articulation_root_api_prim_paths(paths: str | list[str]) -> list[str | None]:
+        """Fetch the prim paths that have the Articulation Root API applied.
+
+        Args:
+            paths: Single path or list of paths to USD prims. Can include regular expressions for matching multiple prims.
+
+        Returns:
+            List of prim paths that have the Articulation Root API applied.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from isaacsim.core.experimental.prims import Articulation
+            >>>
+            >>> Articulation.fetch_articulation_root_api_prim_paths("/World/prim_.*")
+            ['/World/prim_0', '/World/prim_1', '/World/prim_2']
+            >>> # check for a sub-tree of prims on which the ArticulationRootAPI has not been applied
+            >>> Articulation.fetch_articulation_root_api_prim_paths("/World/prim_0/panda_link0")
+            [None]
+        """
+        existent_paths, nonexistent_paths = Articulation.resolve_paths(paths)
+        assert (
+            not nonexistent_paths
+        ), f"Specified paths must correspond to existing prims: {', '.join(nonexistent_paths)}"
+        backend = backend_utils.get_current_backend(["usd", "usdrt", "fabric"])
+        predicate = lambda prim, _: prim.HasAPI(
+            UsdPhysics.ArticulationRootAPI
+            if backend == "usd"
+            else usdrt.UsdPhysics.ArticulationRootAPI.GetSchemaTypeName()
+        )
+        articulation_root_api_prim_paths = []
+        for path in existent_paths:
+            prim = prim_utils.get_first_matching_child_prim(path, predicate=predicate, include_self=True)
+            articulation_root_api_prim_paths.append(prim_utils.get_prim_path(prim) if prim is not None else None)
+        return articulation_root_api_prim_paths
+
+    """
     Methods.
     """
 
@@ -750,7 +801,7 @@ class Articulation(XformPrim):
                         joint_api = UsdPhysics.PrismaticJoint(dof_prim)
                         lower[i][j] = joint_api.GetLowerLimitAttr().Get()
                         upper[i][j] = joint_api.GetUpperLimitAttr().Get()
-                    else:
+                    elif self.dof_types[dof_index] == omni.physics.tensors.DofType.Rotation:
                         joint_api = UsdPhysics.RevoluteJoint(dof_prim)
                         lower[i][j] = np.deg2rad(joint_api.GetLowerLimitAttr().Get())
                         upper[i][j] = np.deg2rad(joint_api.GetUpperLimitAttr().Get())
@@ -2192,7 +2243,7 @@ class Articulation(XformPrim):
                     ),
                     dtype=np.float32,
                 )
-            local_translations, local_orientations = numpy_utils.transformations.get_local_from_world(
+            local_translations, local_orientations = _transform.local_from_world(
                 parent_transforms, world_positions.numpy(), world_orientations.numpy()
             )
             return (
@@ -2268,7 +2319,7 @@ class Articulation(XformPrim):
                     ),
                     dtype=np.float32,
                 )
-            world_positions, world_orientations = numpy_utils.transformations.get_world_from_local(
+            world_positions, world_orientations = _transform.world_from_local(
                 parent_transforms, translations.numpy(), orientations.numpy()
             )
             self.set_world_poses(positions=world_positions, orientations=world_orientations, indices=indices)

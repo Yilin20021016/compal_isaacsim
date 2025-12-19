@@ -24,11 +24,13 @@ import os
 
 import numpy as np
 import omni.replicator.core as rep
-import torch
 from isaacsim.core.api import World
 from isaacsim.core.api.objects import VisualCuboid
+from isaacsim.core.deprecation_manager import import_module
 from isaacsim.sensors.camera import CameraView
 from PIL import Image
+
+torch = import_module("torch")
 
 # Create the world and add some visual cubes
 my_world = World(stage_units_in_meters=1.0)

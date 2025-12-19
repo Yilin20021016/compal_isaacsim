@@ -600,7 +600,9 @@ class CollisionSphereEditor:
                     continue
                 link_name = prim_path[len(robot_prim_path) + 1 : prim_path.rfind("/")]
                 link_spheres = link_to_spheres.get(link_name, [])
-                sphere_pose = self._round_list_floats(sphere.get_local_pose()[0])
+                # sometimes sphere_pose is a numpy array, which will not work if we try to import
+                # this file again later.
+                sphere_pose = [round(float(x), 5) for x in sphere.get_local_pose()[0]]
                 link_spheres.append({"center": sphere_pose, "radius": round(sphere.get_radius(), 5)})
                 link_to_spheres[link_name] = link_spheres
 

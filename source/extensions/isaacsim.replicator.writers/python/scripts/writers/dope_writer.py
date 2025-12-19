@@ -17,6 +17,7 @@ import io
 import json
 from typing import Dict, List
 
+import carb
 import numpy as np
 from omni.replicator.core import AnnotatorRegistry, BackendDispatch, Writer, WriterRegistry
 from omni.syntheticdata import SyntheticData
@@ -30,6 +31,9 @@ __version__ = "0.0.1"
 
 class DOPEWriter(Writer):
     """Basic writer capable of writing built-in annotator groundtruth.
+
+    .. deprecated::
+        This class has been deprecated and will be removed in the next major release.
 
     Attributes:
         output_dir:
@@ -64,6 +68,10 @@ class DOPEWriter(Writer):
         endpoint_url: str = "",
         s3_region: str = "us-east-1",
     ):
+        carb.log_warn(
+            "Deprecation warning: DOPEWriter has been deprecated and will be removed in the next major release."
+        )
+
         self._output_dir = output_dir
         self._frame_id = 0
         self._image_output_format = image_output_format

@@ -19,18 +19,21 @@ import math
 from typing import Callable, List, Optional, Sequence, Tuple
 
 import carb
+import carb.eventdispatcher
 import isaacsim.core.utils.numpy as np_utils
 import isaacsim.core.utils.torch as torch_utils
 import isaacsim.core.utils.warp as warp_utils
 import numpy as np
 import omni
 import omni.graph.core as og
+import omni.kit.app
 import omni.replicator.core as rep
 import omni.syntheticdata._syntheticdata as _syntheticdata
-import torch
+import omni.timeline
 import warp as wp
 from isaacsim.core.api.sensors.base_sensor import BaseSensor
-from isaacsim.core.nodes.bindings import _isaacsim_core_nodes
+from isaacsim.core.deprecation_manager import import_module
+from isaacsim.core.simulation_manager import SimulationManager
 from isaacsim.core.utils.carb import get_carb_setting
 from isaacsim.core.utils.prims import (
     define_prim,
@@ -43,6 +46,8 @@ from isaacsim.core.utils.prims import (
 from isaacsim.core.utils.render_product import get_resolution, set_camera_prim_path, set_resolution
 from omni.isaac.IsaacSensorSchema import IsaacRtxLidarSensorAPI
 from pxr import Gf, Sdf, Usd, UsdGeom, Vt
+
+torch = import_module("torch")
 
 # Attribute maps for lens distortion models
 OPENCV_PINHOLE_ATTRIBUTE_MAP = ["k1", "k2", "p1", "p2", "k3", "k4", "k5", "k6", "s1", "s2", "s3", "s4"]
@@ -268,7 +273,6 @@ class Camera(BaseSensor):
         self._pause = False
         self._current_frame["rendering_time"] = 0
         self._current_frame["rendering_frame"] = 0
-        self._core_nodes_interface = _isaacsim_core_nodes.acquire_interface()
         self._sdg_interface = _syntheticdata.acquire_syntheticdata_interface()
 
         self._elapsed_time = 0
@@ -394,24 +398,28 @@ class Camera(BaseSensor):
         # Must initialize here after an annotator has been attached so the graph exists
         self._sdg_graph_pipeline = self._og_controller.graph("/Render/PostProcess/SDGPipeline")
 
-        self._acquisition_callback = (
-            omni.usd.get_context()
-            .get_rendering_event_stream()
-            .create_subscription_to_pop_by_type(
-                int(omni.usd.StageRenderingEventType.NEW_FRAME),
-                self._data_acquisition_callback,
-                name="omni.isaac.camera.acquisition_callback",
-                order=1000,
-            )
+        self._acquisition_callback = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.usd.get_context().stage_rendering_event_name(
+                omni.usd.StageRenderingEventType.NEW_FRAME, True
+            ),
+            on_event=self._data_acquisition_callback,
+            observer_name="isaacsim.sensors.camera.Camera.initialize._data_acquisition_callback",
         )
-        self._stage_open_callback = (
-            omni.usd.get_context()
-            .get_stage_event_stream()
-            .create_subscription_to_pop_by_type(int(omni.usd.StageEventType.OPENED), self._stage_open_callback_fn)
+        self._stage_open_callback = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.usd.get_context().stage_event_name(omni.usd.StageEventType.OPENED),
+            on_event=self._stage_open_callback_fn,
+            observer_name="isaacsim.sensors.camera.Camera.initialize._stage_open_callback",
         )
         timeline = omni.timeline.get_timeline_interface()
-        self._timer_reset_callback = timeline.get_timeline_event_stream().create_subscription_to_pop(
-            self._timeline_timer_callback_fn
+        self._timer_reset_callback_stop = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.timeline.GLOBAL_EVENT_STOP,
+            on_event=self._timeline_stop_callback_fn,
+            observer_name="isaacsim.sensors.camera.Camera.initialize._timeline_stop_callback",
+        )
+        self._timer_reset_callback_play = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.timeline.GLOBAL_EVENT_PLAY,
+            on_event=self._timeline_play_callback_fn,
+            observer_name="isaacsim.sensors.camera.Camera.initialize._timeline_play_callback",
         )
         self._current_frame["rendering_frame"] = 0
         self._current_frame["rendering_time"] = 0
@@ -426,27 +434,26 @@ class Camera(BaseSensor):
     def _stage_open_callback_fn(self, event):
         self._acquisition_callback = None
         self._stage_open_callback = None
-        self._timer_reset_callback = None
+        self._timer_reset_callback_stop = None
+        self._timer_reset_callback_play = None
         return
 
-    def _timeline_timer_callback_fn(self, event):
-        if event.type == int(omni.timeline.TimelineEventType.STOP):
-            self.pause()
-        elif event.type == int(omni.timeline.TimelineEventType.PLAY):
-            self.resume()
+    def _timeline_stop_callback_fn(self, event):
+        self.pause()
+        return
+
+    def _timeline_play_callback_fn(self, event):
+        self.resume()
         return
 
     def resume(self) -> None:
         """resumes data collection and updating the data frame"""
-        self._acquisition_callback = (
-            omni.usd.get_context()
-            .get_rendering_event_stream()
-            .create_subscription_to_pop_by_type(
-                int(omni.usd.StageRenderingEventType.NEW_FRAME),
-                self._data_acquisition_callback,
-                name="omni.isaac.camera.acquisition_callback",
-                order=0,
-            )
+        self._acquisition_callback = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.usd.get_context().stage_rendering_event_name(
+                omni.usd.StageRenderingEventType.NEW_FRAME, True
+            ),
+            on_event=self._data_acquisition_callback,
+            observer_name="isaacsim.sensors.camera.Camera.resume._data_acquisition_callback",
         )
         return
 
@@ -462,14 +469,14 @@ class Camera(BaseSensor):
         """
         return self._acquisition_callback is None
 
-    def _data_acquisition_callback(self, event: carb.events.IEvent):
+    def _data_acquisition_callback(self, event: carb.eventdispatcher.Event):
         parsed_payload = self._sdg_interface.parse_rendered_simulation_event(
-            event.payload["product_path_handle"], event.payload["results"]
+            event["product_path_handle"], event["results"]
         )
         if parsed_payload[0] == self._render_product_path:
             self._og_controller.evaluate_sync(graph_id=self._sdg_graph_pipeline)
             frame_number = self._fabric_time_annotator.get_data()
-            current_time = self._core_nodes_interface.get_sim_time_at_time(
+            current_time = SimulationManager._simulation_manager_interface.get_simulation_time_at_time(
                 (frame_number["referenceTimeNumerator"], frame_number["referenceTimeDenominator"])
             )
             if self._previous_time is not None:
@@ -1019,11 +1026,24 @@ class Camera(BaseSensor):
                 Defaults to None, which uses the device specified on annotator initialization (annotator_device)
 
         Returns:
-            rgba (np.ndarray): (N x 4) RGBa color data for each point.
-            wp.types.array: (N x 4) RGBa color data for each point.
+            rgba (np.ndarray): (height, width, 4) RGBA color data.
+            wp.types.array: (height, width, 4) RGBA color data.
+            Returns None if annotator is not attached or data is invalid.
+
+        Note:
+            A few render frames may be required after initialization before valid data becomes available.
         """
         if "rgb" in self._custom_annotators:
-            return self._custom_annotators["rgb"].get_data(device=device)
+            data = self._custom_annotators["rgb"].get_data(device=device)
+            if data is None or data.ndim != 3:
+                carb.log_warn(
+                    f"Annotator 'rgb' returned None or unexpected shape for {self._render_product_path}. "
+                    "A few render frames may be required before data is available."
+                )
+                return None
+            if data.shape[0] == 0:
+                return None
+            return data
         else:
             carb.log_warn(f"Annotator 'rgb' not attached to {self._render_product_path}")
             return None
@@ -1035,12 +1055,22 @@ class Camera(BaseSensor):
                 Defaults to None, which uses the device specified on annotator initialization (annotator_device)
 
         Returns:
-            rgb (np.ndarray): (N x 3) RGB color data for each point.
-            wp.types.array: (N x 3) RGB color data for each point.
+            rgb (np.ndarray): (height, width, 3) RGB color data.
+            wp.types.array: (height, width, 3) RGB color data.
+            Returns None if annotator is not attached or data is invalid.
+
+        Note:
+            A few render frames may be required after initialization before valid data becomes available.
         """
         if "rgb" in self._custom_annotators:
             data = self._custom_annotators["rgb"].get_data(device=device)
-            if data is None or data.shape[0] == 0:
+            if data is None or data.ndim != 3:
+                carb.log_warn(
+                    f"Annotator 'rgb' returned None or unexpected shape for {self._render_product_path}. "
+                    "A few render frames may be required before data is available."
+                )
+                return None
+            if data.shape[0] == 0:
                 return None
             return data[:, :, :3]
         else:
@@ -1054,11 +1084,24 @@ class Camera(BaseSensor):
             device (str, optional): Device to hold data in. Select from `['cpu', 'cuda', 'cuda:<device_index>']`.
                 Defaults to None, which uses the device specified on annotator initialization (annotator_device)
         Returns:
-            depth (np.ndarray): (n x m) depth data for each point.
-            wp.types.array: (n x m) depth data for each point.
+            depth (np.ndarray): (height, width) depth data.
+            wp.types.array: (height, width) depth data.
+            Returns None if annotator is not attached or data is invalid.
+
+        Note:
+            A few render frames may be required after initialization before valid data becomes available.
         """
         if "distance_to_image_plane" in self._custom_annotators:
-            return self._custom_annotators["distance_to_image_plane"].get_data(device=device)
+            data = self._custom_annotators["distance_to_image_plane"].get_data(device=device)
+            if data is None or data.ndim != 2:
+                carb.log_warn(
+                    f"Annotator 'distance_to_image_plane' returned None or unexpected shape for {self._render_product_path}. "
+                    "A few render frames may be required before data is available."
+                )
+                return None
+            if data.shape[0] == 0:
+                return None
+            return data
         else:
             carb.log_warn(f"Annotator 'distance_to_image_plane' not attached to {self._render_product_path}")
             return None
@@ -1076,9 +1119,11 @@ class Camera(BaseSensor):
             world_frame: If True, returns points in world frame. If False, returns points in camera frame.
 
         Returns:
-            np.ndarray | wp.array: A (N x 3) array of 3D points (X, Y, Z) in either world or camera frame,
-                   where N is the number of points.
+            np.ndarray | wp.array: A (N, 3) array of 3D points (X, Y, Z) in either world or camera frame,
+                   where N is the number of points. Returns empty array if data is not available.
+
         Note:
+            A few render frames may be required after initialization before valid data becomes available.
             The fallback method uses the depth (distance_to_image_plane) annotator and
             performs a perspective projection using the camera's intrinsic parameters to generate the pointcloud.
             Point ordering may differ between the pointcloud annotator and depth-based fallback methods,
@@ -1090,9 +1135,10 @@ class Camera(BaseSensor):
         # Try to get pointcloud from custom annotator first
         if annot := self._custom_annotators.get("pointcloud"):
             pointcloud_data = annot.get_data(device=device).get("data")
-            if pointcloud_data is None:
+            if pointcloud_data is None or (hasattr(pointcloud_data, "ndim") and pointcloud_data.ndim != 2):
                 carb.log_warn(
-                    f"[get_pointcloud][{self.prim_path}] WARNING: 'pointcloud' annotator returned None, Returning empty array"
+                    f"Annotator 'pointcloud' returned None or unexpected shape for {self._render_product_path}. "
+                    "A few render frames may be required before data is available."
                 )
                 return np.array([])
             if world_frame:
@@ -1129,20 +1175,11 @@ class Camera(BaseSensor):
 
         # Pointcloud annotator not available, try depth-based fallback
         carb.log_warn(
-            f"[get_pointcloud][{self.prim_path}] WARNING: 'pointcloud' annotator not available, falling back to depth-based calculation"
+            f"Annotator 'pointcloud' not attached to {self._render_product_path}, falling back to depth-based calculation"
         )
 
         depth = self.get_depth(device=device)
-        if depth is None:
-            carb.log_warn(
-                f"[get_pointcloud][{self.prim_path}] WARNING: 'distance_to_image_plane' annotator not available to get depth data, Returning empty array"
-            )
-            return np.array([])
-
-        if depth.shape[0] == 0:
-            carb.log_warn(
-                f"[get_pointcloud][{self.prim_path}] WARNING: 'distance_to_image_plane' annotator returned empty depth data, Returning empty array"
-            )
+        if depth is None or depth.shape[0] == 0:
             return np.array([])
 
         # Determine backend based on device and depth type

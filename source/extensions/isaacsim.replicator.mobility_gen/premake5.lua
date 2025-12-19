@@ -32,7 +32,7 @@ filter { "system:linux" }
 links { "tbb", "pthread" }
 buildoptions { "-pthread" }
 includedirs {
-    "%{root}/_build/target-deps/python/include/python3.11",
+    "%{root}/_build/target-deps/python/include/python3.12",
 }
 
 filter { "system:windows" }

@@ -15,7 +15,9 @@
 
 from typing import Optional
 
-import torch
+from isaacsim.core.deprecation_manager import import_module
+
+torch = import_module("torch")
 
 
 class PytorchListener:

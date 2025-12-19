@@ -96,9 +96,6 @@ class FrankaPickPlace:
             self.offset = np.array([0.0, 0.0, 0.0])
         self.target_position = self.target_position + self.offset
 
-        # Create a new USD stage with default sunlight lighting
-        stage_utils.create_new_stage(template="sunlight")
-
         # Create the Franka robot controller (inherits from Articulation)
         self.robot = FrankaExperimental(robot_path="/World/robot", create_robot=True)
         self.end_effector_link = self.robot.end_effector_link
@@ -309,9 +306,7 @@ class FrankaPickPlace:
             reset_orientation = orientation if orientation is not None else self.cube_initial_orientation
 
             # Reset cube position and orientation
-            self.cube.set_world_poses(
-                positions=reset_position.reshape(1, -1), orientations=reset_orientation.reshape(1, -1)
-            )
+            self.cube.set_world_poses(positions=reset_position, orientations=reset_orientation)
 
             print(f"Cube reset to position: {reset_position}")
         else:

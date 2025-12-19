@@ -36,7 +36,6 @@ device = args.device
 visual = args.visual
 
 import numpy as np
-import torch
 from isaacsim import SimulationApp
 
 simulation_app = SimulationApp({"headless": not visual, "max_gpu_count": n_gpu})
@@ -45,9 +44,10 @@ from functools import partial
 
 import carb
 import isaacsim.core.utils.stage as stage_utils
-import omni.physx as _physx
+import omni.physics.core
 import omni.timeline
 from isaacsim.core.api import PhysicsContext, World
+from isaacsim.core.deprecation_manager import import_module
 from isaacsim.core.prims import Articulation
 from isaacsim.core.utils.extensions import enable_extension
 from isaacsim.core.utils.types import ArticulationActions
@@ -56,6 +56,8 @@ from omni.kit.viewport.utility import get_active_viewport
 
 enable_extension("isaacsim.benchmark.services")
 from isaacsim.benchmark.services import BaseIsaacBenchmark
+
+torch = import_module("torch")
 
 # Create the benchmark
 benchmark = BaseIsaacBenchmark(
@@ -119,7 +121,7 @@ def get_joint_commands(articulation_view, v_max, T, joint_indices):
     return position, velocity
 
 
-def on_physics_step(articulation_view, position_commands, velocity_commands, step):
+def on_physics_step(articulation_view, position_commands, velocity_commands, step, context):
     if position_commands is None:
         return
     timestep[0] += step
@@ -170,9 +172,8 @@ robot_view.initialize()
 omni.kit.app.get_app().update()
 
 position_commands, velocity_commands = get_joint_commands(robot_view, v_max, T, joint_indices)
-_physxIFace = _physx.get_physx_interface()
-physx_subscription = _physxIFace.subscribe_physics_step_events(
-    partial(on_physics_step, robot_view, position_commands, velocity_commands)
+physics_subscription = omni.physics.core.get_physics_simulation_interface().subscribe_physics_on_step_events(
+    pre_step=False, order=0, on_update=partial(on_physics_step, robot_view, position_commands, velocity_commands)
 )
 
 position_command = position_commands(0)

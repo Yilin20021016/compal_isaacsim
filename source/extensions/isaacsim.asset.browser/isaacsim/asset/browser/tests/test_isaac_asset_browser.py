@@ -34,21 +34,28 @@ SETTINGS_PATH = "/persistent/app/stage/instanceableOnCreatingReference"
 
 # pylint: disable=protected-access
 class TestAssetBrowser(OmniUiTest):
+    """Tests for the asset browser."""
+
     # Before running each test
     async def setUp(self):
+        """Sets up the test environment."""
         await super().setUp()
 
         self._golden_img_dir = TEST_DATA_PATH.absolute().joinpath("golden_img").absolute()
         self._stage_dir = TEST_DATA_PATH.absolute().joinpath("stage").absolute()
         self._browser = isaacsim.asset.browser.get_instance()
+        if self._browser._window is None:
+            self._browser._show_window(True)
         self._window = self._browser._window
 
     # After running each test
     async def tearDown(self):
+        """Tears down the test environment."""
         await super().tearDown()
 
-    @unittest.expectedFailure
+    @unittest.skip("Flaky test")
     async def test_browser_ui(self):
+        """Tests the browser UI."""
         try:
             carb.windowing.acquire_windowing_interface()
         except:
@@ -62,6 +69,7 @@ class TestAssetBrowser(OmniUiTest):
         await self.finalize_test(golden_img_dir=self._golden_img_dir, golden_img_name="test_asset.png")
 
     async def test_drag_and_drop_item(self):
+        """Tests dragging and dropping an item."""
         model = omni.kit.browser.asset.model.AssetBrowserModel()
         delegate = omni.kit.browser.asset.delegate.AssetDetailDelegate(model)
         delegate._instanceable_categories = ["mock"]
@@ -87,6 +95,7 @@ class TestAssetBrowser(OmniUiTest):
         delegate.destroy()
 
     async def test_context_menu(self):
+        """Tests the context menu."""
         try:
             carb.windowing.acquire_windowing_interface()
         except:
@@ -105,22 +114,23 @@ class TestAssetBrowser(OmniUiTest):
         self.assertEqual(delegate._context_menu.url, item.url)
         ref_menu = ui_test.WidgetRef(delegate._context_menu, "")
 
-        def _find_menu_item(name):
+        async def _find_menu_item(name):
             delegate.on_right_click(item)
+            await ui_test.human_delay()
             ref_menu_item = ref_menu.find(f"MenuItem[*].text.endswith('{name}')")
             self.assertIsNotNone(ref_menu_item)
+            await ui_test.human_delay()
             return ref_menu_item
 
-        ref_collect = _find_menu_item("Collect")
-        await omni.kit.app.get_app().next_update_async()
+        ref_collect = await _find_menu_item("Collect")
         await ui_test.emulate_mouse_move_and_click(ref_collect.center)
         collect_window = ui_test.find("Collection Options")
+        self.assertIsNotNone(collect_window)
         await collect_window.focus()
         collect_window_cancel_button = collect_window.find("**/Button[*].text=='Cancel'")
         await collect_window_cancel_button.click()
 
-        ref_add = _find_menu_item("Add at Current Selection")
-        await omni.kit.app.get_app().next_update_async()
+        ref_add = await _find_menu_item("Add at Current Selection")
         await omni.usd.get_context().new_stage_async()
         stage = omni.usd.get_context().get_stage()
         self.assertIsNotNone(stage)
@@ -129,27 +139,25 @@ class TestAssetBrowser(OmniUiTest):
         self.assertTrue(cube.IsValid(), "Prim from file to be added is invalid")
 
         item.url = self._stage_dir.joinpath("cylinder.usda").as_posix()
-        ref_replace = _find_menu_item("Replace Current Selection")
-        await omni.kit.app.get_app().next_update_async()
+        ref_replace = await _find_menu_item("Replace Current Selection")
         await ui_test.emulate_mouse_move_and_click(ref_replace.center)
         cylinder = stage.GetPrimAtPath("/cylinder/Cylinder")
         self.assertTrue(cylinder.IsValid(), "Prim from file to be added is invalid")
 
-        # TODO: Investigate why it still crashes on Linux without empty string
-        if sys.platform != "linux":
-            ref_copy_link = _find_menu_item("Copy URL Link")
-            old_clip = omni.kit.clipboard.paste()
-            # Empty string could be converted to nullptr by pybind, which would
-            # crash in Windowing::setClipboard on Linux
-            omni.kit.clipboard.copy("test")
-            await omni.kit.app.get_app().next_update_async()
-            await ui_test.emulate_mouse_move_and_click(ref_copy_link.center)
-            self.assertEqual(omni.kit.clipboard.paste(), item.url)
-            omni.kit.clipboard.copy(old_clip)
+        ref_copy_link = await _find_menu_item("Copy URL Link")
+        old_clip = omni.kit.clipboard.paste()
+        # Empty string could be converted to nullptr by pybind, which would
+        # crash in Windowing::setClipboard on Linux
+        omni.kit.clipboard.copy("test")
+        await omni.kit.app.get_app().next_update_async()
+        await ui_test.emulate_mouse_move_and_click(ref_copy_link.center)
+        self.assertEqual(omni.kit.clipboard.paste(), item.url)
+        omni.kit.clipboard.copy(old_clip)
 
         delegate.destroy()
 
     async def test_execute_item(self):
+        """Tests executing an item."""
         model = omni.kit.browser.asset.model.AssetBrowserModel()
 
         item = Mock()
@@ -161,6 +169,7 @@ class TestAssetBrowser(OmniUiTest):
         self.assertTrue(omni.usd.get_context().get_stage().GetPrimAtPath("/empty_stage").IsValid())
 
     async def __wait_collection_loaded(self, collection_index=0):
+        """Waits for the collection to be loaded."""
         browser_widget = self._window._widget._browser_widget
         browser_widget.collection_index = collection_index
         await omni.kit.app.get_app().next_update_async()

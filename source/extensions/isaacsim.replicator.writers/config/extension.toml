@@ -1,5 +1,5 @@
 [package]
-version = "1.0.17"
+version = "1.2.1"
 category = "SyntheticData"
 title = "Isaac Sim Replicator Writers"
 description = "The extension provides various custom Replicator based writers for Synthetic Data Generation (SDG) workflows. The writers are registered with Replicator at extension startup."
@@ -16,7 +16,6 @@ writeTarget.platform = true # Build separate extensions for Windows and Linux so
 "isaacsim.core.api" = {}
 "omni.graph" = {}
 "omni.graph.core" = {}
-"omni.isaac.ml_archive" = {} # torch
 "omni.replicator.core" = {}
 
 [[python.module]]
@@ -29,6 +28,8 @@ exclude = ["Ogn*Database.py"]
 
 [[test]]
 dependencies = [
+    "isaacsim.test.utils",
+    "omni.isaac.ml_archive"
 ]
 args = [
     "--enable",
@@ -77,6 +78,9 @@ args = [
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

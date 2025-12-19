@@ -25,20 +25,20 @@ from isaacsim.storage.native import get_assets_root_path
 
 
 class UR10(Robot):
-    """[summary]
+    """Universal Robots UR10 robot arm with optional surface gripper.
 
     Args:
-        prim_path (str): [description]
-        name (str, optional): [description]. Defaults to "ur10_robot".
-        usd_path (Optional[str], optional): [description]. Defaults to None.
-        position (Optional[np.ndarray], optional): [description]. Defaults to None.
-        orientation (Optional[np.ndarray], optional): [description]. Defaults to None.
-        end_effector_prim_name (Optional[str], optional): [description]. Defaults to None.
-        attach_gripper (bool, optional): [description]. Defaults to False.
-        gripper_usd (Optional[str], optional): [description]. Defaults to "default".
+        prim_path: USD prim path for the robot.
+        name: Name identifier for the robot. Defaults to "ur10_robot".
+        usd_path: Path to custom USD file. Defaults to None.
+        position: Initial position of the robot. Defaults to None.
+        orientation: Initial orientation as quaternion. Defaults to None.
+        end_effector_prim_name: Name of the end effector prim. Defaults to None.
+        attach_gripper: Whether to attach a gripper. Defaults to False.
+        gripper_usd: Path to gripper USD or "default". Defaults to "default".
 
     Raises:
-        NotImplementedError: [description]
+        NotImplementedError: If custom gripper USD is specified but not supported.
     """
 
     def __init__(
@@ -104,33 +104,33 @@ class UR10(Robot):
 
     @property
     def attach_gripper(self) -> bool:
-        """[summary]
+        """Check if gripper is attached.
 
         Returns:
-            bool: [description]
+            True if gripper is attached, False otherwise.
         """
         return self._attach_gripper
 
     @property
     def end_effector(self) -> SingleRigidPrim:
-        """[summary]
+        """Get the end effector prim.
 
         Returns:
-            SingleRigidPrim: [description]
+            The end effector as a SingleRigidPrim.
         """
         return self._end_effector
 
     @property
     def gripper(self) -> SurfaceGripper:
-        """[summary]
+        """Get the surface gripper controller.
 
         Returns:
-            SurfaceGripper: [description]
+            The surface gripper controller.
         """
         return self._gripper
 
     def initialize(self, physics_sim_view=None) -> None:
-        """[summary]"""
+        """Initialize the robot and its components."""
         super().initialize(physics_sim_view)
         if self._attach_gripper:
             self._gripper.initialize(physics_sim_view=physics_sim_view, articulation_num_dofs=self.num_dof)
@@ -140,7 +140,7 @@ class UR10(Robot):
         return
 
     def post_reset(self) -> None:
-        """[summary]"""
+        """Reset callback for end effector and gripper."""
         Robot.post_reset(self)
         self._end_effector.post_reset()
         self._gripper.post_reset()

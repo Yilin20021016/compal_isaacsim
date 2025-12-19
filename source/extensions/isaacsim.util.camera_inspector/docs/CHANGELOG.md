@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.17] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
 ## [1.0.16] - 2025-08-27
 ### Fixed
 - Fix the broken documentation links

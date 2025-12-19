@@ -1,4 +1,38 @@
 # Changelog
+## [3.4.0] - 2025-12-09
+### Changed
+- Converted log statements to use logger for independent visibility control
+
+## [3.3.5] - 2025-12-09
+### Added
+- Add error handling if set_phase() is called without a matching store_measurements()
+### Removed
+- Removed stop_recording_runtime arg to benchmark.store_measurements()
+
+## [3.3.4] - 2025-12-07
+### Changed
+- Update description
+
+## [3.3.3] - 2025-12-05
+### Changed
+- Migrate to Events 2.0.
+
+## [3.3.2] - 2025-12-03
+### Changed
+- Remove TODOs.
+
+## [3.3.1] - 2025-11-21
+### Fixed
+- Write privacy.toml file to temporary directory
+
+## [3.3.0] - 2025-10-27
+### Changed
+- Get the CUDA device names using Warp API
+- Make omni.isaac.ml_archive an explicit test dependency
+
+## [3.2.0] - 2025-10-17
+### Changed
+- Migrate PhysX subscription and simulation control interfaces to Omni Physics
 
 ## [3.1.1] - 2025-09-26
 ### Changed
@@ -143,11 +177,11 @@
 
 ## [1.10.1] - 2024-09-05
 ### Fixed
-- convert sim_elapsed_time to ms for calculating real-time factor
+- Convert sim_elapsed_time to ms for calculating real-time factor
 
 ## [1.10.0] - 2024-08-05
 ### Changed
-- use omni.physdx.get_physx_benchmarks_interface() to get physics simulation profiling data
+- Use omni.physdx.get_physx_benchmarks_interface() to get physics simulation profiling data
 
 ## [1.9.0] - 2024-07-17
 ### Changed
@@ -155,7 +189,7 @@
 - omni.kit.test is a required dependency, not just for running tests
 
 ### Removed
-- removed unused omni.kit.profiler.window dependency
+- Removed unused omni.kit.profiler.window dependency
 
 ## [1.8.3] - 2024-07-15
 ### Added
@@ -179,13 +213,13 @@
 
 ## [1.6.0] - 2024-05-01
 ### Added
-- ability to enable/disable frametime and runtime separately when starting a phase
+- Ability to enable/disable frametime and runtime separately when starting a phase
 
 ## [1.5.0] - 2024-04-29
 ### Changed
-- cleaned up imports
-- updated docstrings
-- removed unused functions
+- Cleaned up imports
+- Updated docstrings
+- Removed unused functions
 
 ## [1.4.2] - 2024-04-15
 ### Fixed

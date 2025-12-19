@@ -1,5 +1,5 @@
 [package]
-version = "4.0.24"
+version = "5.0.2"
 category = "Simulation"
 title = "Wheeled Robots"
 description = "This extension provides wheeled robot utilities"
@@ -18,7 +18,6 @@ writeTarget.kit = true
 "omni.graph" = {}
 "omni.graph.tools" = {}
 "omni.isaac.core_archive" = {} # scipy, osqp, qdldl
-"omni.isaac.dynamic_control" = {}
 "omni.physx" = {}
 
 [[python.module]]
@@ -37,7 +36,9 @@ exclude = ["Ogn*Database.py"]
 
 [[test]]
 timeout = 900
-dependencies = []
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
     "--enable",
     "omni.kit.loop-isaac",
@@ -85,10 +86,17 @@ args = [
 stdoutFailPatterns.exclude = [
     "*Invalid Bundle object in Py_Bundle in getPrimPath*", # Per node tests won't have valid bundles
     "*AttributeError: 'NoneType' object has no attribute 'GetPrimAtPath'*", # For ackermann node omnigraph tests
+    '*The NumPy module was reloaded*',
 ]
 
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
+]
+stdoutFailPatterns.exclude = [
+    '*The NumPy module was reloaded*',
 ]

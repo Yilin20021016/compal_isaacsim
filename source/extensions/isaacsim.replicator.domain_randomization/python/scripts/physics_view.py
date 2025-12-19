@@ -18,7 +18,7 @@ from typing import Optional, Union
 
 import isaacsim.core.api
 import numpy as np
-import torch
+from isaacsim.core.deprecation_manager import import_module
 from isaacsim.core.prims import Articulation, RigidPrim
 from isaacsim.core.utils.numpy.rotations import quats_to_euler_angles as quat_to_euler_numpy
 from isaacsim.core.utils.torch.rotations import get_euler_xyz as quat_to_euler_torch
@@ -28,6 +28,8 @@ from omni.replicator.core.utils import ReplicatorItem, ReplicatorWrapper, utils
 
 from .attributes import TENDON_ATTRIBUTES
 from .context import trigger_randomization
+
+torch = import_module("torch")
 
 _simulation_context = None
 _rigid_prim_views = dict()

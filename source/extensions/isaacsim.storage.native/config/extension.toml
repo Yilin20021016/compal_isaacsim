@@ -1,8 +1,8 @@
 [package]
-version = "1.5.1"
+version = "1.6.3"
 category = "Simulation"
 title = "Isaac Sim Native Storage"
-description = "Isaac Sim Native Storage"
+description = "Provides utilities for accessing Isaac Sim assets from Nucleus servers or S3 buckets, including path resolution, asset downloading, and version verification."
 keywords = ["isaac"]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"
@@ -22,13 +22,14 @@ name = "isaacsim.storage.native.tests"
 
 [settings]
 # Default asset root path for Isaac Sim
-persistent.isaac.asset_root.default = "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/5.1"
+persistent.isaac.asset_root.default = "https://omniverse-content-staging.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0"
 # Timeout in seconds for asset root path to be resolved
 persistent.isaac.asset_root.timeout = 5.0
 
 [[test]]
 timeout = 900
 dependencies = [
+    "isaacsim.test.docstring",
     "omni.kit.test"
 ]
 args = [

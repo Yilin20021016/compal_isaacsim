@@ -28,12 +28,7 @@ namespace sensors
 {
 namespace physics
 {
-ContactManager::ContactManager()
-{
-    // m_contactCallbackPtr = carb::events::createSubscriptionToPop(
-    //     carb::getCachedInterface<omni::physx::IPhysx>()->getSimulationEventStreamV2().get(),
-    //     [this](carb::events::IEvent* e) { onContactReport(e); }, 0, "Contact Sensor Manager Event Handler");
-}
+ContactManager::ContactManager() = default;
 
 ContactManager::~ContactManager()
 {

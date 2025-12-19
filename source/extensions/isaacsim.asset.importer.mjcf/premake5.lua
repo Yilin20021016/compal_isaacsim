@@ -25,8 +25,8 @@ staticruntime("Off")
 
 cppdialect("C++17")
 
-flags { "FatalCompileWarnings", "MultiProcessorCompile", "NoPCH", "NoIncrementalLink" }
-removeflags { "FatalCompileWarnings", "UndefinedIdentifiers" }
+flags { "MultiProcessorCompile", "NoPCH", "NoIncrementalLink" }
+removeflags { "UndefinedIdentifiers" }
 
 add_files("impl", "plugins")
 
@@ -34,7 +34,7 @@ includedirs {
     target_deps .. "/pybind11/include",
     target_deps .. "/usd/%{cfg.buildcfg}/include",
     target_deps .. "/usd_ext_physics/%{cfg.buildcfg}/include",
-    target_deps .. "/python/include/python3.11",
+    target_deps .. "/python/include/python3.12",
     target_deps .. "/tinyxml2/include",
     target_deps .. "/omni_client_library/include",
     extsbuild_dir .. "%{root}/source/extensions/isaacsim.robot.schema/include",
@@ -49,7 +49,7 @@ libdirs {
     target_deps .. "/tinyxml2/lib",
     target_deps .. "/omni_client_library/%{cfg.buildcfg}",
     extsbuild_dir .. "/omni.usd.core/bin",
-    isaac_sim_extsbuild_dir .. "/omni.kit.asset_converter/asset_converter_native_bindings/libs",    
+    isaac_sim_extsbuild_dir .. "/omni.kit.asset_converter/asset_converter_native_bindings/libs",
 }
 
 links {
@@ -71,7 +71,7 @@ add_usd(extra_usd_libs)
 if os.target() == "linux" then
     includedirs {
         target_deps .. "/usd/%{cfg.buildcfg}/include/boost",
-        target_deps .. "/python/include/python3.11",
+        target_deps .. "/python/include/python3.12",
     }
     libdirs {}
     links {

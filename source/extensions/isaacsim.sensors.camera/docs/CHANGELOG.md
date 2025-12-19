@@ -1,4 +1,34 @@
 # Changelog
+## [1.5.3] - 2025-12-10
+### Fixed
+- Removed `do_array_copy=True` workaround in tiled sensor (fixed upstream in replicator.core 1.12.32 by changing strides type from int32 to int64 to avoid warp array arithemtic when getting annotator data)
+
+## [1.5.2] - 2025-12-06
+### Changed
+- Added validation checks and warmup warnings to camera sensor data methods to handle unavailable data
+- Added warmup tests for camera sensor checking for warnings and data availability
+
+## [1.5.1] - 2025-12-05
+### Changed
+- Migrate to Events 2.0.
+
+## [1.5.0] - 2025-11-26
+### Added
+- Unit test for get_view_matrix_ros
+
+## [1.4.1] - 2025-11-25
+### Fixed
+- Fixed issue with tiled sensor data slicing by copying the data from the annotator (do_array_copy=True)
+
+## [1.4.0] - 2025-10-27
+### Changed
+- Replace import statements with the deprecation function when importing PyTorch
+- Make omni.isaac.ml_archive an explicit test dependency
+
+## [1.3.7] - 2025-10-22
+### Changed
+- Remove deprecated time related APIs from CoreNodes interface
+
 ## [1.3.6] - 2025-09-23
 ### Fixed
 - SingleViewDepthSensorAsset correctly sets position, orientation, translation on __init__.
@@ -125,7 +155,7 @@
 
 ## [1.0.1] - 2025-04-17
 ### Changed
-- changed add_update_semantics to add_labels
+- Changed add_update_semantics to add_labels
 
 ## [1.0.0] - 2025-04-09
 ### Changed
@@ -165,7 +195,7 @@
 - Camera get_pointcloud method uses the 'pointcloud' annotator if set, otherwise it falls back to a depth-based calculation
 
 ### Fixed
-- centered the pointcloud points by adding a half-pixel offset for the depth-based calculation
+- Centered the pointcloud points by adding a half-pixel offset for the depth-based calculation
 
 ### Added
 - Camera sensor pointcloud specific tests
@@ -185,8 +215,8 @@
 
 ## [0.2.6] - 2025-01-06
 ### Fixed
-- use indexed cuda:{idx} input for warp kernels in camera view class
-- use indexed cuda device to pre-allocate out buffers
+- Use indexed cuda:{idx} input for warp kernels in camera view class
+- Use indexed cuda device to pre-allocate out buffers
 
 ## [0.2.5] - 2024-12-31
 ### Fixed
@@ -197,8 +227,8 @@
 - Isaac Util menu to Tools->Robotics menu
 
 ### Fixed
-- camera view sensor test warp.types.int32 -> warp.types.uint32
-- decreased image comparison threshold with 0.95->0.94
+- Camera view sensor test warp.types.int32 -> warp.types.uint32
+- Decreased image comparison threshold with 0.95->0.94
 
 ## [0.2.3] - 2024-11-26
 ### Fixed

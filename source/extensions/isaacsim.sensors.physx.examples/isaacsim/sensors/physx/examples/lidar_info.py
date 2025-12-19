@@ -249,7 +249,7 @@ class Extension(omni.ext.IExt):
             rowString += "{" + str(i + 2) + ":." + str(5) + "f}   "
         rowString = "{0:16}  {1:10}" + rowString + "\n"
 
-        tableString += rowString.format("Azimuth \ Zenith", " | ", *zenith)
+        tableString += rowString.format("Azimuth \\ Zenith", " | ", *zenith)
         tableString += "-" * len(tableString) + "\n"
         for row, cols in enumerate(depth):
             # The data on the c++ side is stored as uint16.  in order to get our depth values into centimeters, we

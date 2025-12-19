@@ -22,8 +22,10 @@ import subprocess
 import sys
 
 import carb
+import carb.eventdispatcher
 import jedi
 import omni.ext
+import omni.kit.app
 
 from . import executor, ui_builder
 
@@ -102,10 +104,11 @@ class Extension(omni.ext.IExt):
                     subprocess.Popen(cmd).wait()
 
         # shutdown stream subscription
-        self._shutdown_subscription = (
-            omni.kit.app.get_app()
-            .get_shutdown_event_stream()
-            .create_subscription_to_pop(self._on_shutdown_event, name="isaacsim.code_editor.jupyter", order=0)
+        self._shutdown_subscription = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.kit.app.GLOBAL_EVENT_POST_QUIT,
+            on_event=self._on_shutdown_event,
+            observer_name="isaacsim.code_editor.jupyter._on_shutdown_event",
+            order=0,
         )
 
         # ui components
@@ -184,8 +187,7 @@ class Extension(omni.ext.IExt):
             self._process = None
 
     def _on_shutdown_event(self, event):
-        if event.type == omni.kit.app.POST_QUIT_EVENT_TYPE:
-            self.on_shutdown()
+        self.on_shutdown()
 
     async def _create_socket(self) -> None:
         """Create a socket server to listen for incoming connections"""

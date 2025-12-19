@@ -111,17 +111,14 @@ class UIBuilder:
         """
         pass
 
-    def on_stage_event(self, event):
-        """Callback for Stage Events
+    def on_assets_loaded(self):
+        """Callback for when stage assets have finished loading."""
+        self._gripper_selection_dropdown.repopulate()
 
-        Args:
-            event (omni.usd.StageEventType): Event Type
-        """
-        if event.type == int(omni.usd.StageEventType.ASSETS_LOADED):
-            self._gripper_selection_dropdown.repopulate()
-        elif event.type == int(omni.usd.StageEventType.SIMULATION_STOP_PLAY):  # Stopped or paused
-            if self._timeline.is_stopped():  # Just stopped
-                self.reset_extension()
+    def on_simulation_stop_play(self):
+        """Callback for when simulation is stopped or paused."""
+        if self._timeline.is_stopped():
+            self.reset_extension()
 
     def cleanup(self):
         """
@@ -903,7 +900,7 @@ class UIBuilder:
 
         return grasp_test_settings
 
-    def _update_test(self, step: float):
+    def _update_test(self, step: float, context):
         result = self._grasp_tester.update_grasp_test(step)
 
         # The grasp test generates status messages until a final result.

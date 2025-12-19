@@ -725,11 +725,11 @@ class TestIMUSensor(omni.kit.test.AsyncTestCase):
 
         # rotated -90 degress abouty, check if this is correct
         # note: (-0.70711, 0 0.70711, 0) and (0.70711, 0, -0.70711, 0) represent the same angle
-        self.assertAlmostEquals(abs(custom_reading.orientation.w), 0.70711, delta=1e-4)
-        self.assertAlmostEquals(custom_reading.orientation.x, 0.0, delta=1e-4)
-        self.assertAlmostEquals(abs(custom_reading.orientation.y), 0.70711, delta=1e-4)
-        self.assertAlmostEquals(custom_reading.orientation.z, 0.0, delta=1e-4)
-        self.assertAlmostEquals(custom_reading.orientation.w, -custom_reading.orientation.y, delta=1e-4)
+        self.assertAlmostEqual(abs(custom_reading.orientation.w), 0.70711, delta=1e-4)
+        self.assertAlmostEqual(custom_reading.orientation.x, 0.0, delta=1e-4)
+        self.assertAlmostEqual(abs(custom_reading.orientation.y), 0.70711, delta=1e-4)
+        self.assertAlmostEqual(custom_reading.orientation.z, 0.0, delta=1e-4)
+        self.assertAlmostEqual(custom_reading.orientation.w, -custom_reading.orientation.y, delta=1e-4)
 
     async def test_invalid_imu(self):
         # goal is to make sure an invalid imu doesn't crash the sim

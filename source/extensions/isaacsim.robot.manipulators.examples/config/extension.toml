@@ -1,8 +1,8 @@
 [package]
-version = "1.1.2"
+version = "1.2.4"
 category = "example"
 title = "Manipulators Examples"
-description = "examples of manipulators and grippers"
+description = "Provides example implementations for Franka and Universal Robots manipulators demonstrating pick-and-place, follow target, and motion planning tasks."
 keywords = ["manipulators","grippers"]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"
@@ -16,14 +16,27 @@ writeTarget.kit = true
 "isaacsim.core.experimental.objects" = {}
 "isaacsim.core.experimental.prims" = {}
 "isaacsim.core.experimental.utils" = {}
+"isaacsim.examples.base" = {}
+"isaacsim.examples.browser" = {}
+"isaacsim.gui.components" = {}
 "isaacsim.robot.manipulators" = {}
 "isaacsim.robot_motion.motion_generation" = {}
 "isaacsim.storage.native" = {}
+"omni.kit.uiapp" = {}
 
 [[python.module]]
 name = "isaacsim.robot.manipulators.examples"
 
+[[python.module]]
+name = "isaacsim.robot.manipulators.examples.franka.interactive.pick_place"
+
+[[python.module]]
+name = "isaacsim.robot.manipulators.examples.universal_robots.interactive.follow_target"
+
 [[test]]
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
     "--enable",
     "omni.kit.loop-isaac",
@@ -69,8 +82,19 @@ args = [
     "--/rtx/reservedDescriptors=900000",
 ]
 
+stdoutFailPatterns.exclude = [    
+    '*The NumPy module was reloaded*',
+]
+
 [[test]]
 name = "startup"
+dependencies = [
+    "omni.isaac.ml_archive",
+]
 args = [
-    "--/app/settings/fabricDefaultStageFrameHistoryCount = 3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
+]
+
+stdoutFailPatterns.exclude = [    
+    '*The NumPy module was reloaded*',
 ]

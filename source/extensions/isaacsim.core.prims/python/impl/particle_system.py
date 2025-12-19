@@ -16,15 +16,19 @@
 from typing import List, Optional, Sequence, Tuple, Union
 
 import carb
+import carb.eventdispatcher
 import numpy as np
 
 # isaac-core
 import omni.kit.app
-import torch
+import omni.timeline
+from isaacsim.core.deprecation_manager import import_module
 from isaacsim.core.utils.prims import find_matching_prim_paths, get_prim_at_path, is_prim_path_valid
 
 # omniverse
 from pxr import PhysxSchema, Usd, UsdShade
+
+torch = import_module("torch")
 
 
 class ParticleSystem:
@@ -139,8 +143,10 @@ class ParticleSystem:
             self.set_global_self_collisions_enabled(global_self_collisions_enabled)
 
         timeline = omni.timeline.get_timeline_interface()
-        self._invalidate_physics_handle_event = timeline.get_timeline_event_stream().create_subscription_to_pop(
-            self._invalidate_physics_handle_callback
+        self._invalidate_physics_handle_event = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.timeline.GLOBAL_EVENT_STOP,
+            on_event=self._invalidate_physics_handle_callback,
+            observer_name="isaacsim.core.prims.ParticleSystem.initialize._invalidate_physics_handle_callback",
         )
 
     def _apply_material_binding_api(self, index):
@@ -198,8 +204,7 @@ class ParticleSystem:
         return
 
     def _invalidate_physics_handle_callback(self, event):
-        if event.type == int(omni.timeline.TimelineEventType.STOP):
-            self._physics_view = None
+        self._physics_view = None
         return
 
     def is_valid(self, indices: Optional[Union[np.ndarray, list, torch.Tensor]] = None) -> bool:
@@ -221,7 +226,6 @@ class ParticleSystem:
 
     def post_reset(self) -> None:
         """Resets the particles to their initial states."""
-        # TODO:
         return
 
     def apply_particle_materials(

@@ -65,6 +65,6 @@ class TestSimulationContextCrash(omni.kit.test.AsyncTestCase):
         # initializing causes timeline to stop if playing
         await world.initialize_simulation_context_async()
         await update_stage_async()
-        self.assertEquals(world.is_playing(), False)
+        self.assertEqual(world.is_playing(), False)
         # Make sure this call doesn't crash due to invalid physx handles
         self._robot.disable_gravity()

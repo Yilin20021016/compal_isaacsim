@@ -25,9 +25,9 @@ class EmptyPropertyDelegate(BrowserPropertyDelegate):
     """
 
     def accepted(self, items: Optional[FileDetailItem]) -> bool:
-        """BrowserPropertyDelegate method override"""
+        """BrowserPropertyDelegate method override."""
         return len(items) == 0
 
     def build_widgets(self, items: Optional[FileDetailItem]) -> None:
-        """BrowserPropertyDelegate method override"""
+        """BrowserPropertyDelegate method override."""
         ui.Label("Please Select a Isaac Asset!", alignment=ui.Alignment.CENTER)

@@ -1,4 +1,16 @@
 # Changelog
+
+## [0.3.0] - 2025-11-06
+### Added
+- New Realsense category, with D455, D457, and D55 models.
+
+### Removed
+- Intel as category
+
+## [0.2.3] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
 ## [0.2.2] - 2025-09-27
 ### Added
 - Restored SICK Inspector83x
@@ -53,7 +65,7 @@
 
 ## [0.1.6] - 2025-03-20
 ### Added
-- sensors to context menu
+- Sensors to context menu
 
 ## [0.1.5] - 2025-03-11
 ### Changed

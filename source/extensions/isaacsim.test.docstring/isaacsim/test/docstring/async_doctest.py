@@ -24,17 +24,57 @@ from . import _doctest
 
 
 class AsyncDocTestCase(omni.kit.test.AsyncTestCase):
-    """Base class for all async test cases with doctest support for checking docstrings examples
+    """Base class for all async test cases with doctest support for checking docstrings examples.
+
+    This class provides methods to validate that code examples in docstrings execute correctly.
+    It is designed for Kit-based async test environments and inherits from ``omni.kit.test.AsyncTestCase``.
 
     .. note::
 
         Derive from it to make the tests auto discoverable.
-        Test methods must start with the ``test_`` prefix
+        Test methods must start with the ``test_`` prefix.
 
-    This class add the following methods:
+    This class adds the following methods:
 
-    * ``assertDocTest``: Check that the examples in docstrings pass for a class/module member
-    * ``assertDocTests``: Check that the examples in docstrings pass for all class/module's members (names)
+    * ``assertDocTest``: Check that the examples in docstrings pass for a class/module member.
+    * ``assertDocTests``: Check that the examples in docstrings pass for all class/module's members.
+
+    **Available Doctest Directives:**
+
+    Use these directives in docstring examples to control test behavior:
+
+    * ``# doctest: +NO_CHECK``: Run the example but skip output verification.
+    * ``# doctest: +SKIP``: Skip this example entirely (don't run it).
+    * ``# doctest: +ELLIPSIS``: Allow ``...`` in expected output to match any substring.
+    * ``# doctest: +NORMALIZE_WHITESPACE``: Ignore whitespace differences.
+
+    **Creating a Test File:**
+
+    To test docstrings for an extension module or class, create a test file like this:
+
+    .. code-block:: python
+
+        # test_docstrings.py
+        from isaacsim.test.docstring import AsyncDocTestCase
+        import my_extension_module
+
+        class TestDocstrings(AsyncDocTestCase):
+            async def test_my_module_docstrings(self):
+                # Test all members of a module
+                await self.assertDocTests(my_extension_module)
+
+            async def test_single_function(self):
+                # Test a specific function (sync method)
+                self.assertDocTest(my_extension_module.some_function)
+
+            async def test_with_options(self):
+                # Test with custom options
+                await self.assertDocTests(
+                    my_extension_module.MyClass,
+                    exclude=[my_extension_module.MyClass.internal_method],
+                    stop_on_failure=True,  # Stop at first failure
+                    await_update=True,  # Await Kit update between tests
+                )
 
     Example:
 

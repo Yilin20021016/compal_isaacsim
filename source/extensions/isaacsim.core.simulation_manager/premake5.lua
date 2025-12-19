@@ -31,7 +31,7 @@ includedirs {
     "%{root}/source/extensions/isaacsim.core.includes/include",
     "%{target_deps}/usd/%{cfg.buildcfg}/include",
     "%{target_deps}/usd/%{cfg.buildcfg}/include/boost",
-    "%{target_deps}/python/include/python3.11",
+    "%{target_deps}/python/include/python3.12",
     "%{kit_sdk_bin_dir}/dev/fabric/include/",
     target_deps .. "/usd_ext_physics/%{cfg.buildcfg}/include",
     target_deps .. "/omni_physics/%{config}/include",

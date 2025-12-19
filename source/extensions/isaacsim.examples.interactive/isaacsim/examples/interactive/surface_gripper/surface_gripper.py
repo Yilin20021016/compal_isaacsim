@@ -27,8 +27,8 @@ import omni.ext
 import omni.kit.app
 import omni.kit.commands
 import omni.kit.usd
+import omni.physics.core
 import omni.physics.tensors as physics
-import omni.physx as _physx
 import omni.ui as ui
 import usd.schema.isaac.robot_schema as robot_schema
 from isaacsim.core.prims import SingleRigidPrim
@@ -132,7 +132,7 @@ class Extension(omni.ext.IExt):
                     add_separator()
 
     def on_shutdown(self):
-        self._physx_subs = None
+        self._physics_subscription = None
         self._stage_event_sub = None
         self._window = None
         get_browser_instance().deregister_example(name=EXTENSION_NAME, category="Manipulation")
@@ -158,7 +158,7 @@ class Extension(omni.ext.IExt):
         else:
             self._models["toggle_button"].text = "CLOSED"
 
-    def _on_simulation_step(self, step):
+    def _on_simulation_step(self, step, context):
         # Checks if the simulation is playing, and if the stage has been loaded
         if self._timeline.is_playing() and self._stage_id != -1:
             self._toggle_gripper_button_ui()
@@ -227,7 +227,11 @@ class Extension(omni.ext.IExt):
                 eye=[2.00, 2.00, 2.00], target=self.gripper_start_pose.p, camera_prim_path="/OmniverseKit_Persp"
             )
 
-            self._physx_subs = _physx.get_physx_interface().subscribe_physics_step_events(self._on_simulation_step)
+            self._physics_subscription = (
+                omni.physics.core.get_physics_simulation_interface().subscribe_physics_on_step_events(
+                    pre_step=False, order=0, on_update=self._on_simulation_step
+                )
+            )
             self._timeline.play()
 
     def _on_create_scenario_button_clicked(self):

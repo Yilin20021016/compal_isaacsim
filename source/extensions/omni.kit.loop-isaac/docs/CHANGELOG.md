@@ -1,4 +1,9 @@
 # Changelog
+
+## [1.3.8] - 2025-10-17
+### Fixed
+- Issue where setting manual mode to false in the carb settings did not work if set before app startup completed
+
 ## [1.3.7] - 2025-07-07
 ### Fixed
 - Correctly enable omni.kit.loop-isaac in test dependency (fixes issue from 1.3.6)
@@ -76,7 +81,7 @@
 ## [1.0.0] - 2022-09-29
 ### Changed
 -   set_runner_dt to set_manual_step_size
--   setting the dt does not enable manual mode, need to call set_manual_mode(True)
+-   Setting the dt does not enable manual mode, need to call set_manual_mode(True)
 
 ### Added
 -   set_manual_mode to enable/disable manual dt during runtime.

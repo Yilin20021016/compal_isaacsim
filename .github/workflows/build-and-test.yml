@@ -17,9 +17,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, public-main ]
+    branches: [ main, public-main, develop, public-develop ]
   pull_request:
-    branches: [ main, public-main ]
+    branches: [ main, public-main, develop, public-develop ]
 
 # Concurrency control to prevent parallel runs on the same PR
 concurrency:

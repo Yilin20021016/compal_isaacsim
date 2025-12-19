@@ -104,7 +104,7 @@ class Extension(omni.ext.IExt):
         self._option_builder = OptionWidget(self._models, self._config)
         self._delegate = MjcfImporterDelegate(
             "Mjcf Importer",
-            ["(.*\\.xml$)|(.*\\.XML$)"],
+            [r"(.*\.xml$)|(.*\.XML$)"],
             ["Mjcf Files (*.xml, *.XML)"],
         )
         self._delegate.set_importer(self)

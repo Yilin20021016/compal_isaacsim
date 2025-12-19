@@ -105,7 +105,6 @@ class TestForkliftArticulations(omni.kit.test.AsyncTestCase):
             },
         )
 
-        omni.timeline.get_timeline_interface().set_time_codes_per_second(60)
         pass
 
     # After running each test

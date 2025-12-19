@@ -19,9 +19,9 @@ import carb
 import numpy as np
 import omni.ext
 import omni.usd
-from omni.physx import get_physx_scene_query_interface
+from omni.physics.core import get_physics_scene_query_interface
 from omni.usd._impl.utils import get_prim_at_path, get_world_transform_matrix
-from pxr import Sdf, Usd, UsdGeom
+from pxr import PhysicsSchemaTools, Sdf, Usd, UsdGeom
 
 
 class ProximitySensor:
@@ -104,7 +104,8 @@ class ProximitySensor:
         return
 
     def report_hit(self, hit):
-        path = str(UsdGeom.Mesh.Get(omni.usd.get_context().get_stage(), hit.rigid_body).GetPrim().GetPrimPath())
+        prim_path = str(PhysicsSchemaTools.intToSdfPath(hit.rigid_body))
+        path = str(UsdGeom.Mesh.Get(omni.usd.get_context().get_stage(), prim_path).GetPrim().GetPrimPath())
         # Add to the active zone list
         if path not in self._active_zones and path not in self._exclusions:
             self._active_zones.append(path)
@@ -121,13 +122,12 @@ class ProximitySensor:
         origin = self.parent_pose.ExtractTranslation()
         rot = self.parent_pose.ExtractRotation().GetQuat()
 
-        # Pass 'False' to overlap_box() to indicate an 'overlap multiple' query.
-        return get_physx_scene_query_interface().overlap_box(
+        # 'overlap multiple' query
+        return get_physics_scene_query_interface().overlap_box(
             carb.Float3(extent[0] * 0.5, extent[1] * 0.5, extent[2] * 0.5),
             carb.Float3(origin[0], origin[1], origin[2]),
             carb.Float4(rot.GetImaginary()[0], rot.GetImaginary()[1], rot.GetImaginary()[2], rot.GetReal()),
             self.report_hit,
-            False,
         )
 
     def status(self):

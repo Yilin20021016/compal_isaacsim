@@ -1,4 +1,12 @@
 # Changelog
+## [2.0.13] - 2025-12-07
+### Changed
+- Update description
+
+## [2.0.12] - 2025-12-03
+### Changed
+- Remove TODOs.
+
 ## [2.0.11] - 2025-05-19
 ### Changed
 - Update copyright and license to apache v2.0
@@ -21,11 +29,11 @@
 
 ## [2.0.6] - 2024-12-09
 ### Fixed
-- startup test
+- Startup test
 
 ## [2.0.5] - 2024-12-07
 ### Fixed
-- moved from deprecated editor_menu.add_item to omni.kit.menu.utils
+- Moved from deprecated editor_menu.add_item to omni.kit.menu.utils
 
 ## [2.0.4] - 2024-11-19
 ### Fixed

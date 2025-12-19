@@ -26,12 +26,14 @@ import carb
 import isaacsim.core.utils.prims as prim_utils
 import isaacsim.core.utils.stage as stage_utils
 import numpy as np
-import torch
 from isaacsim.core.api import SimulationContext
 from isaacsim.core.api.objects import DynamicCuboid
+from isaacsim.core.deprecation_manager import import_module
 from isaacsim.core.prims import Articulation, RigidPrim
 from isaacsim.core.utils.prims import get_prim_attribute_value
 from isaacsim.storage.native import get_assets_root_path
+
+torch = import_module("torch")
 
 assets_root_path = get_assets_root_path()
 if assets_root_path is None:
@@ -80,7 +82,7 @@ def main():
                 atol=0.01,
             ).all()
         ):
-            print(f"[FAIL] PhysX is not synced with Fabric CPU")
+            print(f"[fatal] PhysX is not synced with Fabric CPU")
             sys.exit(1)
         sim.render()
         panda_link1_fabric_world_matrix = get_prim_attribute_value(
@@ -94,7 +96,7 @@ def main():
                 atol=0.01,
             ).all()
         ):
-            print(f"[FAIL] Kinematic Tree is not updated in fabric")
+            print(f"[fatal] Kinematic Tree is not updated in fabric")
             sys.exit(1)
         cube_fabric_world_matrix = get_prim_attribute_value(
             "/World/Origin1/cube", "omni:fabric:worldMatrix", fabric=True
@@ -107,7 +109,7 @@ def main():
                 atol=0.01,
             ).all()
         ):
-            print(f"[FAIL] PhysX is not synced with Fabric CPU")
+            print(f"[fatal] PhysX is not synced with Fabric CPU")
             sys.exit(1)
 
     print(f"[PASS] Fabric frame delay test passed")

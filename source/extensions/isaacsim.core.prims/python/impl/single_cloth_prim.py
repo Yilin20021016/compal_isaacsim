@@ -17,7 +17,7 @@ from typing import List, Optional, Sequence, Union
 
 import carb
 import numpy as np
-import torch
+from isaacsim.core.deprecation_manager import import_module
 from isaacsim.core.utils.stage import get_current_stage
 from isaacsim.core.utils.types import DynamicState
 from omni.physx.scripts import particleUtils, physicsUtils
@@ -26,6 +26,8 @@ from pxr import Gf, PhysxSchema, Sdf, UsdGeom, UsdPhysics, UsdShade
 from .cloth_prim import ClothPrim
 from .single_particle_system import SingleParticleSystem
 from .single_prim_wrapper import _SinglePrimWrapper
+
+torch = import_module("torch")
 
 
 class SingleClothPrim(_SinglePrimWrapper):

@@ -21,13 +21,15 @@ import cv2
 import numpy as np
 import omni.kit.test
 import omni.replicator.core as rep
-import torch
 import warp as wp
 from isaacsim.core.api import World
 from isaacsim.core.api.objects import VisualCuboid
+from isaacsim.core.deprecation_manager import import_module
 from isaacsim.core.utils.stage import create_new_stage_async, update_stage_async
 from isaacsim.sensors.camera.camera_view import ANNOTATOR_SPEC, CameraView
 from isaacsim.sensors.camera.tests.utils import compare_images, save_image
+
+torch = import_module("torch")
 
 SAVE_IMAGE_AS_TEST = False
 SAVE_IMAGE_AS_GOLDEN = False

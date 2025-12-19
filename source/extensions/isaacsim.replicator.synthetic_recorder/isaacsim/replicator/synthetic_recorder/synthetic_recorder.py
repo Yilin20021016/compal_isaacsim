@@ -16,7 +16,6 @@
 import os
 from enum import Enum
 
-import carb.events
 import carb.settings
 import omni.kit.app
 import omni.replicator.core as rep
@@ -54,39 +53,20 @@ class SyntheticRecorder:
     """Synthetic Data Recorder class handling the recording process."""
 
     def __init__(self):
-        # Public -- modified by the UI
+        # Recording configuration
         self.num_frames = 0
         self.rt_subframes = 0
         self.control_timeline = False
         self.verbose = False
+
+        # Writer and render products configuration
         self.writer_name = "BasicWriter"
-        self.rp_data = []
-        self.custom_writer_params = {}
-        self.basic_writer_params = {
-            "rgb": True,
-            "bounding_box_2d_tight": False,
-            "bounding_box_2d_loose": False,
-            "semantic_segmentation": False,
-            "colorize_semantic_segmentation": False,
-            "instance_id_segmentation": False,
-            "colorize_instance_id_segmentation": False,
-            "instance_segmentation": False,
-            "colorize_instance_segmentation": False,
-            "distance_to_camera": False,
-            "distance_to_image_plane": False,
-            "bounding_box_3d": False,
-            "occlusion": False,
-            "normals": False,
-            "motion_vectors": False,
-            "camera_params": False,
-            "pointcloud": False,
-            "pointcloud_include_unlabelled": False,
-            "skeleton_data": False,
-        }
-        self.out_dir = "_out_sdrec"
-        self.out_working_dir = os.getcwd()
-        self.use_s3 = False
-        self.s3_params = {"s3_bucket": "", "s3_region": "", "s3_endpoint": ""}
+        self.writer_params = {}  # Parameters to pass to writer.initialize()
+        self.rp_data = []  # Render product data: [(camera_path, width, height, name), ...]
+
+        # Backend configuration
+        self.backend_type = None  # Options: None, "DiskBackend", "S3Backend", etc.
+        self.backend_params = {}  # Backend-specific parameters
 
         # Internal
         self._state = RecorderState.STOPPED
@@ -129,19 +109,26 @@ class SyntheticRecorder:
             rep.orchestrator.set_capture_on_play(False)
             print("[SDR][Warn] Disabling replicator capture on play flag during recording.")
 
-        writer_params = {}
-        if self.writer_name == "BasicWriter":
-            if self.use_s3:
-                if not self.s3_params.get("s3_bucket", None):
-                    print("[SDR][Warn] Could not initialize writer, s3_bucket parameter is missing.")
-                    return False
-                for key, value in self.s3_params.items():
-                    if value == "":
-                        self.s3_params[key] = None
-                writer_params = {**self.basic_writer_params, **self.s3_params}
-            else:
-                writer_params = {**self.basic_writer_params}
+        # Create and initialize the backend
+        if not self.backend_type:
+            print("[SDR][Warn] Backend not configured. Set backend_type before recording.")
+            return False
 
+        try:
+            backend = rep.backends.get(self.backend_type)
+            backend.initialize(**self.backend_params)
+            if self.verbose:
+                print(f"[SDR][Backend] Using {self.backend_type} with params: {self.backend_params}")
+        except Exception as e:
+            print(f"[SDR][Warn] Could not initialize {self.backend_type}: {e}")
+            return False
+
+        # Add backend to writer_params
+        writer_params = {"backend": backend}
+        writer_params.update(self.writer_params)
+
+        # For BasicWriter: perform stage validation and disable incompatible annotators
+        if self.writer_name == "BasicWriter":
             # If the stage is not semantically labeled, disable any semantics related annotators
             stage_is_labeled = self._check_if_stage_is_semantically_labeled()
             if not stage_is_labeled:
@@ -154,16 +141,9 @@ class SyntheticRecorder:
             if writer_params.get("skeleton_data", False) and not self._check_if_stage_has_skeleton_prims():
                 print(f"[SDR][Warn] Stage does not have any skeleton prims, disabling skeleton annotator.")
                 writer_params["skeleton_data"] = False
-        else:
-            # If a custom writer is used instead of the BasicWriter, load the given custom parameters
-            writer_params = {**self.custom_writer_params}
 
-        if self.use_s3:
-            output_dir = self.out_dir
-        else:
-            output_dir = os.path.join(self.out_working_dir, self.out_dir)
         try:
-            self._writer.initialize(output_dir=output_dir, **writer_params)
+            self._writer.initialize(**writer_params)
         except Exception as e:
             print(f"[SDR][Warn] Could not initialize writer {self.writer_name}: {e}")
             return False
@@ -373,5 +353,16 @@ class SyntheticRecorder:
             timeline.commit()
         await rep.orchestrator.wait_until_complete_async()
         if self.verbose:
-            print(f"[SDR][Recorder] Finished;\tData written to: {os.path.join(self.out_working_dir, self.out_dir)}.")
+            # Print completion message based on backend type
+            if self.backend_type == "DiskBackend":
+                output_dir = self.backend_params.get("output_dir", "unknown")
+                print(f"[SDR][Recorder] Finished;\tData written to: {output_dir}.")
+            elif self.backend_type == "S3Backend":
+                bucket = self.backend_params.get("bucket", "unknown")
+                key_prefix = self.backend_params.get("key_prefix", "")
+                print(f"[SDR][Recorder] Finished;\tData written to S3 bucket: {bucket}/{key_prefix}.")
+            elif self.backend_type:
+                print(f"[SDR][Recorder] Finished;\tData written using {self.backend_type}.")
+            else:
+                print(f"[SDR][Recorder] Finished;\tData written.")
         self.clear_recorder()

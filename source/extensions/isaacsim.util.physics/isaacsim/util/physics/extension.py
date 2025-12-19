@@ -39,7 +39,14 @@ EXTENSION_NAME = "Physics API Editor"
 
 
 class Extension(omni.ext.IExt):
+    """Extension providing a UI for applying and removing physics APIs on USD prims."""
+
     def on_startup(self, ext_id: str):
+        """Initialize the extension UI and menu items.
+
+        Args:
+            ext_id: The unique identifier for this extension instance.
+        """
         self._usd_context = omni.usd.get_context()
         self._selected_prim = None
         self._selection = self._usd_context.get_selection()
@@ -94,9 +101,17 @@ class Extension(omni.ext.IExt):
         pass
 
     def _menu_callback(self):
+        """Toggle the visibility of the extension window."""
         self._window.visible = not self._window.visible
 
     def apply_collision_on_selected(self):
+        """Apply collision APIs to the currently selected prims.
+
+        Creates an async task that traverses all selected prims and applies the appropriate
+        collision API based on the selected collision type (Triangle Mesh, Convex Hull, or
+        Convex Decomposition). Updates the progress bar as prims are processed.
+        """
+
         async def _task():
             self._stage = self._usd_context.get_stage()
             selection = self._selection.get_selected_prim_paths()
@@ -121,6 +136,12 @@ class Extension(omni.ext.IExt):
         asyncio.ensure_future(_task())
 
     def clear_collision_on_selected(self):
+        """Remove collision APIs from the currently selected prims.
+
+        Creates an async task that traverses all selected prims and removes any collision
+        APIs that have been applied. Updates the progress bar as prims are processed.
+        """
+
         async def _task():
             self._stage = self._usd_context.get_stage()
             selection = self._selection.get_selected_prim_paths()
@@ -143,6 +164,13 @@ class Extension(omni.ext.IExt):
         pass
 
     def remove_physics_apis_on_selected(self):
+        """Remove all physics APIs from the currently selected prims.
+
+        Creates an async task that traverses all selected prims and removes all physics-related
+        APIs including rigid body, collision, articulation, joints, and other physics components.
+        Updates the progress bar as prims are processed.
+        """
+
         async def _task():
             self._stage = self._usd_context.get_stage()
             selection = self._selection.get_selected_prim_paths()
@@ -163,6 +191,20 @@ class Extension(omni.ext.IExt):
         pass
 
     def traverse_prims(self, selection, include_xform=False, ignore_rigid=True, visible_only=True):
+        """Traverse and collect valid prims from the given selection.
+
+        Iterates through the selected prim paths and their children (if enabled), filtering
+        based on visibility, rigid body status, and prim type.
+
+        Args:
+            selection: List of selected prim paths to traverse.
+            include_xform: Whether to include Xformable prims in the results.
+            ignore_rigid: Whether to skip prims with PhysicsRigidBodyAPI and their children.
+            visible_only: Whether to only include visible prims.
+
+        Returns:
+            List of valid prims matching the filter criteria.
+        """
         prims = []
         for s in selection:
             curr_prim = self._stage.GetPrimAtPath(s)
@@ -200,6 +242,19 @@ class Extension(omni.ext.IExt):
         return prims
 
     def prim_is_valid(self, prim, include_xform=False, visible_only=True):
+        """Check if a prim is valid for physics API application.
+
+        A prim is considered valid if it is a geometric primitive (Cylinder, Capsule, Cone,
+        Sphere, Cube), a Mesh with valid points, or an Xformable (when include_xform is True).
+
+        Args:
+            prim: The USD prim to validate.
+            include_xform: Whether to consider Xformable prims as valid.
+            visible_only: Whether visibility should be checked (unused in this method).
+
+        Returns:
+            True if the prim is valid for physics API application, False otherwise.
+        """
         if (
             prim.IsA(UsdGeom.Cylinder)
             or prim.IsA(UsdGeom.Capsule)
@@ -221,6 +276,17 @@ class Extension(omni.ext.IExt):
         pass
 
     def apply_collision_to_prim(self, prim, approximationShape="none"):
+        """Apply collision API to a single prim.
+
+        For instanceable prims, applies CollisionAPI and MeshCollisionAPI directly.
+        For other prims, uses the physx utility to set the collider with the specified
+        approximation shape.
+
+        Args:
+            prim: The USD prim to apply collision to.
+            approximationShape: The collision approximation type. One of "none" (triangle mesh),
+                "convexHull", or "convexDecomposition".
+        """
         # TODO: add checks for rigid body parent type, we cannot use regular collision mesh in that case
         if prim.IsInstanceable():
             UsdPhysics.CollisionAPI.Apply(prim)
@@ -229,9 +295,23 @@ class Extension(omni.ext.IExt):
             utils.setCollider(prim, approximationShape)
 
     def unapply_collision_on_prim(self, prim):
+        """Remove collision API from a single prim.
+
+        Args:
+            prim: The USD prim to remove collision from.
+        """
         utils.removeCollider(prim)
 
     def remove_physics_apis_on_prim(self, prim):
+        """Remove all physics-related APIs from a single prim.
+
+        Removes a comprehensive list of physics APIs including rigid body, collision,
+        articulation, character controller, contact report, trigger, material, mass,
+        and various joint types.
+
+        Args:
+            prim: The USD prim to remove physics APIs from.
+        """
         apis = [
             "PhysicsRigidBodyAPI",
             "PhysicsCollisionAPI",
@@ -254,6 +334,10 @@ class Extension(omni.ext.IExt):
             omni.kit.commands.execute("RemovePhysicsComponentCommand", usd_prim=prim, component=component)
 
     def on_shutdown(self):
+        """Clean up extension resources on shutdown.
+
+        Removes menu items and triggers garbage collection.
+        """
         remove_menu_items(self._menu_items, "Tools")
         gc.collect()
         pass

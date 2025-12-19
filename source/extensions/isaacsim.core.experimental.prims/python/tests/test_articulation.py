@@ -76,6 +76,17 @@ class TestArticulation(omni.kit.test.AsyncTestCase):
     # --------------------------------------------------------------------
 
     @parametrize(
+        backends=["tensor"],  # "tensor" backend plays the simulation
+        instances=["one"],
+        operations=["wrap"],
+        prim_class=lambda *args, **kwargs: None,
+        populate_stage_func=populate_stage,
+        max_num_prims=1,
+    )
+    async def test_runtime_instance_creation(self, prim, num_prims, device, backend):
+        Articulation("/World/A_0")
+
+    @parametrize(
         backends=["tensor", "usd"], operations=["wrap"], prim_class=Articulation, populate_stage_func=populate_stage
     )
     async def test_len(self, prim, num_prims, device, backend):
@@ -823,3 +834,26 @@ class TestArticulation(omni.kit.test.AsyncTestCase):
                         check_allclose(
                             (default_v0, default_v1), (prim._default_dof_stiffnesses, prim._default_dof_dampings)
                         )
+
+    @parametrize(
+        backends=["usd"],
+        operations=["wrap"],
+        instances=["many"],
+        prim_class=Articulation,
+        populate_stage_func=populate_stage,
+    )
+    async def test_fetch_articulation_root_api_prim_paths(self, prim, num_prims, device, backend):
+        for backend in ["usd", "usdrt", "fabric"]:
+            with use_backend(backend, raise_on_unsupported=True, raise_on_fallback=True):
+                self.assertListEqual(Articulation.fetch_articulation_root_api_prim_paths("/World"), ["/World/A_0"])
+                self.assertListEqual(
+                    Articulation.fetch_articulation_root_api_prim_paths("/World/A_.*"),
+                    ["/World/A_0", "/World/A_1", "/World/A_2", "/World/A_3", "/World/A_4"],
+                )
+                self.assertListEqual(
+                    Articulation.fetch_articulation_root_api_prim_paths(["/World/A_0"]), ["/World/A_0"]
+                )
+                self.assertListEqual(
+                    Articulation.fetch_articulation_root_api_prim_paths(["/", "/World/.*1", "/World/A_2/Arm"]),
+                    ["/World/A_0", "/World/A_1", None],
+                )

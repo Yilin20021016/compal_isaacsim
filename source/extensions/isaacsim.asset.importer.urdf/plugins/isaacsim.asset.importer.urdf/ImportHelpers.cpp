@@ -109,13 +109,13 @@ void urdfToInertia(const UrdfInertia& urdfInertia, Matrix33& inertia)
     inertia.cols[2].z = urdfInertia.izz;
 }
 
-void mergeFixedChildLinks(const KinematicChain::Node& parentNode, UrdfRobot& robot)
+void mergeFixedChildLinks(const KinematicChain::Node& parentNode, UrdfRobot& robot, bool ignoreInertia)
 {
     // Child contribution to inertia
     for (auto& childNode : parentNode.childNodes_)
     {
         // Depth first
-        mergeFixedChildLinks(*childNode, robot);
+        mergeFixedChildLinks(*childNode, robot, ignoreInertia);
         auto& joint = robot.joints.at(childNode->parentJointName_);
         auto& urdfChildLink = robot.links.at(childNode->linkName_);
 
@@ -124,13 +124,23 @@ void mergeFixedChildLinks(const KinematicChain::Node& parentNode, UrdfRobot& rob
         if ((joint.type == UrdfJointType::FIXED) && !joint.dontCollapse)
         {
             auto& urdfParentLink = robot.links.at(parentNode.linkName_);
-            if ((urdfChildLink.inertial.hasMass && urdfChildLink.inertial.mass > 0.0f))
+            if ((urdfChildLink.inertial.hasMass && urdfChildLink.inertial.mass > 0.0f) && !ignoreInertia)
             {
                 joint.dontCollapse = true;
                 continue;
             }
-            CARB_LOG_WARN("link %s has no body properties (mass, inertia, or collisions) and is being merged into %s",
-                          childNode->linkName_.c_str(), parentNode.linkName_.c_str());
+            if (!ignoreInertia)
+            {
+                CARB_LOG_WARN("link %s has no body properties (mass, inertia, or collisions) and is being merged into %s",
+                              childNode->linkName_.c_str(), parentNode.linkName_.c_str());
+            }
+            else
+            {
+                CARB_LOG_WARN(
+                    "DEPRECATION WARNING: Merging bodies with inertia is deprecated. This will be removed in a future release.");
+                CARB_LOG_WARN("link %s has body properties (mass, inertia, or collisions) and is being merged into %s",
+                              childNode->linkName_.c_str(), parentNode.linkName_.c_str());
+            }
             // The pose of the child with respect to the parent is defined at the joint connecting them
             Transform poseChildToParent = joint.origin;
             // Add a reference to the merged link
@@ -209,7 +219,7 @@ void mergeFixedChildLinks(const KinematicChain::Node& parentNode, UrdfRobot& rob
     }
 }
 
-bool collapseFixedJoints(UrdfRobot& robot)
+bool collapseFixedJoints(UrdfRobot& robot, bool ignoreInertia)
 {
     KinematicChain chain;
     if (!chain.computeKinematicChain(robot))
@@ -220,7 +230,7 @@ bool collapseFixedJoints(UrdfRobot& robot)
     const auto& parentNode = chain.baseNode;
     if (!parentNode->childNodes_.empty())
     {
-        mergeFixedChildLinks(*parentNode, robot);
+        mergeFixedChildLinks(*parentNode, robot, ignoreInertia);
     }
 
     return true;

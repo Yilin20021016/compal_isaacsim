@@ -1,4 +1,29 @@
 # Changelog
+## [3.2.5] - 2025-12-08
+### Changed
+- Considers visual mesh scaling when generating collision spheres.
+- No longer deletes portions of the robot prim when generating collision spheres.
+
+## [3.2.4] - 2025-12-05
+### Changed
+- Migrate to Events 2.0.
+
+## [3.2.3] - 2025-11-27
+### Changed
+- Add missing docstrings
+
+## [3.2.2] - 2025-10-31
+### Changed
+- Update deprecated numpy in1d to np.isin
+
+## [3.2.1] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
+## [3.2.0] - 2025-10-17
+### Changed
+- Migrate PhysX subscription and simulation control interfaces to Omni Physics
+
 ## [3.1.11] - 2025-07-14
 ### Added
 - Warning message when an existing XRDF file isn't valid for merging
@@ -13,7 +38,7 @@
 
 ## [3.1.8] - 2025-05-07
 ### Changed
-- switch to omni.physics interface
+- Switch to omni.physics interface
 
 ## [3.1.7] - 2025-04-04
 ### Changed

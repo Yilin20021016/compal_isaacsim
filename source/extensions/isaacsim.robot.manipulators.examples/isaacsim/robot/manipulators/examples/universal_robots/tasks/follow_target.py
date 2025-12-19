@@ -23,18 +23,18 @@ from isaacsim.robot.manipulators.examples.universal_robots import UR10
 
 
 class FollowTarget(tasks.FollowTarget):
-    """[summary]
+    """UR10 robot follow target task.
 
     Args:
-        name (str, optional): [description]. Defaults to "ur10_follow_target".
-        target_prim_path (Optional[str], optional): [description]. Defaults to None.
-        target_name (Optional[str], optional): [description]. Defaults to None.
-        target_position (Optional[np.ndarray], optional): [description]. Defaults to None.
-        target_orientation (Optional[np.ndarray], optional): [description]. Defaults to None.
-        offset (Optional[np.ndarray], optional): [description]. Defaults to None.
-        ur10_prim_path (Optional[str], optional): [description]. Defaults to None.
-        ur10_robot_name (Optional[str], optional): [description]. Defaults to None.
-        attach_gripper (bool, optional): [description]. Defaults to False.
+        name: Task name. Defaults to "ur10_follow_target".
+        target_prim_path: USD path for target. Defaults to None.
+        target_name: Target name. Defaults to None.
+        target_position: Initial target position. Defaults to None.
+        target_orientation: Initial target orientation. Defaults to None.
+        offset: Task offset. Defaults to None.
+        ur10_prim_path: USD path for UR10 robot. Defaults to None.
+        ur10_robot_name: Robot name. Defaults to None.
+        attach_gripper: Whether to attach gripper. Defaults to False.
     """
 
     def __init__(
@@ -66,10 +66,10 @@ class FollowTarget(tasks.FollowTarget):
         return
 
     def set_robot(self) -> UR10:
-        """[summary]
+        """Create and configure the UR10 robot.
 
         Returns:
-            UR10: [description]
+            Configured UR10 robot instance.
         """
         if self._ur10_prim_path is None:
             self._ur10_prim_path = find_unique_string_name(

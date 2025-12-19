@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.11] - 2025-12-10
+### Changed
+- Fix USD path for placement of front camera on Carter with latest USD asset
+- Fix issue where H1 and Spot policies command must be provided as torch tensor
+
+## [0.1.10] - 2025-10-27
+### Changed
+- Make omni.isaac.ml_archive an explicit test dependency
+
 ## [0.1.9] - 2025-09-30
 ### Fixed
 - Add dialog message for incorrect occupancy map paths

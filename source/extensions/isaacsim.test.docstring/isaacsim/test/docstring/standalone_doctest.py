@@ -21,16 +21,55 @@ from . import _doctest
 
 
 class StandaloneDocTestCase(unittest.TestCase):
-    """Base class for all standalone test cases with doctest support for checking docstrings examples
+    """Base class for all standalone test cases with doctest support for checking docstrings examples.
+
+    This class provides methods to validate that code examples in docstrings execute correctly.
+    It is designed for standalone (non-Kit) test environments using Python's unittest framework.
 
     .. note::
 
-        Test methods must start with the ``test_`` prefix
+        Test methods must start with the ``test_`` prefix.
 
-    This class add the following methods:
+    This class adds the following methods:
 
-    * ``assertDocTest``: Check that the examples in docstrings pass for a class/module member
-    * ``assertDocTests``: Check that the examples in docstrings pass for all class/module's members (names)
+    * ``assertDocTest``: Check that the examples in docstrings pass for a class/module member.
+    * ``assertDocTests``: Check that the examples in docstrings pass for all class/module's members.
+
+    **Available Doctest Directives:**
+
+    Use these directives in docstring examples to control test behavior:
+
+    * ``# doctest: +NO_CHECK``: Run the example but skip output verification.
+    * ``# doctest: +SKIP``: Skip this example entirely (don't run it).
+    * ``# doctest: +ELLIPSIS``: Allow ``...`` in expected output to match any substring.
+    * ``# doctest: +NORMALIZE_WHITESPACE``: Ignore whitespace differences.
+
+    **Creating a Test File:**
+
+    To test docstrings for a module or class, create a test file like this:
+
+    .. code-block:: python
+
+        # test_docstrings.py
+        import unittest
+        from isaacsim.test.docstring import StandaloneDocTestCase
+        import my_module
+
+        class TestDocstrings(StandaloneDocTestCase):
+            def test_my_module_docstrings(self):
+                # Test all members of a module
+                self.assertDocTests(my_module)
+
+            def test_single_function(self):
+                # Test a specific function
+                self.assertDocTest(my_module.some_function)
+
+            def test_with_exclusions(self):
+                # Exclude specific members from testing
+                self.assertDocTests(
+                    my_module.MyClass,
+                    exclude=[my_module.MyClass.internal_method]
+                )
 
     Example:
 

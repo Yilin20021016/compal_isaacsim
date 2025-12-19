@@ -22,7 +22,7 @@ ROS_CAMERA_GRAPH_PATH = "/ROS_Camera"
 BACKGROUND_STAGE_PATH = "/background"
 BACKGROUND_USD_PATH = "/Isaac/Environments/Simple_Warehouse/warehouse_with_forklifts.usd"
 
-CONFIG = {"renderer": "RaytracedLighting", "headless": False}
+CONFIG = {"renderer": "RealTimePathTracing", "headless": False}
 
 simulation_app = SimulationApp(CONFIG)
 import carb

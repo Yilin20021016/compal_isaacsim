@@ -11,12 +11,17 @@ Python API
 .. autosummary::
     :nosignatures:
 
+    SimulationEvent
     SimulationManager
     IsaacEvents
 
 |
 
 .. API
+
+.. autoclass:: isaacsim.core.simulation_manager.SimulationEvent
+    :members:
+    :undoc-members:
 
 .. autoclass:: isaacsim.core.simulation_manager.SimulationManager
     :members:

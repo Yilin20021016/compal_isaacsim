@@ -16,7 +16,7 @@
 from isaacsim import SimulationApp
 
 # URDF import, configuration and simulation sample
-kit = SimulationApp({"renderer": "RaytracedLighting", "headless": False})
+kit = SimulationApp({"renderer": "RealTimePathTracing", "headless": False})
 import omni.kit.commands
 from isaacsim.core.prims import Articulation
 from isaacsim.core.utils.extensions import get_extension_path_from_name
@@ -93,7 +93,7 @@ else:
     print(f"Got articulation ({prim_path})")
 
 # perform simulation
-for frame in range(1000):
+for frame in range(10):
     kit.update()
 
 # Shutdown and exit

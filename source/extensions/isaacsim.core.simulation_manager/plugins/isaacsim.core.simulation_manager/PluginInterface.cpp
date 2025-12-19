@@ -27,6 +27,7 @@
 #include <omni/graph/core/Type.h>
 #include <omni/kit/IMinimal.h>
 #include <omni/kit/IStageUpdate.h>
+#include <omni/physics/simulation/IPhysicsSimulation.h>
 #include <omni/physx/IPhysx.h>
 #include <omni/usd/UsdContext.h>
 
@@ -54,7 +55,8 @@ const struct carb::PluginImplDesc g_kPluginDesc = { "isaacsim.core.simulation_ma
 namespace
 {
 omni::physx::IPhysx* g_physXInterface = nullptr;
-omni::physx::SubscriptionId g_physicsOnStepSubscription;
+omni::physics::IPhysicsSimulation* g_physicsSimulationInterface = nullptr;
+omni::physics::SubscriptionId g_physicsOnStepSubscription;
 carb::events::ISubscriptionPtr g_physicsEventSubscription;
 omni::kit::StageUpdatePtr g_stageUpdate = nullptr;
 
@@ -98,10 +100,10 @@ public:
         m_usdNoticeListenerKey =
             pxr::TfNotice::Register(pxr::TfCreateWeakPtr(m_usdNoticeListener.get()), &UsdNoticeListener::handle);
         auto ed = carb::getCachedInterface<carb::eventdispatcher::IEventDispatcher>();
-        const static carb::RStringKey name("IsaacSimStageOpenedUsdNoticeListener");
+        static const carb::RStringKey s_kEventName("IsaacSimStageOpenedUsdNoticeListener");
         auto usdContext = omni::usd::UsdContext::getContext();
         m_stageEventSubscription = ed->observeEvent(
-            name, 1000, usdContext->stageEventName(omni::usd::StageEventType::eOpened),
+            s_kEventName, 1000, usdContext->stageEventName(omni::usd::StageEventType::eOpened),
             [this, usdContext](const auto&)
             {
                 auto stage = usdContext->getStage();
@@ -113,8 +115,8 @@ public:
                 usdrt::UsdStageRefPtr usdrtStage = usdrt::UsdStage::Attach(stageId, stageInProgress);
                 for (auto& usdrtPath : usdrtStage->GetPrimsWithTypeName(usdrt::TfToken("UsdPhysicsScene")))
                 {
-                    const omni::fabric::PathC pathC(usdrtPath);
-                    const pxr::SdfPath primPath = omni::fabric::toSdfPath(pathC);
+                    const omni::fabric::Path path(usdrtPath);
+                    const pxr::SdfPath primPath = omni::fabric::toSdfPath(path);
                     pxr::UsdPrim prim = stage->GetPrimAtPath(primPath);
                     if (m_usdNoticeListener->getPhysicsScenes().count(primPath) == 0)
                     {
@@ -564,7 +566,7 @@ void onResume(float currentTime, void* userData)
  * @param[in] timeElapsed The elapsed time since the last physics step
  * @param[in] userData User data pointer
  */
-void onPhysicsStep(float timeElapsed, void* userData)
+void onPhysicsStep(float timeElapsed, const omni::physics::PhysicsStepContext& context)
 {
     g_simulationTime += timeElapsed;
     g_simulationTimeMonotonic += timeElapsed;
@@ -678,7 +680,8 @@ public:
     {
         // TODO: in case there is more than one physics scene which one is returned?
         g_physXInterface = carb::getCachedInterface<omni::physx::IPhysx>();
-        g_physicsOnStepSubscription = g_physXInterface->subscribePhysicsOnStepEvents(false, 0, onPhysicsStep, nullptr);
+        g_physicsSimulationInterface = carb::getCachedInterface<omni::physics::IPhysicsSimulation>();
+        g_physicsOnStepSubscription = g_physicsSimulationInterface->subscribePhysicsOnStepEvents(false, 0, onPhysicsStep);
         g_systemTime = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
         g_simulationTime = 0;
         g_simulationTimeMonotonic = 0;
@@ -688,26 +691,28 @@ public:
             g_physXInterface->getSimulationEventStreamV2().get(),
             [](carb::events::IEvent* e)
             {
-                if (e->type == omni::physx::SimulationEvent::eStopped)
+                switch (e->type)
                 {
+                case omni::physx::SimulationEvent::eStopped:
                     g_simulating = false;
                     g_paused = false;
-                }
-                else if (e->type == omni::physx::SimulationEvent::ePaused)
-                {
+                    break;
+                case omni::physx::SimulationEvent::ePaused:
                     g_paused = true;
-                }
-                else if (e->type == omni::physx::SimulationEvent::eResumed)
-                {
+                    break;
+                case omni::physx::SimulationEvent::eResumed:
                     g_simulating = true;
                     g_paused = false;
+                    break;
+                default:
+                    break;
                 }
             },
             0, "IsaacSim.Core.SimulationManager.SimulationEvent");
 
         g_stageUpdate = carb::getCachedInterface<omni::kit::IStageUpdate>()->getStageUpdate();
 
-        omni::kit::StageUpdateNodeDesc desc = { 0 };
+        omni::kit::StageUpdateNodeDesc desc = { nullptr };
         desc.displayName = "Isaac Simulation Manager";
         desc.onStop = onStop;
         desc.onAttach = onAttach;

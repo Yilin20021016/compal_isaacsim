@@ -1,4 +1,20 @@
 # Changelog
+## [2.0.7] - 2025-12-07
+### Changed
+- Update description
+
+## [2.0.6] - 2025-12-05
+### Changed
+- Migrate to Events 2.0.
+
+## [2.0.5] - 2025-12-01
+### Changed
+- Update test module import
+
+## [2.0.4] - 2025-11-03
+### Removed
+- Remove the deprecated and unused isaacsim.core.utils dependency
+
 ## [2.0.3] - 2025-07-07
 ### Fixed
 - Correctly enable omni.kit.loop-isaac in test dependency (fixes issue from 2.0.2)
@@ -78,7 +94,7 @@
 - Reworked to usdrt implementation to eliminate performance impact
 
 ### Added
-- usdrt dependency
+- Usdrt dependency
 
 ## [0.1.3] - 2025-04-21
 ### Changed

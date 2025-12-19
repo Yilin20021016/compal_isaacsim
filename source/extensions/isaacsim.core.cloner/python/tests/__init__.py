@@ -13,4 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from isaacsim.core.cloner.tests.test_cloner import *
+scan_for_test_modules = True

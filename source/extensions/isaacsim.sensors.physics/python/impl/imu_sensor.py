@@ -19,7 +19,7 @@ import numpy as np
 import omni.isaac.IsaacSensorSchema as IsaacSensorSchema
 import omni.kit.commands
 from isaacsim.core.api.sensors.base_sensor import BaseSensor
-from isaacsim.core.nodes.bindings import _isaacsim_core_nodes
+from isaacsim.core.simulation_manager import SimulationManager
 from isaacsim.core.utils.prims import get_prim_at_path, is_prim_path_valid
 from isaacsim.core.utils.stage import traverse_stage
 from isaacsim.sensors.physics import _sensor
@@ -49,7 +49,6 @@ class IMUSensor(BaseSensor):
         self._body_prim_path = "/".join(prim_path.split("/")[:-1])
         self._sensor_name = prim_path.split("/")[-1]
         self._imu_sensor_interface = _sensor.acquire_imu_sensor_interface()
-        self._core_nodes = _isaacsim_core_nodes.acquire_interface()
 
         linear_acceleration_filter_size = max(linear_acceleration_filter_size, 1)
         angular_velocity_filter_size = max(angular_velocity_filter_size, 1)
@@ -147,7 +146,7 @@ class IMUSensor(BaseSensor):
                 device=self._device,
             )
             self._current_frame["time"] = float(imu_sensor_reading.time)
-            self._current_frame["physics_step"] = float(self._core_nodes.get_physics_num_steps())
+            self._current_frame["physics_step"] = float(SimulationManager.get_num_physics_steps())
         return self._current_frame
 
     def resume(self) -> None:

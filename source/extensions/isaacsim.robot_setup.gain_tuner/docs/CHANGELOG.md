@@ -1,14 +1,42 @@
 # Changelog
+
+## [3.1.5] - 2025-12-16
+### Changed
+- Fixed Natural Frequency calculation:
+    - Convert computed unit from Radians to Degree when storing the Stiffness
+    - Properly handle Fixed robot chains
+    - Properly use only the proper axis inertia when Revolute Joint, or directly use mass when prismatic. 
+
+## [3.1.4] - 2025-12-16
+### Changed
+- Consume Asset Changed events
+
+## [3.1.3] - 2025-12-15
+### Fixed
+- Fixed consumption of events downstream on UI builder
+
+## [3.1.2] - 2025-12-05
+### Changed
+- Migrate to Events 2.0.
+
+## [3.1.1] - 2025-10-27
+### Removed
+- Remove unused import statement and commented code
+
+## [3.1.0] - 2025-10-17
+### Changed
+- Migrate PhysX subscription and simulation control interfaces to Omni Physics
+
 ## [3.0.6] - 2025-08-04
 ### Fixed
 - Natural Frequency and Damping Ratio computations
-- unresponsive UI when bulk editing min step value
+- Unresponsive UI when bulk editing min step value
 
 ## [3.0.5] - 2025-07-02
 ### Changed
-- fixed refresh when robot changes on stage
-- fixed batch editing when tuning gains
-- removed "strength" and use stiffness/damping
+- Fixed refresh when robot changes on stage
+- Fixed batch editing when tuning gains
+- Removed "strength" and use stiffness/damping
 - Pop up a warning asking for confirmation when save Gains to Physics Layer
 - Make frames and table resizable and add scroll bar
 
@@ -26,7 +54,7 @@
 
 ## [3.0.1] - 2025-05-12
 ### Changed
-- register action without version number
+- Register action without version number
 
 ## [3.0.0] - 2025-05-09
 ### Changed
@@ -42,7 +70,7 @@
 
 ## [2.0.7] - 2025-05-07
 ### Changed
-- switch to omni.physics interface
+- Switch to omni.physics interface
 
 ## [2.0.6] - 2025-04-04
 ### Changed

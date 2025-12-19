@@ -14,7 +14,9 @@
 # limitations under the License.
 from enum import Enum
 
+import carb
 import pxr
+from pxr import Sdf, Usd
 
 
 class Classes(Enum):
@@ -30,6 +32,16 @@ class Classes(Enum):
 _attr_prefix = "isaac"
 
 
+class DofOffsetOpOrder(Enum):
+
+    TRANS_X = "TransX"
+    TRANS_Y = "TransY"
+    TRANS_Z = "TransZ"
+    ROT_X = "RotX"
+    ROT_Y = "RotY"
+    ROT_Z = "RotZ"
+
+
 class Attributes(Enum):
     DESCRIPTION = (f"{_attr_prefix}:description", "Description", pxr.Sdf.ValueTypeNames.String)
     NAMESPACE = (f"{_attr_prefix}:namespace", "Namespace", pxr.Sdf.ValueTypeNames.String)
@@ -38,24 +50,17 @@ class Attributes(Enum):
     VERSION = (f"{_attr_prefix}:version", "Version", pxr.Sdf.ValueTypeNames.String)
     SOURCE = (f"{_attr_prefix}:source", "Source", pxr.Sdf.ValueTypeNames.String)
     CHANGELOG = (f"{_attr_prefix}:changelog", "Changelog", pxr.Sdf.ValueTypeNames.StringArray)
-    INDEX = (f"{_attr_prefix}:physics:index", "Index", pxr.Sdf.ValueTypeNames.Int)
     NAME_OVERRIDE = (f"{_attr_prefix}:nameOverride", "Name Override", pxr.Sdf.ValueTypeNames.String)
+    REFERENCE_DESCRIPTION = (f"{_attr_prefix}:Description", "Reference Description", pxr.Sdf.ValueTypeNames.String)
     FORWARD_AXIS = (f"{_attr_prefix}:forwardAxis", "Forward Axis", pxr.Sdf.ValueTypeNames.Token)
-    JOINT_INDEX = (f"{_attr_prefix}:physics:index", "Joint Index", pxr.Sdf.ValueTypeNames.Int)
-    ROT_X_OFFSET = (f"{_attr_prefix}:physics:Rot_X:DofOffset", "Rot X Offset", pxr.Sdf.ValueTypeNames.Int)
-    ROT_Y_OFFSET = (f"{_attr_prefix}:physics:Rot_Y:DofOffset", "Rot Y Offset", pxr.Sdf.ValueTypeNames.Int)
-    ROT_Z_OFFSET = (f"{_attr_prefix}:physics:Rot_Z:DofOffset", "Rot Z Offset", pxr.Sdf.ValueTypeNames.Int)
-    TR_X_OFFSET = (f"{_attr_prefix}:physics:Tr_X:DofOffset", "Tr X Offset", pxr.Sdf.ValueTypeNames.Int)
-    TR_Y_OFFSET = (f"{_attr_prefix}:physics:Tr_Y:DofOffset", "Tr Y Offset", pxr.Sdf.ValueTypeNames.Int)
-    TR_Z_OFFSET = (f"{_attr_prefix}:physics:Tr_Z:DofOffset", "Tr Z Offset", pxr.Sdf.ValueTypeNames.Int)
-    RETRY_INTERVAL = (f"{_attr_prefix}:retryInterval", "Retry Interval", pxr.Sdf.ValueTypeNames.Float)
-    ACCELERATION_LIMIT = (
-        f"{_attr_prefix}:physics:AccelerationLimit",
-        "Acceleration Limit",
-        pxr.Sdf.ValueTypeNames.FloatArray,
+    JOINT_NAME_OVERRIDE = (f"{_attr_prefix}:NameOverride", "Joint Name Override", pxr.Sdf.ValueTypeNames.String)
+    DOF_OFFSET_OP_ORDER = (
+        f"{_attr_prefix}:physics:DofOffsetOpOrder",
+        "Dof Offset Op Order",
+        pxr.Sdf.ValueTypeNames.TokenArray,
     )
-    JERK_LIMIT = (f"{_attr_prefix}:physics:JerkLimit", "Jerk Limit", pxr.Sdf.ValueTypeNames.FloatArray)
-    ACTUATOR = (f"{_attr_prefix}:physics:Actuator", "Actuator", pxr.Sdf.ValueTypeNames.BoolArray)
+    ACTUATOR = (f"{_attr_prefix}:actuator", "Actuator", pxr.Sdf.ValueTypeNames.BoolArray)
+    RETRY_INTERVAL = (f"{_attr_prefix}:retryInterval", "Retry Interval", pxr.Sdf.ValueTypeNames.Float)
     STATUS = (f"{_attr_prefix}:status", "Status", pxr.Sdf.ValueTypeNames.Token)
     SHEAR_FORCE_LIMIT = (f"{_attr_prefix}:shearForceLimit", "Shear Force Limit", pxr.Sdf.ValueTypeNames.Float)
     COAXIAL_FORCE_LIMIT = (f"{_attr_prefix}:coaxialForceLimit", "Coaxial Force Limit", pxr.Sdf.ValueTypeNames.Float)
@@ -91,49 +96,72 @@ class Relations(Enum):
         return self.value[1]
 
 
-def ApplyRobotAPI(prim: pxr.Usd.Prim):
-    prim.AddAppliedSchema(Classes.ROBOT_API.value)
-    for attr in [
-        Attributes.DESCRIPTION,
-        Attributes.NAMESPACE,
-        Attributes.ROBOT_TYPE,
-        Attributes.LICENSE,
-        Attributes.VERSION,
-        Attributes.SOURCE,
-        Attributes.CHANGELOG,
-    ]:
-        prim.CreateAttribute(attr.name, attr.type, True)
+def _create_attributes(prim: pxr.Usd.Prim, attributes, write_sparsely: bool = True):
+    for attr in attributes:
+        prim.CreateAttribute(attr.name, attr.type, write_sparsely)
 
-    for rel in [Relations.ROBOT_LINKS, Relations.ROBOT_JOINTS]:
-        prim.CreateRelationship(rel.name, custom=True)
+
+def _create_relationships(prim: pxr.Usd.Prim, relationships, custom: bool = True):
+    for rel in relationships:
+        prim.CreateRelationship(rel.name, custom=custom)
+
+
+def _apply_api(
+    prim: pxr.Usd.Prim,
+    schema: Classes,
+    *,
+    attributes=(),
+    relationships=(),
+    write_sparsely: bool = True,
+    relationships_custom: bool = True,
+):
+    prim.AddAppliedSchema(schema.value)
+    _create_attributes(prim, attributes, write_sparsely)
+    _create_relationships(prim, relationships, relationships_custom)
+
+
+def ApplyRobotAPI(prim: pxr.Usd.Prim):
+    _apply_api(
+        prim,
+        Classes.ROBOT_API,
+        attributes=[
+            Attributes.DESCRIPTION,
+            Attributes.NAMESPACE,
+            Attributes.ROBOT_TYPE,
+            Attributes.LICENSE,
+            Attributes.VERSION,
+            Attributes.SOURCE,
+            Attributes.CHANGELOG,
+        ],
+        relationships=[Relations.ROBOT_LINKS, Relations.ROBOT_JOINTS],
+    )
+
+    stage = prim.GetStage()
+    if stage:
+        from . import utils as _robot_schema_utils
+
+        _robot_schema_utils.PopulateRobotSchemaFromArticulation(stage, prim, prim)
 
 
 def ApplyLinkAPI(prim: pxr.Usd.Prim):
-    prim.AddAppliedSchema(Classes.LINK_API.value)
-    for attr in [Attributes.NAME_OVERRIDE]:
-        prim.CreateAttribute(attr.name, attr.type, True)
+    _apply_api(prim, Classes.LINK_API, attributes=[Attributes.NAME_OVERRIDE])
 
 
 def ApplyReferencePointAPI(prim: pxr.Usd.Prim):
-    prim.AddAppliedSchema(Classes.REFERENCE_POINT_API.value)
-    for attr in [Attributes.DESCRIPTION, Attributes.FORWARD_AXIS]:
-        prim.CreateAttribute(attr.name, attr.type, True)
+    carb.log_warn("ApplyReferencePointAPI is deprecated. Use ApplySiteAPI instead.")
+    _apply_api(prim, Classes.SITE_API)
+    # for attr in [Attributes.REFERENCE_DESCRIPTION, Attributes.FORWARD_AXIS]:
+    #     prim.CreateAttribute(attr.name, attr.type, True)
 
 
 def ApplyJointAPI(prim: pxr.Usd.Prim):
-    prim.AddAppliedSchema(Classes.JOINT_API.value)
-    for attr in [
-        Attributes.ROT_X_OFFSET,
-        Attributes.ROT_Y_OFFSET,
-        Attributes.ROT_Z_OFFSET,
-        Attributes.TR_X_OFFSET,
-        Attributes.TR_Y_OFFSET,
-        Attributes.TR_Z_OFFSET,
-        Attributes.NAME_OVERRIDE,
-        Attributes.ACCELERATION_LIMIT,
-        Attributes.JERK_LIMIT,
-    ]:
-        prim.CreateAttribute(attr.name, attr.type, True)
+    _apply_api(prim, Classes.JOINT_API)
+    # for attr in [
+    #     Attributes.DOF_OFFSET_OP_ORDER,
+    #     Attributes.JOINT_NAME_OVERRIDE,
+    #     Attributes.ACTUATOR,
+    # ]:
+    #     prim.CreateAttribute(attr.name, attr.type, True)
 
 
 def CreateSurfaceGripper(stage: pxr.Usd.Stage, prim_path: str) -> pxr.Usd.Prim:
@@ -150,23 +178,29 @@ def CreateSurfaceGripper(stage: pxr.Usd.Stage, prim_path: str) -> pxr.Usd.Prim:
     prim = stage.DefinePrim(prim_path, Classes.SURFACE_GRIPPER.value)
 
     # Create attributes with default values
-    for attr in [
-        Attributes.STATUS,
-        Attributes.SHEAR_FORCE_LIMIT,
-        Attributes.COAXIAL_FORCE_LIMIT,
-        Attributes.MAX_GRIP_DISTANCE,
-        Attributes.RETRY_INTERVAL,
-    ]:
-        prim.CreateAttribute(attr.name, attr.type, False)
+    _create_attributes(
+        prim,
+        [
+            Attributes.STATUS,
+            Attributes.SHEAR_FORCE_LIMIT,
+            Attributes.COAXIAL_FORCE_LIMIT,
+            Attributes.MAX_GRIP_DISTANCE,
+            Attributes.RETRY_INTERVAL,
+        ],
+        write_sparsely=False,
+    )
 
     # Create relationships
-    prim.CreateRelationship(Relations.ATTACHMENT_POINTS.name, False)
-    prim.CreateRelationship(Relations.GRIPPED_OBJECTS.name, False)
+    _create_relationships(
+        prim,
+        [Relations.ATTACHMENT_POINTS, Relations.GRIPPED_OBJECTS],
+        custom=False,
+    )
 
     return prim
 
 
 def ApplyAttachmentPointAPI(prim: pxr.Usd.Prim):
-    prim.AddAppliedSchema(Classes.ATTACHMENT_POINT_API.name)
-    for attr in [Attributes.FORWARD_AXIS, Attributes.CLEARANCE_OFFSET]:
-        prim.CreateAttribute(attr.name, attr.type, False)
+    _apply_api(prim, Classes.ATTACHMENT_POINT_API)
+    # for attr in [Attributes.FORWARD_AXIS, Attributes.CLEARANCE_OFFSET]:
+    #     prim.CreateAttribute(attr.name, attr.type, False)

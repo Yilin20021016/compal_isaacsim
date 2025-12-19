@@ -103,7 +103,7 @@ class BinFilling(BaseTask):
                 - end_effector_orientation
 
         Returns:
-            dict: [description]
+            dict: Dictionary containing packing bin and robot observations.
         """
         joints_state = self._ur10_robot.get_joints_state()
         bin_position, bin_orientation = self._packing_bin.get_world_pose()

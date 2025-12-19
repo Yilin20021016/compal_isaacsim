@@ -32,18 +32,26 @@ from .style import PROPERTY_STYLE
 
 class BrowserWidget(TreeFolderBrowserWidgetEx):
     def _on_thumbnail_size_changed(self, thumbnail_size: int) -> None:
+        """Called when thumbnail size changes.
+
+        Args:
+            thumbnail_size: The new thumbnail size.
+        """
         self._delegate.hide_label = False  # thumbnail_size < 64
         self._delegate.item_changed(None, None)
 
 
 class AssetBrowserWindow(ui.Window):
-    """
-    Represent a window to show Assets
-    """
+    """Represent a window to show Assets."""
 
     WINDOW_TITLE = "Isaac Sim Assets [Beta]"
 
     def __init__(self, visible=True):
+        """Initializes the asset browser window.
+
+        Args:
+            visible: Whether the window is visible.
+        """
         super().__init__(self.WINDOW_TITLE, visible=visible)
         self.deferred_dock_in("Content")
 
@@ -59,6 +67,7 @@ class AssetBrowserWindow(ui.Window):
         self.deferred_dock_in("Content")
 
     def destroy(self):
+        """Destroys the window."""
         if self._browser_model:
             self._browser_model.destroy()
             self._browser_model = None
@@ -75,6 +84,7 @@ class AssetBrowserWindow(ui.Window):
         super().destroy()
 
     def _build_ui(self):
+        """Builds the UI."""
         preload_folder = os.path.abspath(carb.tokens.get_tokens_interface().resolve("${app}/../predownload"))
         self._browser_model = AssetBrowserModel()
         self._delegate = AssetDetailDelegate(self._browser_model)

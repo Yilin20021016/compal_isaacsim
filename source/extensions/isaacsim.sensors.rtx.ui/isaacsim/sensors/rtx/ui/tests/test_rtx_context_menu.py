@@ -44,7 +44,7 @@ class TestRTXContextMenu(OmniUiTest):
         self.assertTrue(result)
         await omni.kit.app.get_app().next_update_async()
         self.carb_settings = carb.settings.get_settings()
-        self.carb_settings.set("/rtx/rendermode", "RaytracedLighting")
+        self.carb_settings.set("/rtx/rendermode", "RealTimePathTracing")
         self.carb_settings.set("/rtx-transient/resourcemanager/enableTextureStreaming", False)
 
     async def tearDown(self):
@@ -121,7 +121,8 @@ class TestRTXContextMenu(OmniUiTest):
                 # Only add key to path if it's not "_"
                 if key != "_":
                     current_path.append(key)
-                # # TODO:Skip ZVISION by starting over, something werid about the ZVISION sensors, bad for testing.
+                    print("current_path:", current_path)
+                # TODO:Skip ZVISION by starting over, something werid about the ZVISION sensors, bad for testing.
                 if key in ["ZVISION", "Ouster", "HESAI", "Velodyne"]:
                     return get_random_menu_path(menu_dict)
                 current_dict = current_dict[key]
@@ -131,6 +132,7 @@ class TestRTXContextMenu(OmniUiTest):
                 current_path.append(random.choice(current_dict))
 
             # Join path components with forward slashes
+            print("/".join(current_path))
             return "/".join(current_path)
 
         # randomly click on few of sensors and check if the correct prim is created

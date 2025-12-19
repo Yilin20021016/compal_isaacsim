@@ -22,10 +22,11 @@ from functools import partial
 from typing import OrderedDict
 
 import carb
+import carb.eventdispatcher
 import numpy as np
 import omni
 import omni.kit.commands
-import omni.physx as _physx
+import omni.physics.core
 import omni.timeline
 import omni.ui as ui
 import omni.usd
@@ -34,6 +35,7 @@ from isaacsim.core.prims import Articulation, SingleArticulation, SingleXFormPri
 from isaacsim.core.utils.articulations import find_all_articulation_base_paths
 from isaacsim.core.utils.numpy.rotations import quats_to_rot_matrices
 from isaacsim.core.utils.prims import get_prim_at_path, get_prim_object_type
+from isaacsim.core.utils.rotations import gf_quat_to_np_array
 
 # New way of making UI being integrated in through feature updates
 from isaacsim.gui.components.element_wrappers import (
@@ -62,7 +64,8 @@ from isaacsim.gui.components.ui_utils import (
 from isaacsim.gui.components.widgets import DynamicComboBoxModel
 from omni.kit.menu.utils import MenuItemDescription, add_menu_items, remove_menu_items
 from omni.kit.window.property.templates import LABEL_WIDTH
-from pxr import Usd, UsdGeom, UsdPhysics
+from omni.usd import get_world_transform_matrix
+from pxr import Gf, Usd, UsdGeom, UsdPhysics
 
 from .collision_sphere_editor import CollisionSphereEditor
 
@@ -101,8 +104,8 @@ class Extension(omni.ext.IExt):
 
         # Events
         self._usd_context = omni.usd.get_context()
-        self._physxIFace = _physx.get_physx_interface()
-        self._physx_subscription = None
+        self._physics_simulation_interface = omni.physics.core.get_physics_simulation_interface()
+        self._physics_subscription = None
         self._stage_event_sub = None
         self._timeline = omni.timeline.get_timeline_interface()
 
@@ -167,7 +170,7 @@ class Extension(omni.ext.IExt):
         self._usd_context = None
         self._stage_event_sub = None
         self._timeline_event_sub = None
-        self._physx_subscription = None
+        self._physics_subscription = None
         self._models = {}
         remove_menu_items(self._menu_items, "Tools")
         if self._window:
@@ -178,10 +181,31 @@ class Extension(omni.ext.IExt):
         if self._window.visible:
             # Subscribe to Stage and Timeline Events
             self._usd_context = omni.usd.get_context()
-            events = self._usd_context.get_stage_event_stream()
-            self._stage_event_sub = events.create_subscription_to_pop(self._on_stage_event)
-            stream = self._timeline.get_timeline_event_stream()
-            self._timeline_event_sub = stream.create_subscription_to_pop(self._on_timeline_event)
+            self._stage_event_sub_selection = carb.eventdispatcher.get_eventdispatcher().observe_event(
+                event_name=self._usd_context.stage_event_name(omni.usd.StageEventType.SELECTION_CHANGED),
+                on_event=self._on_stage_selection_changed,
+                observer_name="isaacsim.robot_setup.xrdf_editor.Extension._on_stage_selection_changed",
+            )
+            self._stage_event_sub_opened = carb.eventdispatcher.get_eventdispatcher().observe_event(
+                event_name=self._usd_context.stage_event_name(omni.usd.StageEventType.OPENED),
+                on_event=self._on_stage_opened,
+                observer_name="isaacsim.robot_setup.xrdf_editor.Extension._on_stage_opened",
+            )
+            self._stage_event_sub_closed = carb.eventdispatcher.get_eventdispatcher().observe_event(
+                event_name=self._usd_context.stage_event_name(omni.usd.StageEventType.CLOSED),
+                on_event=self._on_stage_closed,
+                observer_name="isaacsim.robot_setup.xrdf_editor.Extension._on_stage_closed",
+            )
+            self._stage_event_sub_sim_play = carb.eventdispatcher.get_eventdispatcher().observe_event(
+                event_name=self._usd_context.stage_event_name(omni.usd.StageEventType.SIMULATION_START_PLAY),
+                on_event=self._on_timeline_play,
+                observer_name="isaacsim.robot_setup.xrdf_editor.Extension._on_timeline_play",
+            )
+            self._stage_event_sub_sim_stop = carb.eventdispatcher.get_eventdispatcher().observe_event(
+                event_name=self._usd_context.stage_event_name(omni.usd.StageEventType.SIMULATION_STOP_PLAY),
+                on_event=self._on_timeline_stop,
+                observer_name="isaacsim.robot_setup.xrdf_editor.Extension._on_timeline_stop",
+            )
 
             self._build_ui()
             if not self._new_window and self.articulation:
@@ -189,8 +213,11 @@ class Extension(omni.ext.IExt):
             self._new_window = False
         else:
             self._usd_context = None
-            self._stage_event_sub = None
-            self._timeline_event_sub = None
+            self._stage_event_sub_selection = None
+            self._stage_event_sub_opened = None
+            self._stage_event_sub_closed = None
+            self._stage_event_sub_sim_play = None
+            self._stage_event_sub_sim_stop = None
 
     def _menu_callback(self):
         self._window.visible = not self._window.visible
@@ -260,8 +287,10 @@ class Extension(omni.ext.IExt):
             self._refresh_ui(self.articulation)
 
             # start event subscriptions
-            if not self._physx_subscription:
-                self._physx_subscription = self._physxIFace.subscribe_physics_step_events(self._on_physics_step)
+            if not self._physics_subscription:
+                self._physics_subscription = self._physics_simulation_interface.subscribe_physics_on_step_events(
+                    pre_step=False, order=0, on_update=self._on_physics_step
+                )
 
         # Deselect and Reset
         else:
@@ -479,7 +508,7 @@ class Extension(omni.ext.IExt):
         """Updates the GUI with a new Articulation's properties.
 
         Args:
-            articulation (SingleArticulation): [description]
+            articulation (SingleArticulation): The articulation to display in the UI.
         """
         # Get the latest articulation values and update the Properties UI
         self.get_articulation_values(articulation)
@@ -532,39 +561,63 @@ class Extension(omni.ext.IExt):
     # Callbacks
     ##################################
 
-    def _on_stage_event(self, event):
-        """Callback for Stage Events
+    def _on_stage_selection_changed(self, event):
+        """Callback for Stage Selection Changed Event
 
         Args:
-            event (omni.usd.StageEventType): Event Type
+            event (carb.eventdispatcher.Event): Event
         """
-
         # On every stage event check if any articulations have been added/removed from the Stage
         self._refresh_selection_combobox()
+        self._collision_sphere_editor.copy_all_sphere_data()
+        self._refresh_collision_sphere_comboboxes(keep_sphere_selection=True)
 
-        if event.type == int(omni.usd.StageEventType.SELECTION_CHANGED):
-            self._collision_sphere_editor.copy_all_sphere_data()
-            self._refresh_collision_sphere_comboboxes(keep_sphere_selection=True)
-            pass
+    def _on_stage_opened(self, event):
+        """Callback for Stage Opened Event
 
-        elif event.type == int(omni.usd.StageEventType.OPENED) or event.type == int(omni.usd.StageEventType.CLOSED):
-            # stage was opened or closed, cleanup
-            self._physx_subscription = None
+        Args:
+            event (carb.eventdispatcher.Event): Event
+        """
+        # On every stage event check if any articulations have been added/removed from the Stage
+        self._refresh_selection_combobox()
+        # stage was opened, cleanup
+        self._physics_subscription = None
 
-        elif event.type == int(omni.usd.StageEventType.SIMULATION_START_PLAY):  # Timeline played
-            self._refresh_selection_combobox()
-            self._on_selection(self._get_selected_articulation())
+    def _on_stage_closed(self, event):
+        """Callback for Stage Closed Event
 
-        elif event.type == int(omni.usd.StageEventType.SIMULATION_STOP_PLAY):  # Timeline stopped
-            if self._timeline.is_stopped():
-                self._reset_ui()
-                self._on_selection("None")
+        Args:
+            event (carb.eventdispatcher.Event): Event
+        """
+        # On every stage event check if any articulations have been added/removed from the Stage
+        self._refresh_selection_combobox()
+        # stage was closed, cleanup
+        self._physics_subscription = None
 
-    def _on_physics_step(self, step):
+    def _on_timeline_play(self, event):
+        """Callback for Timeline Played Event
+
+        Args:
+            event (carb.eventdispatcher.Event): Event
+        """
+        self._refresh_selection_combobox()
+        self._on_selection(self._get_selected_articulation())
+
+    def _on_timeline_stop(self, event):
+        """Callback for Timeline Stopped Event
+
+        Args:
+            event (carb.eventdispatcher.Event): Event
+        """
+        if self._timeline.is_stopped():
+            self._reset_ui()
+            self._on_selection("None")
+
+    def _on_physics_step(self, step, context):
         """Callback for Physics Step.
 
         Args:
-            step ([type]): [description]
+            step (float): Physics step size in seconds.
         """
         if self.articulation is not None:
             if not self.articulation.handles_initialized:
@@ -576,15 +629,6 @@ class Extension(omni.ext.IExt):
             if self._set_joint_positions_on_step:
                 self._set_joint_positions(step)
         return
-
-    def _on_timeline_event(self, e):
-        """Callback for Timeline Events
-
-        Args:
-            event (omni.timeline.TimelineEventType): Event Type
-        """
-
-        pass
 
     def _set_joint_positions(self, step):
         if self.articulation is not None:
@@ -1367,23 +1411,36 @@ class Extension(omni.ext.IExt):
 
         link_path = self._articulation_base_path + link
         mesh_path = link_path + mesh
-        geom_mesh = UsdGeom.Mesh(get_prim_at_path(mesh_path))
-        points = np.array(geom_mesh.GetPointsAttr().Get())
+        geom_prim = get_prim_at_path(mesh_path)
+        geom_mesh = UsdGeom.Mesh(geom_prim)
+
+        # along with raw points in the mesh file, we also need to retrieve
+        # the scale that the user applied to them.
+        # need to get the full scale which could be applied through all parent prims.
+        geom_transform = Gf.Transform(get_world_transform_matrix(geom_prim))
+        scale = np.array(geom_transform.GetScale())
+        unscaled_points = np.array(geom_mesh.GetPointsAttr().Get())  # shape is [N,3]
+        points = np.diag(scale) @ unscaled_points.T  # shape is now [3,N], and points are scaled.
+
         face_inds = np.array(geom_mesh.GetFaceVertexIndicesAttr().Get())
         vert_cts = np.array(geom_mesh.GetFaceVertexCountsAttr().Get())
 
         # Transform coordinates of points into Link frame
-        mesh_xform = SingleXFormPrim(mesh_path)
-        link_xform = SingleXFormPrim(link_path)
+        mesh_xform = Gf.Transform(get_world_transform_matrix(get_prim_at_path(mesh_path)))
+        link_xform = Gf.Transform(get_world_transform_matrix(get_prim_at_path(link_path)))
 
-        mesh_trans, mesh_rot = mesh_xform.get_world_pose()
-        link_trans, link_rot = link_xform.get_world_pose()
+        mesh_trans = np.array(mesh_xform.GetTranslation())
+        link_trans = np.array(link_xform.GetTranslation())
+
+        mesh_rot = gf_quat_to_np_array(mesh_xform.GetRotation().GetQuaternion())
+        link_rot = gf_quat_to_np_array(link_xform.GetRotation().GetQuaternion())
+
         link_rot, mesh_rot = quats_to_rot_matrices(np.array([link_rot, mesh_rot]))
 
         inv_rot = link_rot.T @ mesh_rot
         inv_trans = (link_rot.T @ (mesh_trans - link_trans)).reshape((3, 1))
 
-        link_frame_points = (inv_rot @ points.T + inv_trans).T
+        link_frame_points = (inv_rot @ points + inv_trans).T
 
         self._collision_sphere_editor.generate_spheres(
             link_path, link_frame_points, face_inds, vert_cts, num_spheres, radius_offset, preview
@@ -1492,7 +1549,7 @@ class Extension(omni.ext.IExt):
 
         default_q_map = parsed_file["default_joint_positions"]
 
-        in_mask = np.in1d(cspace, dof_names)
+        in_mask = np.isin(cspace, dof_names)
         if not np.all(in_mask):
             carb.log_warn(
                 "Some joints listed in the cspace of the provided robot_description YAML file are not present in the robot Articulation:"
@@ -1550,7 +1607,7 @@ class Extension(omni.ext.IExt):
 
         file_jerk_limits = parsed_file.get("jerk_limits", None)
 
-        in_mask = np.in1d(cspace, dof_names)
+        in_mask = np.isin(cspace, dof_names)
         if not np.all(in_mask):
             carb.log_warn(
                 "Some joints listed in the cspace of the provided robot_description YAML file are not present in the robot Articulation:"

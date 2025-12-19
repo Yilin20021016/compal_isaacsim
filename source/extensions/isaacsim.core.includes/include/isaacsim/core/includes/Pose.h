@@ -145,7 +145,7 @@ static usdrt::GfMatrix4d computeWorldXformNoCache(pxr::UsdStageRefPtr usdStage,
             {
                 // Regardless of when `fabricHierarchy->updateWorldXforms();` was last called, `getWorldXform()` will
                 // calculate the correct value using the omni:fabric:localMatrix values of the prim and its ancestors.
-                return fabricHierarchy->getWorldXform(omni::fabric::asInt(path));
+                return fabricHierarchy->getWorldXform(omni::fabric::Path(path.GetAsString()));
             }
         }
     }

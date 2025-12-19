@@ -62,11 +62,6 @@ class TestKinematics(omni.kit.test.AsyncTestCase):
         with open(os.path.join(self._polciy_config_dir, "policy_map.json")) as policy_map:
             self._policy_map = json.load(policy_map)
 
-        carb.settings.get_settings().set_bool("/app/runLoops/main/rateLimitEnabled", True)
-        carb.settings.get_settings().set_int("/app/runLoops/main/rateLimitFrequency", self._physics_fps)
-        carb.settings.get_settings().set_int("/persistent/simulation/minFrameRate", self._physics_fps)
-        omni.timeline.get_timeline_interface().set_target_framerate(self._physics_fps)
-
         pass
 
     # After running each test
@@ -428,8 +423,8 @@ class TestKinematics(omni.kit.test.AsyncTestCase):
             np.allclose(vel_lim, [2.0943951, 2.0943951, 3.1415927, 3.1415927, 3.1415927, 3.1415927], 0.0001)
         )
 
-        self.assertTrue(np.alltrue(lk.get_cspace_acceleration_limits() == [40.0] * 6))
-        self.assertTrue(np.alltrue(lk.get_cspace_jerk_limits() == [10000.0] * 6))
+        self.assertTrue(np.all(lk.get_cspace_acceleration_limits() == [40.0] * 6))
+        self.assertTrue(np.all(lk.get_cspace_jerk_limits() == [10000.0] * 6))
 
         # Test Franka because it has acceleration and jerk limits specified in Robot Description
         robot_name = "Franka"

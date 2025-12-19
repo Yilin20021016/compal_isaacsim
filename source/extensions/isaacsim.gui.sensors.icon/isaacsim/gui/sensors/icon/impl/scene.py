@@ -14,6 +14,7 @@
 # limitations under the License.
 __all__ = ["IconScene"]
 
+import carb.eventdispatcher
 import carb.input
 import carb.settings
 import omni.timeline
@@ -102,14 +103,16 @@ class SensorIcon:
         if self._settings.get(VISIBLE_SETTING) is False:
             self.model.hide_all()
 
-        self.timeline_event_sub = self._timeline.get_timeline_event_stream().create_subscription_to_pop(
-            self._on_timeline_event, name="SensorIconTimelineEventHandler"
+        self.timeline_event_sub = carb.eventdispatcher.get_eventdispatcher().observe_event(
+            event_name=omni.timeline.GLOBAL_EVENT_STOP,
+            on_event=self._on_timeline_stop,
+            observer_name="isaacsim.gui.sensors.icon.SensorIcon._on_timeline_stop",
         )
 
-    def _on_timeline_event(self, event):
-        if event.type == int(omni.timeline.TimelineEventType.STOP):
-            if self.model:
-                self.model.refresh_all_icon_visuals()
+    def _on_timeline_stop(self, event):
+        """Timeline stop event callback - refresh icon visuals."""
+        if self.model:
+            self.model.refresh_all_icon_visuals()
 
     def _on_visible_changed(self, *args):
         if not self.model:

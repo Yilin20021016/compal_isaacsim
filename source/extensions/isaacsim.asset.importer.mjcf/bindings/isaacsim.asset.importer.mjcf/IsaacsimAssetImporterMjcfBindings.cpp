@@ -18,18 +18,6 @@
 
 CARB_BINDINGS("isaacsim.asset.importer.mjcf.python")
 
-namespace isaacsim
-{
-namespace asset
-{
-namespace importer
-{
-namespace mjcf
-{
-}
-} // namespace importer
-} // namespace omni
-}
 namespace
 {
 PYBIND11_MODULE(_mjcf, m)

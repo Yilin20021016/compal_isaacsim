@@ -20,7 +20,6 @@
 #include "GenericModelOutput.h"
 #include "IsaacSimSensorsRTXCuda.cuh"
 #include "LidarConfigHelper.h"
-#include "LidarMetaData.h"
 #include "isaacsim/core/includes/BaseResetNode.h"
 #include "isaacsim/core/includes/Buffer.h"
 #include "isaacsim/core/includes/ScopedCudaDevice.h"
@@ -51,7 +50,35 @@ private:
     size_t m_nextBuffer{ 1 };
     size_t m_totalElements{ 0 };
 
-    size_t m_numStreams{ 16 }; // parallel basic data + pipeline optimization
+    // parallelism + inter-frame overlap
+    // Basic data: current buffer streams
+    static constexpr size_t STREAM_AZIMUTH_CURRENT = 0; // azimuth current buffer
+    static constexpr size_t STREAM_ELEVATION_CURRENT = 1; // elevation current buffer
+    static constexpr size_t STREAM_DISTANCE_CURRENT = 2; // distance current buffer
+    static constexpr size_t STREAM_FLAGS_CURRENT = 3; // flags current buffer
+    // Basic data: next buffer streams
+    static constexpr size_t STREAM_AZIMUTH_NEXT = 4; // azimuth next buffer
+    static constexpr size_t STREAM_ELEVATION_NEXT = 5; // elevation next buffer
+    static constexpr size_t STREAM_DISTANCE_NEXT = 6; // distance next buffer
+    static constexpr size_t STREAM_FLAGS_NEXT = 7; // flags next buffer
+    // Optional data streams
+    static constexpr size_t STREAM_INTENSITY = 8; // intensity data
+    static constexpr size_t STREAM_TIMESTAMP = 9; // timestamp data
+    static constexpr size_t STREAM_EMITTER_ID = 10; // emitter ID data
+    static constexpr size_t STREAM_CHANNEL_ID = 11; // channel ID data
+    static constexpr size_t STREAM_MATERIAL_ID = 12; // material ID data
+    static constexpr size_t STREAM_TICK_ID = 13; // tick ID data
+    static constexpr size_t STREAM_NORMAL = 14; // normal vectors
+    static constexpr size_t STREAM_VELOCITY = 15; // velocity data
+    static constexpr size_t STREAM_OBJECT_ID = 16; // object ID data
+    static constexpr size_t STREAM_ECHO_ID = 17; // echo ID data
+    static constexpr size_t STREAM_TICK_STATE = 18; // tick states data
+    static constexpr size_t STREAM_RADIAL_VELOCITY_MS = 19; // radial velocity data in m/s
+    // Point cloud processing stream
+    static constexpr size_t STREAM_POINT_CLOUD = 20; // point cloud processing
+
+    size_t m_numStreams{ STREAM_POINT_CLOUD + 1 }; // parallel basic data + pipeline optimization
+
     std::vector<cudaStream_t> m_cudaStreams; // Persistent streams
     std::vector<cudaEvent_t> m_cudaEvents; // Persistent events
 
@@ -77,39 +104,22 @@ private:
     cudaGraphNode_t m_distanceNextNode{};
     cudaGraphNode_t m_flagsNextNode{};
 
-    // parallelism + inter-frame overlap
-    // Basic data: current buffer streams
-    static constexpr size_t STREAM_AZIMUTH_CURRENT = 0; // azimuth current buffer
-    static constexpr size_t STREAM_ELEVATION_CURRENT = 1; // elevation current buffer
-    static constexpr size_t STREAM_DISTANCE_CURRENT = 2; // distance current buffer
-    static constexpr size_t STREAM_FLAGS_CURRENT = 3; // flags current buffer
-    // Basic data: next buffer streams
-    static constexpr size_t STREAM_AZIMUTH_NEXT = 4; // azimuth next buffer
-    static constexpr size_t STREAM_ELEVATION_NEXT = 5; // elevation next buffer
-    static constexpr size_t STREAM_DISTANCE_NEXT = 6; // distance next buffer
-    static constexpr size_t STREAM_FLAGS_NEXT = 7; // flags next buffer
-    // Optional data streams
-    static constexpr size_t STREAM_INTENSITY = 8; // intensity data
-    static constexpr size_t STREAM_TIMESTAMP = 9; // timestamp data
-    static constexpr size_t STREAM_EMITTER_ID = 10; // emitter ID data
-    static constexpr size_t STREAM_MATERIAL_ID = 11; // material ID data
-    static constexpr size_t STREAM_OBJECT_ID = 12; // object ID data
-    static constexpr size_t STREAM_NORMAL = 13; // normal vectors
-    static constexpr size_t STREAM_VELOCITY = 14; // velocity data
-    // Point cloud processing stream
-    static constexpr size_t STREAM_POINT_CLOUD = 15; // point cloud processing
-
-    std::array<isaacsim::core::includes::DeviceBufferBase<float>, 2> distanceBuffers;
-    std::array<isaacsim::core::includes::DeviceBufferBase<float>, 2> intensityBuffers;
     std::array<isaacsim::core::includes::DeviceBufferBase<float>, 2> azimuthBuffers;
     std::array<isaacsim::core::includes::DeviceBufferBase<float>, 2> elevationBuffers;
+    std::array<isaacsim::core::includes::DeviceBufferBase<float>, 2> distanceBuffers;
+    std::array<isaacsim::core::includes::DeviceBufferBase<uint8_t>, 2> flagsBuffers;
+    std::array<isaacsim::core::includes::DeviceBufferBase<float>, 2> intensityBuffers;
     std::array<isaacsim::core::includes::DeviceBufferBase<uint64_t>, 2> timestampBuffers;
     std::array<isaacsim::core::includes::DeviceBufferBase<uint32_t>, 2> emitterIdBuffers;
+    std::array<isaacsim::core::includes::DeviceBufferBase<uint32_t>, 2> channelIdBuffers;
     std::array<isaacsim::core::includes::DeviceBufferBase<uint32_t>, 2> materialIdBuffers;
-    std::array<isaacsim::core::includes::DeviceBufferBase<uint8_t>, 2> objectIdBuffers;
+    std::array<isaacsim::core::includes::DeviceBufferBase<uint32_t>, 2> tickIdBuffers;
     std::array<isaacsim::core::includes::DeviceBufferBase<float3>, 2> normalBuffers;
     std::array<isaacsim::core::includes::DeviceBufferBase<float3>, 2> velocityBuffers;
-    std::array<isaacsim::core::includes::DeviceBufferBase<uint8_t>, 2> flagsBuffers;
+    std::array<isaacsim::core::includes::DeviceBufferBase<uint8_t>, 2> objectIdBuffers;
+    std::array<isaacsim::core::includes::DeviceBufferBase<uint8_t>, 2> echoIdBuffers;
+    std::array<isaacsim::core::includes::DeviceBufferBase<uint8_t>, 2> tickStateBuffers;
+    std::array<isaacsim::core::includes::DeviceBufferBase<float>, 2> radialVelocityMSBuffers;
 
     bool m_outputAzimuth{ false };
     bool m_outputElevation{ false };
@@ -117,10 +127,15 @@ private:
     bool m_outputIntensity{ false };
     bool m_outputTimestamp{ false };
     bool m_outputEmitterId{ false };
+    bool m_outputChannelId{ false };
     bool m_outputMaterialId{ false };
-    bool m_outputObjectId{ false };
-    bool m_outputNormal{ false };
+    bool m_outputTickId{ false };
+    bool m_outputHitNormal{ false };
     bool m_outputVelocity{ false };
+    bool m_outputObjectId{ false };
+    bool m_outputEchoId{ false };
+    bool m_outputTickState{ false };
+    bool m_outputRadialVelocityMS{ false };
 
     isaacsim::core::includes::DeviceBufferBase<size_t> indicesBuffer;
     isaacsim::core::includes::DeviceBufferBase<size_t> indicesValidBuffer;
@@ -134,10 +149,15 @@ private:
     isaacsim::core::includes::DeviceBufferBase<int32_t> deltaTimesBufferValid;
     isaacsim::core::includes::DeviceBufferBase<uint64_t> timestampBufferValid;
     isaacsim::core::includes::DeviceBufferBase<uint32_t> emitterIdBufferValid;
+    isaacsim::core::includes::DeviceBufferBase<uint32_t> channelIdBufferValid;
     isaacsim::core::includes::DeviceBufferBase<uint32_t> materialIdBufferValid;
-    isaacsim::core::includes::DeviceBufferBase<uint8_t> objectIdBufferValid;
+    isaacsim::core::includes::DeviceBufferBase<uint32_t> tickIdBufferValid;
     isaacsim::core::includes::DeviceBufferBase<float3> normalBufferValid;
     isaacsim::core::includes::DeviceBufferBase<float3> velocityBufferValid;
+    isaacsim::core::includes::DeviceBufferBase<uint8_t> objectIdBufferValid;
+    isaacsim::core::includes::DeviceBufferBase<uint8_t> echoIdBufferValid;
+    isaacsim::core::includes::DeviceBufferBase<uint8_t> tickStateBufferValid;
+    isaacsim::core::includes::DeviceBufferBase<float> radialVelocityMSBufferValid;
 
     // Cached temporary storage for CUB operations
     void* m_d_temp_storage{ nullptr };
@@ -149,10 +169,13 @@ private:
     uint32_t m_optionalOutputsMask{ 0 };
 
     omni::sensors::GenericModelOutput* hostGMO{ nullptr };
-    omni::sensors::LidarAuxiliaryData* hostAuxPoints{ nullptr };
+    omni::sensors::LidarAuxiliaryData* hostLidarAuxPoints{ nullptr };
+    omni::sensors::RadarAuxiliaryData* hostRadarAuxPoints{ nullptr };
 
     int* numValidPointsHost{ nullptr };
     int* numValidPointsDevice{ nullptr };
+
+    static constexpr size_t MAX_POINTS_RADAR = 2500; // RTX Radar model limit
 
 public:
     void reset()
@@ -167,7 +190,8 @@ public:
         m_maxThreadsPerBlock = 0;
         m_multiProcessorCount = 0;
         CUDA_CHECK(cudaFreeHost(hostGMO));
-        CUDA_CHECK(cudaFreeHost(hostAuxPoints));
+        CUDA_CHECK(cudaFreeHost(hostLidarAuxPoints));
+        CUDA_CHECK(cudaFreeHost(hostRadarAuxPoints));
 
         // Cleanup persistent streams
         for (auto& stream : m_cudaStreams)
@@ -217,10 +241,6 @@ public:
     {
         CARB_PROFILE_ZONE(0, "[IsaacSim] IsaacCreateRTXLidarScanBuffer initialize");
 
-        omni::sensors::lidar::LidarMetaData* lidarMetaData =
-            reinterpret_cast<omni::sensors::lidar::LidarMetaData*>(db.inputs.metadataPtr());
-        m_maxPoints = lidarMetaData->maxPoints;
-
         int cudaDeviceIndex = db.inputs.cudaDeviceIndex() == -1 ? 0 : db.inputs.cudaDeviceIndex();
         isaacsim::core::includes::ScopedDevice scopedDev(cudaDeviceIndex);
 
@@ -242,40 +262,172 @@ public:
 
         // Allocate pinned host memory
         CUDA_CHECK(cudaMallocHost(&hostGMO, sizeof(omni::sensors::GenericModelOutput)));
-        CUDA_CHECK(cudaMallocHost(&hostAuxPoints, sizeof(omni::sensors::LidarAuxiliaryData)));
+        CUDA_CHECK(cudaMallocHost(&hostLidarAuxPoints, sizeof(omni::sensors::LidarAuxiliaryData)));
+        CUDA_CHECK(cudaMallocHost(&hostRadarAuxPoints, sizeof(omni::sensors::RadarAuxiliaryData)));
         CUDA_CHECK(cudaMallocHost(&numValidPointsHost, sizeof(int)));
         numValidPointsHost[0] = 0;
 
         // Get auxiliary data structure to set output flags
         CUDA_CHECK(cudaMemcpy(hostGMO, reinterpret_cast<void*>(db.inputs.dataPtr()),
                               sizeof(omni::sensors::GenericModelOutput), cudaMemcpyDeviceToHost));
-        auto auxType = hostGMO->auxType;
-        if (auxType > omni::sensors::AuxType::NONE)
+        const auto auxType = hostGMO->auxType;
+        const auto modality = hostGMO->modality;
+        const std::string renderProductPath = std::string(db.tokenToString(db.inputs.renderProductPath()));
+        const pxr::UsdPrim sensorPrim = isaacsim::core::includes::getCameraPrimFromRenderProduct(renderProductPath);
+        const std::string sensorPrimPath = sensorPrim.GetPath().GetString();
+        if (modality == omni::sensors::Modality::LIDAR)
         {
-            CUDA_CHECK(cudaMemcpy(hostAuxPoints, hostGMO->auxiliaryData, sizeof(omni::sensors::LidarAuxiliaryData),
-                                  cudaMemcpyDeviceToHost));
+            if (auxType > omni::sensors::AuxType::NONE)
+            {
+                CUDA_CHECK(cudaMemcpy(hostLidarAuxPoints, hostGMO->auxiliaryData,
+                                      sizeof(omni::sensors::LidarAuxiliaryData), cudaMemcpyDeviceToHost));
+            }
+            // Retrieve lidar prim from render product path, then validate its attributes
+            if (renderProductPath.length() == 0)
+            {
+                CARB_LOG_ERROR("IsaacComputeRTXLidarFlatScan: renderProductPath input is empty. Skipping execution.");
+                return false;
+            }
+            if (sensorPrim.IsA<pxr::UsdGeomCamera>())
+            {
+                CARB_LOG_WARN(
+                    "RTX sensors as camera prims are deprecated as of Isaac Sim 5.0, and support will be removed in a future release. Please use an OmniLidar prim with the new OmniSensorGenericLidarCoreAPI schema.");
+                LidarConfigHelper configHelper;
+                configHelper.updateLidarConfig(renderProductPath.c_str());
+                if (configHelper.scanType == LidarScanType::kUnknown)
+                {
+                    CARB_LOG_ERROR(
+                        "IsaacComputeRTXLidarFlatScan: Lidar prim scanType is Unknown, and node will not execute. Stop the simulation, correct the issue, and restart.");
+                    return false;
+                }
+                m_maxPoints = configHelper.numChannels * configHelper.maxReturns *
+                              static_cast<size_t>(std::ceil(static_cast<float>(configHelper.reportRateBaseHz) /
+                                                            static_cast<float>(configHelper.scanRateBaseHz)));
+            }
+            else
+            {
+                uint32_t maxReturns;
+                uint32_t numChannels;
+                uint32_t patternFiringRateHz;
+                uint32_t scanRateBaseHz;
+                sensorPrim.GetAttribute(pxr::TfToken("omni:sensor:Core:maxReturns")).Get(&maxReturns);
+                sensorPrim.GetAttribute(pxr::TfToken("omni:sensor:Core:numberOfChannels")).Get(&numChannels);
+                sensorPrim.GetAttribute(pxr::TfToken("omni:sensor:Core:patternFiringRateHz")).Get(&patternFiringRateHz);
+                sensorPrim.GetAttribute(pxr::TfToken("omni:sensor:Core:scanRateBaseHz")).Get(&scanRateBaseHz);
+                m_maxPoints = numChannels * maxReturns *
+                              static_cast<size_t>(std::ceil(static_cast<float>(patternFiringRateHz) /
+                                                            static_cast<float>(scanRateBaseHz)));
+            }
+        }
+        else if (modality == omni::sensors::Modality::RADAR)
+        {
+            if (auxType > omni::sensors::AuxType::NONE)
+            {
+                CUDA_CHECK(cudaMemcpy(hostRadarAuxPoints, hostGMO->auxiliaryData,
+                                      sizeof(omni::sensors::RadarAuxiliaryData), cudaMemcpyDeviceToHost));
+            }
+            m_maxPoints = MAX_POINTS_RADAR;
+        }
+        else
+        {
+            CARB_LOG_ERROR("IsaacCreateRTXLidarScanBuffer: Invalid modality: %d, expected LIDAR or RADAR",
+                           static_cast<int>(modality));
+            return false;
         }
 
         m_outputAzimuth = db.inputs.outputAzimuth();
         m_outputElevation = db.inputs.outputElevation();
         m_outputDistance = db.inputs.outputDistance();
-        m_outputIntensity = db.inputs.outputIntensity();
-        m_outputTimestamp = db.inputs.outputTimestamp();
-        m_outputEmitterId = db.inputs.outputEmitterId() && auxType >= omni::sensors::AuxType::BASIC &&
-                            (hostAuxPoints->filledAuxMembers & omni::sensors::LidarAuxHas::EMITTER_ID) ==
-                                omni::sensors::LidarAuxHas::EMITTER_ID;
-        m_outputMaterialId = db.inputs.outputMaterialId() && auxType >= omni::sensors::AuxType::EXTRA &&
-                             (hostAuxPoints->filledAuxMembers & omni::sensors::LidarAuxHas::MAT_ID) ==
-                                 omni::sensors::LidarAuxHas::MAT_ID;
-        m_outputObjectId = db.inputs.outputObjectId() && auxType >= omni::sensors::AuxType::EXTRA &&
-                           (hostAuxPoints->filledAuxMembers & omni::sensors::LidarAuxHas::OBJ_ID) ==
-                               omni::sensors::LidarAuxHas::OBJ_ID;
-        m_outputNormal = db.inputs.outputNormal() && auxType >= omni::sensors::AuxType::FULL &&
-                         (hostAuxPoints->filledAuxMembers & omni::sensors::LidarAuxHas::HIT_NORMALS) ==
-                             omni::sensors::LidarAuxHas::HIT_NORMALS;
-        m_outputVelocity = db.inputs.outputVelocity() && auxType >= omni::sensors::AuxType::FULL &&
-                           (hostAuxPoints->filledAuxMembers & omni::sensors::LidarAuxHas::VELOCITIES) ==
-                               omni::sensors::LidarAuxHas::VELOCITIES;
+
+        // Lambda function to validate, set output flags, and allocate buffers with aux type and modality checks
+        auto validateAndAllocateOutput = [&](bool inputEnabled, omni::sensors::AuxType requiredAuxType,
+                                             omni::sensors::Modality requiredModality,
+                                             omni::sensors::LidarAuxHas auxMember, const char* outputName,
+                                             auto& deviceBufferArray, auto& validBuffer, size_t stride = 1) -> bool
+        {
+            if (!inputEnabled)
+            {
+                return false;
+            }
+
+            bool auxTypeValid = auxType >= requiredAuxType;
+            bool modalityValid = modality == requiredModality;
+            bool auxMemberFilled = (requiredModality == omni::sensors::Modality::LIDAR) ?
+                                       ((hostLidarAuxPoints->filledAuxMembers & auxMember) == auxMember) :
+                                       true;
+
+            if (!auxTypeValid)
+            {
+                CARB_LOG_WARN(
+                    "IsaacCreateRTXLidarScanBuffer: %s requested for sensor '%s' but auxType (%d) is insufficient (requires %d)",
+                    outputName, sensorPrimPath.c_str(), static_cast<int>(auxType), static_cast<int>(requiredAuxType));
+                return false;
+            }
+
+            if (!modalityValid)
+            {
+                CARB_LOG_WARN(
+                    "IsaacCreateRTXLidarScanBuffer: %s requested for sensor '%s' but modality (%d) is incorrect (requires %d)",
+                    outputName, sensorPrimPath.c_str(), static_cast<int>(modality), static_cast<int>(requiredModality));
+                return false;
+            }
+
+            if (requiredModality == omni::sensors::Modality::LIDAR && !auxMemberFilled)
+            {
+                return false;
+            }
+
+            // Allocate device buffers (double buffering)
+            for (size_t i = 0; i < 2; ++i)
+            {
+                deviceBufferArray[i].setDevice(cudaDeviceIndex);
+                deviceBufferArray[i].resize(m_maxPoints * stride);
+            }
+
+            // Allocate valid output buffer
+            validBuffer.setDevice(cudaDeviceIndex);
+            validBuffer.resize(m_maxPoints * stride);
+
+            return true;
+        };
+
+        m_outputIntensity = validateAndAllocateOutput(db.inputs.outputIntensity(), omni::sensors::AuxType::NONE,
+                                                      modality, omni::sensors::LidarAuxHas::NONE, "outputIntensity",
+                                                      intensityBuffers, intensityBufferValid);
+        m_outputTimestamp = validateAndAllocateOutput(db.inputs.outputTimestamp(), omni::sensors::AuxType::NONE,
+                                                      modality, omni::sensors::LidarAuxHas::NONE, "outputTimestamp",
+                                                      timestampBuffers, timestampBufferValid);
+        m_outputEmitterId = validateAndAllocateOutput(
+            db.inputs.outputEmitterId(), omni::sensors::AuxType::BASIC, omni::sensors::Modality::LIDAR,
+            omni::sensors::LidarAuxHas::EMITTER_ID, "outputEmitterId", emitterIdBuffers, emitterIdBufferValid);
+        m_outputChannelId = validateAndAllocateOutput(
+            db.inputs.outputChannelId(), omni::sensors::AuxType::BASIC, omni::sensors::Modality::LIDAR,
+            omni::sensors::LidarAuxHas::CHANNEL_ID, "outputChannelId", channelIdBuffers, channelIdBufferValid);
+        m_outputMaterialId = validateAndAllocateOutput(
+            db.inputs.outputMaterialId(), omni::sensors::AuxType::EXTRA, omni::sensors::Modality::LIDAR,
+            omni::sensors::LidarAuxHas::MAT_ID, "outputMaterialId", materialIdBuffers, materialIdBufferValid);
+        m_outputTickId = validateAndAllocateOutput(db.inputs.outputTickId(), omni::sensors::AuxType::BASIC,
+                                                   omni::sensors::Modality::LIDAR, omni::sensors::LidarAuxHas::TICK_ID,
+                                                   "outputTickId", tickIdBuffers, tickIdBufferValid);
+        m_outputHitNormal = validateAndAllocateOutput(
+            db.inputs.outputHitNormal(), omni::sensors::AuxType::FULL, omni::sensors::Modality::LIDAR,
+            omni::sensors::LidarAuxHas::HIT_NORMALS, "outputHitNormal", normalBuffers, normalBufferValid);
+        m_outputVelocity = validateAndAllocateOutput(
+            db.inputs.outputVelocity(), omni::sensors::AuxType::FULL, omni::sensors::Modality::LIDAR,
+            omni::sensors::LidarAuxHas::VELOCITIES, "outputVelocity", velocityBuffers, velocityBufferValid);
+        m_outputObjectId = validateAndAllocateOutput(db.inputs.outputObjectId(), omni::sensors::AuxType::EXTRA,
+                                                     omni::sensors::Modality::LIDAR, omni::sensors::LidarAuxHas::OBJ_ID,
+                                                     "outputObjectId", objectIdBuffers, objectIdBufferValid, 16);
+        m_outputEchoId = validateAndAllocateOutput(db.inputs.outputEchoId(), omni::sensors::AuxType::BASIC,
+                                                   omni::sensors::Modality::LIDAR, omni::sensors::LidarAuxHas::ECHO_ID,
+                                                   "outputEchoId", echoIdBuffers, echoIdBufferValid);
+        m_outputTickState = validateAndAllocateOutput(
+            db.inputs.outputTickState(), omni::sensors::AuxType::BASIC, omni::sensors::Modality::LIDAR,
+            omni::sensors::LidarAuxHas::TICK_STATES, "outputTickState", tickStateBuffers, tickStateBufferValid);
+        m_outputRadialVelocityMS =
+            validateAndAllocateOutput(db.inputs.outputRadialVelocityMS(), omni::sensors::AuxType::BASIC,
+                                      omni::sensors::Modality::RADAR, omni::sensors::LidarAuxHas::NONE,
+                                      "outputRadialVelocityMS", radialVelocityMSBuffers, radialVelocityMSBufferValid);
 
         // Initialize cached enable masks for output selection kernels
         m_requiredOutputsMask = 0;
@@ -293,19 +445,30 @@ public:
             m_optionalOutputsMask |= (1 << 4); // bit 4: timestamp
         if (m_outputEmitterId)
             m_optionalOutputsMask |= (1 << 5); // bit 5: emitter ID
+        if (m_outputChannelId)
+            m_optionalOutputsMask |= (1 << 6); // bit 6: channel ID
         if (m_outputMaterialId)
-            m_optionalOutputsMask |= (1 << 6); // bit 6: material ID
-        if (m_outputObjectId)
-            m_optionalOutputsMask |= (1 << 7); // bit 7: object ID
-        if (m_outputNormal)
-            m_optionalOutputsMask |= (1 << 8); // bit 8: normal
+            m_optionalOutputsMask |= (1 << 7); // bit 7: material ID
+        if (m_outputTickId)
+            m_optionalOutputsMask |= (1 << 8); // bit 8: tick ID
+        if (m_outputHitNormal)
+            m_optionalOutputsMask |= (1 << 9); // bit 9: normal
         if (m_outputVelocity)
-            m_optionalOutputsMask |= (1 << 9); // bit 9: velocity
+            m_optionalOutputsMask |= (1 << 10); // bit 10: velocity
+        if (m_outputObjectId)
+            m_optionalOutputsMask |= (1 << 11); // bit 11: object ID
+        if (m_outputEchoId)
+            m_optionalOutputsMask |= (1 << 12); // bit 12: echo ID
+        if (m_outputTickState)
+            m_optionalOutputsMask |= (1 << 13); // bit 13: tick states
+        if (m_outputRadialVelocityMS)
+            m_optionalOutputsMask |= (1 << 14); // bit 14: radial velocity MS
 
         // Allocate additional device memory for the number of valid points
         CUDA_CHECK(cudaMalloc(&numValidPointsDevice, sizeof(int)));
 
-        // Allocate device buffers necessary for the point cloud kernel, and any other output buffers that are requested
+        // Allocate device buffers necessary for the point cloud kernel (azimuth, elevation, distance, flags always
+        // needed)
         for (size_t i = 0; i < 2; ++i)
         {
             azimuthBuffers[i].setDevice(cudaDeviceIndex);
@@ -316,58 +479,11 @@ public:
             distanceBuffers[i].resize(m_maxPoints);
             flagsBuffers[i].setDevice(cudaDeviceIndex);
             flagsBuffers[i].resize(m_maxPoints);
-            if (m_outputIntensity)
-            {
-                intensityBuffers[i].setDevice(cudaDeviceIndex);
-                intensityBuffers[i].resize(m_maxPoints);
-            }
-            if (m_outputTimestamp)
-            {
-                timestampBuffers[i].setDevice(cudaDeviceIndex);
-                timestampBuffers[i].resize(m_maxPoints);
-            }
-            if (m_outputEmitterId)
-            {
-                emitterIdBuffers[i].setDevice(cudaDeviceIndex);
-                emitterIdBuffers[i].resize(m_maxPoints);
-            }
-            if (m_outputMaterialId)
-            {
-                materialIdBuffers[i].setDevice(cudaDeviceIndex);
-                materialIdBuffers[i].resize(m_maxPoints);
-            }
-            if (m_outputObjectId)
-            {
-                objectIdBuffers[i].setDevice(cudaDeviceIndex);
-                objectIdBuffers[i].resize(m_maxPoints * 16); // object id is stride 16
-            }
-            if (m_outputNormal)
-            {
-                normalBuffers[i].setDevice(cudaDeviceIndex);
-                normalBuffers[i].resize(m_maxPoints); // normals are stride 3, but we're storing them as float3, so use
-                                                      // stride 1
-            }
-            if (m_outputVelocity)
-            {
-                velocityBuffers[i].setDevice(cudaDeviceIndex);
-                velocityBuffers[i].resize(m_maxPoints); // velocity is stride 3, but we're storing it as float3, so use
-                                                        // stride 1
-            }
         }
 
-        // Allocate any necessary output buffers
+        // Allocate any necessary output buffers (point cloud buffer always needed, others handled by lambda)
         pcBufferValid.setDevice(cudaDeviceIndex);
         pcBufferValid.resize(m_maxPoints);
-        if (m_outputDistance)
-        {
-            distanceBufferValid.setDevice(cudaDeviceIndex);
-            distanceBufferValid.resize(m_maxPoints);
-        }
-        if (m_outputIntensity)
-        {
-            intensityBufferValid.setDevice(cudaDeviceIndex);
-            intensityBufferValid.resize(m_maxPoints);
-        }
         if (m_outputAzimuth)
         {
             azimuthBufferValid.setDevice(cudaDeviceIndex);
@@ -378,35 +494,10 @@ public:
             elevationBufferValid.setDevice(cudaDeviceIndex);
             elevationBufferValid.resize(m_maxPoints);
         }
-        if (m_outputTimestamp)
+        if (m_outputDistance)
         {
-            timestampBufferValid.setDevice(cudaDeviceIndex);
-            timestampBufferValid.resize(m_maxPoints);
-        }
-        if (m_outputEmitterId)
-        {
-            emitterIdBufferValid.setDevice(cudaDeviceIndex);
-            emitterIdBufferValid.resize(m_maxPoints);
-        }
-        if (m_outputMaterialId)
-        {
-            materialIdBufferValid.setDevice(cudaDeviceIndex);
-            materialIdBufferValid.resize(m_maxPoints);
-        }
-        if (m_outputObjectId)
-        {
-            objectIdBufferValid.setDevice(cudaDeviceIndex);
-            objectIdBufferValid.resize(m_maxPoints * 16); // stride 16
-        }
-        if (m_outputNormal)
-        {
-            normalBufferValid.setDevice(cudaDeviceIndex);
-            normalBufferValid.resize(m_maxPoints);
-        }
-        if (m_outputVelocity)
-        {
-            velocityBufferValid.setDevice(cudaDeviceIndex);
-            velocityBufferValid.resize(m_maxPoints);
+            distanceBufferValid.setDevice(cudaDeviceIndex);
+            distanceBufferValid.resize(m_maxPoints);
         }
 
         indicesBuffer.setDevice(cudaDeviceIndex);
@@ -732,45 +823,41 @@ public:
             db.outputs.width() = 0;
             db.outputs.height() = 1;
             matrixOutput.SetIdentity();
-            db.outputs.indexPtr() = 0; // index only if keepOnlyPositiveDistance
-            db.outputs.indexBufferSize() = 0;
-            db.outputs.intensityPtr() = 0;
-            db.outputs.intensityBufferSize() = 0;
-            db.outputs.distancePtr() = 0;
-            db.outputs.distanceBufferSize() = 0;
             db.outputs.azimuthPtr() = 0;
             db.outputs.azimuthBufferSize() = 0;
             db.outputs.elevationPtr() = 0;
             db.outputs.elevationBufferSize() = 0;
-            db.outputs.objectIdPtr() = 0;
-            db.outputs.objectIdBufferSize() = 0;
-            db.outputs.velocityPtr() = 0;
-            db.outputs.velocityBufferSize() = 0;
-            db.outputs.normalPtr() = 0;
-            db.outputs.normalBufferSize() = 0;
+            db.outputs.distancePtr() = 0;
+            db.outputs.distanceBufferSize() = 0;
+            db.outputs.intensityPtr() = 0;
+            db.outputs.intensityBufferSize() = 0;
             db.outputs.timestampPtr() = 0;
             db.outputs.timestampBufferSize() = 0;
             db.outputs.emitterIdPtr() = 0;
             db.outputs.emitterIdBufferSize() = 0;
+            db.outputs.channelIdPtr() = 0;
+            db.outputs.channelIdBufferSize() = 0;
             db.outputs.materialIdPtr() = 0;
             db.outputs.materialIdBufferSize() = 0;
-
-            db.outputs.numReturnsPerScan() = 0;
-            db.outputs.ticksPerScan() = 0;
-            db.outputs.numChannels() = 0;
-            db.outputs.numEchos() = 0;
-            db.outputs.renderProductPath() = db.inputs.renderProductPath();
+            db.outputs.tickIdPtr() = 0;
+            db.outputs.tickIdBufferSize() = 0;
+            db.outputs.hitNormalPtr() = 0;
+            db.outputs.hitNormalBufferSize() = 0;
+            db.outputs.velocityPtr() = 0;
+            db.outputs.velocityBufferSize() = 0;
+            db.outputs.objectIdPtr() = 0;
+            db.outputs.objectIdBufferSize() = 0;
+            db.outputs.echoIdPtr() = 0;
+            db.outputs.echoIdBufferSize() = 0;
+            db.outputs.tickStatePtr() = 0;
+            db.outputs.tickStateBufferSize() = 0;
+            db.outputs.radialVelocityMSPtr() = 0;
+            db.outputs.radialVelocityMSBufferSize() = 0;
         }
 
         if (!db.inputs.dataPtr())
         {
             CARB_LOG_INFO("IsaacCreateRTXLidarScanBuffer: dataPtr input is empty. Skipping execution.");
-            return false;
-        }
-
-        if (!db.inputs.metadataPtr())
-        {
-            CARB_LOG_INFO("IsaacCreateRTXLidarScanBuffer: metadataPtr input is empty. Skipping execution.");
             return false;
         }
 
@@ -793,6 +880,7 @@ public:
         // Copy just the GMO basic structure to the host using async copy
         size_t numElements;
         omni::sensors::AuxType auxType;
+        omni::sensors::Modality modality;
         {
             cudaStream_t headerStream = state.m_cudaStreams[0];
             CUDA_CHECK(cudaMemcpyAsync(state.hostGMO, reinterpret_cast<void*>(db.inputs.dataPtr()),
@@ -800,6 +888,7 @@ public:
             CUDA_CHECK(cudaStreamSynchronize(headerStream));
             numElements = static_cast<size_t>(state.hostGMO->numElements);
             auxType = state.hostGMO->auxType;
+            modality = state.hostGMO->modality;
         }
 
         if (numElements == 0)
@@ -812,8 +901,16 @@ public:
         if (auxType > omni::sensors::AuxType::NONE)
         {
             cudaStream_t auxStream = state.m_cudaStreams[1]; // Use second stream for aux data
-            CUDA_CHECK(cudaMemcpyAsync(state.hostAuxPoints, state.hostGMO->auxiliaryData,
-                                       sizeof(omni::sensors::LidarAuxiliaryData), cudaMemcpyDeviceToHost, auxStream));
+            if (modality == omni::sensors::Modality::LIDAR)
+            {
+                CUDA_CHECK(cudaMemcpyAsync(state.hostLidarAuxPoints, state.hostGMO->auxiliaryData,
+                                           sizeof(omni::sensors::LidarAuxiliaryData), cudaMemcpyDeviceToHost, auxStream));
+            }
+            else if (modality == omni::sensors::Modality::RADAR)
+            {
+                CUDA_CHECK(cudaMemcpyAsync(state.hostRadarAuxPoints, state.hostGMO->auxiliaryData,
+                                           sizeof(omni::sensors::RadarAuxiliaryData), cudaMemcpyDeviceToHost, auxStream));
+            }
             CUDA_CHECK(cudaStreamSynchronize(auxStream));
         }
 
@@ -938,19 +1035,29 @@ public:
 
         // Copy optional data on dedicated streams
         {
-            if (state.m_outputIntensity)
+            // Lambda function to handle standard async copy pattern for auxiliary data
+            auto copyAuxDataAsync = [&](bool enabled, const char* profileName, size_t streamIndex, auto& bufferArray,
+                                        auto* sourcePtr, size_t elementSize, size_t stride = 1)
             {
-                CARB_PROFILE_ZONE(0, "Copy Intensity Data");
-                auto intensityStream = cudaStreams[state.STREAM_INTENSITY];
-                CUDA_CHECK(cudaMemcpyAsync(
-                    state.intensityBuffers[state.m_currentBuffer].data() + startIndex, state.hostGMO->elements.scalar,
-                    numElementsToCopyToCurrentBuffer * sizeof(float), cudaMemcpyDeviceToDevice, intensityStream));
-                CUDA_CHECK(cudaMemcpyAsync(state.intensityBuffers[state.m_nextBuffer].data(),
-                                           state.hostGMO->elements.scalar + numElementsToCopyToCurrentBuffer,
-                                           numElementsToCopyToNextBuffer * sizeof(float), cudaMemcpyDeviceToDevice,
-                                           intensityStream));
-                CUDA_CHECK(cudaEventRecord(copyEvents[state.STREAM_INTENSITY], intensityStream));
-            }
+                if (enabled)
+                {
+                    CARB_PROFILE_ZONE(0, profileName);
+                    auto stream = cudaStreams[streamIndex];
+                    CUDA_CHECK(cudaMemcpyAsync(bufferArray[state.m_currentBuffer].data() + startIndex * stride,
+                                               sourcePtr, numElementsToCopyToCurrentBuffer * elementSize * stride,
+                                               cudaMemcpyDeviceToDevice, stream));
+                    CUDA_CHECK(cudaMemcpyAsync(
+                        bufferArray[state.m_nextBuffer].data(), sourcePtr + numElementsToCopyToCurrentBuffer * stride,
+                        numElementsToCopyToNextBuffer * elementSize * stride, cudaMemcpyDeviceToDevice, stream));
+                    CUDA_CHECK(cudaEventRecord(copyEvents[streamIndex], stream));
+                }
+            };
+
+            // Copy intensity data
+            copyAuxDataAsync(state.m_outputIntensity, "Copy Intensity Data", state.STREAM_INTENSITY,
+                             state.intensityBuffers, state.hostGMO->elements.scalar, sizeof(float));
+
+            // Copy timestamp data (special case with custom kernel)
             if (state.m_outputTimestamp)
             {
                 CARB_PROFILE_ZONE(0, "Copy Timestamp Data");
@@ -965,78 +1072,37 @@ public:
                                state.m_multiProcessorCount, cudaDeviceIndex, timestampStream);
                 CUDA_CHECK(cudaEventRecord(copyEvents[state.STREAM_TIMESTAMP], timestampStream));
             }
-            if (state.m_outputEmitterId)
-            {
-                CARB_PROFILE_ZONE(0, "Copy Emitter ID Data");
-                auto emitterStream = cudaStreams[state.STREAM_EMITTER_ID];
-                // Use device-to-device copy since aux data is already on device
-                CUDA_CHECK(cudaMemcpyAsync(
-                    state.emitterIdBuffers[state.m_currentBuffer].data() + startIndex, state.hostAuxPoints->emitterId,
-                    numElementsToCopyToCurrentBuffer * sizeof(uint32_t), cudaMemcpyDeviceToDevice, emitterStream));
-                CUDA_CHECK(cudaMemcpyAsync(state.emitterIdBuffers[state.m_nextBuffer].data(),
-                                           state.hostAuxPoints->emitterId + numElementsToCopyToCurrentBuffer,
-                                           numElementsToCopyToNextBuffer * sizeof(uint32_t), cudaMemcpyDeviceToDevice,
-                                           emitterStream));
-                CUDA_CHECK(cudaEventRecord(copyEvents[state.STREAM_EMITTER_ID], emitterStream));
-            }
-            if (state.m_outputMaterialId)
-            {
-                CARB_PROFILE_ZONE(0, "Copy Material ID Data");
-                auto materialStream = cudaStreams[state.STREAM_MATERIAL_ID];
-                CUDA_CHECK(cudaMemcpyAsync(
-                    state.materialIdBuffers[state.m_currentBuffer].data() + startIndex, state.hostAuxPoints->matId,
-                    numElementsToCopyToCurrentBuffer * sizeof(uint32_t), cudaMemcpyDeviceToDevice, materialStream));
-                CUDA_CHECK(cudaMemcpyAsync(state.materialIdBuffers[state.m_nextBuffer].data(),
-                                           state.hostAuxPoints->matId + numElementsToCopyToCurrentBuffer,
-                                           numElementsToCopyToNextBuffer * sizeof(uint32_t), cudaMemcpyDeviceToDevice,
-                                           materialStream));
-                CUDA_CHECK(cudaEventRecord(copyEvents[state.STREAM_MATERIAL_ID], materialStream));
-            }
-            if (state.m_outputObjectId)
-            {
-                CARB_PROFILE_ZONE(0, "Copy Object ID Data");
-                auto objectStream = cudaStreams[state.STREAM_OBJECT_ID];
-                CUDA_CHECK(cudaMemcpyAsync(
-                    state.objectIdBuffers[state.m_currentBuffer].data() + startIndex * 16, state.hostAuxPoints->objId,
-                    numElementsToCopyToCurrentBuffer * sizeof(uint8_t) * 16, cudaMemcpyDeviceToDevice, objectStream));
-                CUDA_CHECK(cudaMemcpyAsync(state.objectIdBuffers[state.m_nextBuffer].data(),
-                                           state.hostAuxPoints->objId + numElementsToCopyToCurrentBuffer * 16,
-                                           numElementsToCopyToNextBuffer * sizeof(uint8_t) * 16,
-                                           cudaMemcpyDeviceToDevice, objectStream));
-                CUDA_CHECK(cudaEventRecord(copyEvents[state.STREAM_OBJECT_ID], objectStream));
-            }
-            if (state.m_outputNormal)
-            {
-                CARB_PROFILE_ZONE(0, "Copy Normal Data");
-                auto normalStream = cudaStreams[state.STREAM_NORMAL];
-                CUDA_CHECK(cudaMemcpyAsync(
-                    state.normalBuffers[state.m_currentBuffer].data() + startIndex, state.hostAuxPoints->hitNormals,
-                    numElementsToCopyToCurrentBuffer * sizeof(float3), cudaMemcpyDeviceToDevice, normalStream));
-                CUDA_CHECK(cudaMemcpyAsync(state.normalBuffers[state.m_nextBuffer].data(),
-                                           state.hostAuxPoints->hitNormals + numElementsToCopyToCurrentBuffer,
-                                           numElementsToCopyToNextBuffer * sizeof(float3), cudaMemcpyDeviceToDevice,
-                                           normalStream));
-                CUDA_CHECK(cudaEventRecord(copyEvents[state.STREAM_NORMAL], normalStream));
-            }
-            if (state.m_outputVelocity)
-            {
-                CARB_PROFILE_ZONE(0, "Copy Velocity Data");
-                auto velocityStream = cudaStreams[state.STREAM_VELOCITY];
-                CUDA_CHECK(cudaMemcpyAsync(
-                    state.velocityBuffers[state.m_currentBuffer].data() + startIndex, state.hostAuxPoints->velocities,
-                    numElementsToCopyToCurrentBuffer * sizeof(float3), cudaMemcpyDeviceToDevice, velocityStream));
-                CUDA_CHECK(cudaMemcpyAsync(state.velocityBuffers[state.m_nextBuffer].data(),
-                                           state.hostAuxPoints->velocities + numElementsToCopyToCurrentBuffer,
-                                           numElementsToCopyToNextBuffer * sizeof(float3), cudaMemcpyDeviceToDevice,
-                                           velocityStream));
-                CUDA_CHECK(cudaEventRecord(copyEvents[state.STREAM_VELOCITY], velocityStream));
-            }
+
+            // Copy lidar auxiliary data
+            copyAuxDataAsync(state.m_outputEmitterId, "Copy Emitter ID Data", state.STREAM_EMITTER_ID,
+                             state.emitterIdBuffers, state.hostLidarAuxPoints->emitterId, sizeof(uint32_t));
+            copyAuxDataAsync(state.m_outputChannelId, "Copy Channel ID Data", state.STREAM_CHANNEL_ID,
+                             state.channelIdBuffers, state.hostLidarAuxPoints->channelId, sizeof(uint32_t));
+            copyAuxDataAsync(state.m_outputMaterialId, "Copy Material ID Data", state.STREAM_MATERIAL_ID,
+                             state.materialIdBuffers, state.hostLidarAuxPoints->matId, sizeof(uint32_t));
+            copyAuxDataAsync(state.m_outputTickId, "Copy Tick ID Data", state.STREAM_TICK_ID, state.tickIdBuffers,
+                             state.hostLidarAuxPoints->tickId, sizeof(uint32_t));
+            copyAuxDataAsync(state.m_outputHitNormal, "Copy Normal Data", state.STREAM_NORMAL, state.normalBuffers,
+                             state.hostLidarAuxPoints->hitNormals, sizeof(float3));
+            copyAuxDataAsync(state.m_outputVelocity, "Copy Velocity Data", state.STREAM_VELOCITY, state.velocityBuffers,
+                             state.hostLidarAuxPoints->velocities, sizeof(float3));
+            copyAuxDataAsync(state.m_outputObjectId, "Copy Object ID Data", state.STREAM_OBJECT_ID,
+                             state.objectIdBuffers, state.hostLidarAuxPoints->objId, sizeof(uint8_t), 16);
+            copyAuxDataAsync(state.m_outputEchoId, "Copy Echo ID Data", state.STREAM_ECHO_ID, state.echoIdBuffers,
+                             state.hostLidarAuxPoints->echoId, sizeof(uint8_t));
+            copyAuxDataAsync(state.m_outputTickState, "Copy Tick States Data", state.STREAM_TICK_STATE,
+                             state.tickStateBuffers, state.hostLidarAuxPoints->tickStates, sizeof(uint8_t));
+
+            // Copy radar auxiliary data
+            copyAuxDataAsync(state.m_outputRadialVelocityMS, "Copy Radial Velocity MS Data",
+                             state.STREAM_RADIAL_VELOCITY_MS, state.radialVelocityMSBuffers,
+                             state.hostRadarAuxPoints->rv_ms, sizeof(float));
         }
 
         // Event-based sync: Output processing waits for current buffer completion
         // Next buffer streams continue asynchronously for future frames
 
-        if (startIndex + numElementsToCopyToCurrentBuffer == state.m_maxPoints || db.inputs.enablePerFrameOutput())
+        if (db.inputs.enablePerFrameOutput() || startIndex + numElementsToCopyToCurrentBuffer == state.m_maxPoints)
         {
             // We've reached the end of the current buffer, and the buffers are guaranteed to be filled.
             // Kick off the point cloud kernel on its own stream
@@ -1110,32 +1176,58 @@ public:
                 if (state.m_outputTimestamp)
                 {
                     db.outputs.timestampPtr() = reinterpret_cast<uint64_t>(state.timestampBufferValid.data());
-                    db.outputs.timestampBufferSize() = state.numValidPointsHost[0] * sizeof(int32_t);
+                    db.outputs.timestampBufferSize() = state.numValidPointsHost[0] * sizeof(uint64_t);
                 }
                 if (state.m_outputEmitterId)
                 {
                     db.outputs.emitterIdPtr() = reinterpret_cast<uint64_t>(state.emitterIdBufferValid.data());
                     db.outputs.emitterIdBufferSize() = state.numValidPointsHost[0] * sizeof(uint32_t);
                 }
+                if (state.m_outputChannelId)
+                {
+                    db.outputs.channelIdPtr() = reinterpret_cast<uint64_t>(state.channelIdBufferValid.data());
+                    db.outputs.channelIdBufferSize() = state.numValidPointsHost[0] * sizeof(uint32_t);
+                }
                 if (state.m_outputMaterialId)
                 {
                     db.outputs.materialIdPtr() = reinterpret_cast<uint64_t>(state.materialIdBufferValid.data());
                     db.outputs.materialIdBufferSize() = state.numValidPointsHost[0] * sizeof(uint32_t);
+                }
+                if (state.m_outputTickId)
+                {
+                    db.outputs.tickIdPtr() = reinterpret_cast<uint64_t>(state.tickIdBufferValid.data());
+                    db.outputs.tickIdBufferSize() = state.numValidPointsHost[0] * sizeof(uint32_t);
+                }
+                if (state.m_outputHitNormal)
+                {
+                    db.outputs.hitNormalPtr() = reinterpret_cast<uint64_t>(state.normalBufferValid.data());
+                    db.outputs.hitNormalBufferSize() = state.numValidPointsHost[0] * sizeof(float3);
+                }
+                if (state.m_outputVelocity)
+                {
+                    db.outputs.velocityPtr() = reinterpret_cast<uint64_t>(state.velocityBufferValid.data());
+                    db.outputs.velocityBufferSize() = state.numValidPointsHost[0] * sizeof(float3);
                 }
                 if (state.m_outputObjectId)
                 {
                     db.outputs.objectIdPtr() = reinterpret_cast<uint64_t>(state.objectIdBufferValid.data());
                     db.outputs.objectIdBufferSize() = state.numValidPointsHost[0] * sizeof(uint8_t) * 16;
                 }
-                if (state.m_outputNormal)
+                if (state.m_outputEchoId)
                 {
-                    db.outputs.normalPtr() = reinterpret_cast<uint64_t>(state.normalBufferValid.data());
-                    db.outputs.normalBufferSize() = state.numValidPointsHost[0] * sizeof(float3);
+                    db.outputs.echoIdPtr() = reinterpret_cast<uint64_t>(state.echoIdBufferValid.data());
+                    db.outputs.echoIdBufferSize() = state.numValidPointsHost[0] * sizeof(uint8_t);
                 }
-                if (state.m_outputVelocity)
+                if (state.m_outputTickState)
                 {
-                    db.outputs.velocityPtr() = reinterpret_cast<uint64_t>(state.velocityBufferValid.data());
-                    db.outputs.velocityBufferSize() = state.numValidPointsHost[0] * sizeof(float3);
+                    db.outputs.tickStatePtr() = reinterpret_cast<uint64_t>(state.tickStateBufferValid.data());
+                    db.outputs.tickStateBufferSize() = state.numValidPointsHost[0] * sizeof(uint8_t);
+                }
+                if (state.m_outputRadialVelocityMS)
+                {
+                    db.outputs.radialVelocityMSPtr() =
+                        reinterpret_cast<uint64_t>(state.radialVelocityMSBufferValid.data());
+                    db.outputs.radialVelocityMSBufferSize() = state.numValidPointsHost[0] * sizeof(float);
                 }
 
                 // Launch fused kernel for common outputs (azimuth, elevation, distance, intensity)
@@ -1167,8 +1259,10 @@ public:
                 }
 
                 // Launch fused kernel for auxiliary outputs (timestamp, IDs, normals, velocities)
-                bool hasAuxOutputs = state.m_outputTimestamp || state.m_outputEmitterId || state.m_outputMaterialId ||
-                                     state.m_outputObjectId || state.m_outputNormal || state.m_outputVelocity;
+                bool hasAuxOutputs = state.m_outputTimestamp || state.m_outputEmitterId || state.m_outputChannelId ||
+                                     state.m_outputMaterialId || state.m_outputTickId || state.m_outputHitNormal ||
+                                     state.m_outputVelocity || state.m_outputObjectId || state.m_outputEchoId ||
+                                     state.m_outputTickState || state.m_outputRadialVelocityMS;
                 if (hasAuxOutputs)
                 {
                     auto auxStream = cudaStreams[state.STREAM_TIMESTAMP]; // Use one stream for aux outputs
@@ -1179,27 +1273,44 @@ public:
                         CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_TIMESTAMP], 0));
                     if (state.m_outputEmitterId)
                         CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_EMITTER_ID], 0));
+                    if (state.m_outputChannelId)
+                        CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_CHANNEL_ID], 0));
                     if (state.m_outputMaterialId)
                         CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_MATERIAL_ID], 0));
-                    if (state.m_outputObjectId)
-                        CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_OBJECT_ID], 0));
-                    if (state.m_outputNormal)
+                    if (state.m_outputTickId)
+                        CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_TICK_ID], 0));
+                    if (state.m_outputHitNormal)
                         CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_NORMAL], 0));
                     if (state.m_outputVelocity)
                         CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_VELOCITY], 0));
+                    if (state.m_outputObjectId)
+                        CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_OBJECT_ID], 0));
+                    if (state.m_outputEchoId)
+                        CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_ECHO_ID], 0));
+                    if (state.m_outputTickState)
+                        CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_TICK_STATE], 0));
+                    if (state.m_outputRadialVelocityMS)
+                        CUDA_CHECK(cudaStreamWaitEvent(auxStream, copyEvents[state.STREAM_RADIAL_VELOCITY_MS], 0));
 
                     selectOptionalValidPoints(state.timestampBuffers[state.m_currentBuffer].data(),
                                               state.emitterIdBuffers[state.m_currentBuffer].data(),
+                                              state.channelIdBuffers[state.m_currentBuffer].data(),
                                               state.materialIdBuffers[state.m_currentBuffer].data(),
-                                              state.objectIdBuffers[state.m_currentBuffer].data(),
+                                              state.tickIdBuffers[state.m_currentBuffer].data(),
                                               state.normalBuffers[state.m_currentBuffer].data(),
                                               state.velocityBuffers[state.m_currentBuffer].data(),
+                                              state.objectIdBuffers[state.m_currentBuffer].data(),
+                                              state.echoIdBuffers[state.m_currentBuffer].data(),
+                                              state.tickStateBuffers[state.m_currentBuffer].data(),
+                                              state.radialVelocityMSBuffers[state.m_currentBuffer].data(),
                                               state.timestampBufferValid.data(), state.emitterIdBufferValid.data(),
-                                              state.materialIdBufferValid.data(), state.objectIdBufferValid.data(),
-                                              state.normalBufferValid.data(), state.velocityBufferValid.data(),
-                                              state.indicesValidBuffer.data(), state.numValidPointsDevice,
-                                              numPointsToCheck, state.m_optionalOutputsMask, state.m_maxThreadsPerBlock,
-                                              cudaDeviceIndex, auxStream);
+                                              state.channelIdBufferValid.data(), state.materialIdBufferValid.data(),
+                                              state.tickIdBufferValid.data(), state.normalBufferValid.data(),
+                                              state.velocityBufferValid.data(), state.objectIdBufferValid.data(),
+                                              state.echoIdBufferValid.data(), state.tickStateBufferValid.data(),
+                                              state.radialVelocityMSBufferValid.data(), state.indicesValidBuffer.data(),
+                                              state.numValidPointsDevice, numPointsToCheck, state.m_optionalOutputsMask,
+                                              state.m_maxThreadsPerBlock, cudaDeviceIndex, auxStream);
 
                     cudaEvent_t auxCompleteEvent;
                     CUDA_CHECK(cudaEventCreate(&auxCompleteEvent));
@@ -1272,14 +1383,24 @@ public:
             CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_TIMESTAMP]));
         if (state.m_outputEmitterId)
             CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_EMITTER_ID]));
+        if (state.m_outputChannelId)
+            CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_CHANNEL_ID]));
         if (state.m_outputMaterialId)
             CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_MATERIAL_ID]));
-        if (state.m_outputObjectId)
-            CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_OBJECT_ID]));
-        if (state.m_outputNormal)
+        if (state.m_outputTickId)
+            CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_TICK_ID]));
+        if (state.m_outputHitNormal)
             CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_NORMAL]));
         if (state.m_outputVelocity)
             CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_VELOCITY]));
+        if (state.m_outputObjectId)
+            CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_OBJECT_ID]));
+        if (state.m_outputEchoId)
+            CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_ECHO_ID]));
+        if (state.m_outputTickState)
+            CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_TICK_STATE]));
+        if (state.m_outputRadialVelocityMS)
+            CUDA_CHECK(cudaEventSynchronize(copyEvents[state.STREAM_RADIAL_VELOCITY_MS]));
 
         return true;
     }

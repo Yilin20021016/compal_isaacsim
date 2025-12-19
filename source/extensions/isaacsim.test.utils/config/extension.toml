@@ -1,8 +1,8 @@
 [package]
-version = "0.5.1"
+version = "0.6.4"
 category = "Internal"
 title = "Isaac Sim Test Utils"
-description = "Test utilities for Isaac Sim"
+description = "Provides testing utilities including image capture, comparison, and validation functions along with file validation helpers for automated test workflows."
 keywords = ["isaac", "test", "utils"]
 changelog = "docs/CHANGELOG.md"
 readme = "docs/README.md"
@@ -11,8 +11,9 @@ icon = "data/icon.png"
 writeTarget.kit = true
 
 [dependencies]
-"omni.kit.test" = {}
 "isaacsim.storage.native" = {}
+"omni.kit.test" = {}
+"omni.replicator.core" = {} # needed for image capture utils
 
 [[python.module]]
 name = "isaacsim.test.utils"
@@ -21,9 +22,6 @@ name = "isaacsim.test.utils"
 name = "isaacsim.test.utils.tests"
 
 [[test]]
-dependencies = [
-   "omni.replicator.core",
-]
 
 args = [
     "--enable",
@@ -68,4 +66,14 @@ args = [
     "--/rtx/materialDb/syncLoads=1",
     "--/rtx/newDenoiser/enabled=1",
     "--/rtx/reservedDescriptors=900000",
+]
+
+stdoutFailPatterns.exclude = [
+    '*The NumPy module was reloaded*',
+]
+
+[[test]]
+name = "startup"
+args = [
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
 ]

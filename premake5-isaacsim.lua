@@ -114,7 +114,9 @@ function make_nvcc_command(nvccPath, nvccHostCompilerVS, nvccHostCompilerFlags, 
     -- end
     if os.target() == "windows" then
         ext = ".obj"
-        if isPtx then ext = ".ptx" end
+        if isPtx then
+            ext = ".ptx"
+        end
         local compilerBindir = " --compiler-bindir " .. nvccHostCompilerVS
         local buildString = '"'
             .. nvccPath
@@ -135,7 +137,9 @@ function make_nvcc_command(nvccPath, nvccHostCompilerVS, nvccHostCompilerFlags, 
     end
     if os.target() == "linux" then
         ext = ".o"
-        if isPtx then ext = ".ptx" end
+        if isPtx then
+            ext = ".ptx"
+        end
         local buildString = '"'
             .. nvccPath
             .. '" -std=c++17 '
@@ -253,7 +257,9 @@ function define_test_experience(name, args)
     -- Write bat and sh files as another way to run them:
     for _, config in ipairs(ALL_CONFIGS) do
         local kit_sdk_config = get_value_or_default(args, "kit_sdk_config", kit_sdk_config)
-        if kit_sdk_config == "%{config}" then kit_sdk_config = config end
+        if kit_sdk_config == "%{config}" then
+            kit_sdk_config = config
+        end
         create_test_experience_runner(name, config_path, config, kit_sdk_config, extra_args)
     end
 end
@@ -263,7 +269,7 @@ set ROS_DISTRO=humble
 set RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 set ROS_DOMAIN_ID=93
 pushd %~dp0\..\exts
-set basedir=%cd%\isaacsim.ros2.bridge\humble\lib
+set basedir=%cd%\isaacsim.ros2.core\humble\lib
 popd
 set PATH=%PATH%;%basedir%
 ]],
@@ -271,7 +277,7 @@ set PATH=%PATH%;%basedir%
 export ROS_DISTRO=humble
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 export ROS_DOMAIN_ID=$((($RANDOM % 18) + 80))
-INTERNAL_LIBS=$(readlink -f $SCRIPT_DIR/../exts/isaacsim.ros2.bridge/humble/lib)
+INTERNAL_LIBS=$(readlink -f $SCRIPT_DIR/../exts/isaacsim.ros2.core/humble/lib)
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INTERNAL_LIBS
 ]],
 }
@@ -280,10 +286,10 @@ function create_test_experience_runner(name, config_path, config, kit_sdk_config
     local os_target = os.target()
     if
         string.find(name, "ros2")
-        or string.find(name, "omni.isaac.benchmarks")
         or string.find(name, "tf_viewer")
         or string.find(name, "isaacsim.app.setup")
         or string.find(name, "isaacsim.test.collection")
+        or string.find(name, "startup")
     then
         extra = ROS2_EXTRA[os_target]
     else
@@ -315,7 +321,12 @@ function create_test_experience_runner(name, config_path, config, kit_sdk_config
         )
         f:close()
     else
-        local executable = executable or "kit"
+        local exe = "kit"
+        if _OPTIONS["enable-gcov"] then
+            exe = "kit-gcov"
+        end
+        local executable = executable or exe
+        -- local executable = "kit"
         local arch = io.popen("arch", "r"):read("*l")
         local platform_name = "linux"
 
@@ -359,13 +370,14 @@ function python_sample_test(name, sample_path, args)
 end
 function create_python_sample_runner(name, sample_path, config, extra_args)
     local os_target = os.target()
-    if string.find(name, "ros2") then
+    if string.find(name, "ros2") or string.find(name, "scene_loading") then
         extra = ROS2_EXTRA[os_target]
     else
         extra = ""
     end
     if os.target() == "linux" then
-        local sh_file_dir = root .. "/_build/linux-x86_64/" .. config .. "/tests"
+        local platform_target = _OPTIONS["platform-target"] or "linux-x86_64"
+        local sh_file_dir = root .. "/_build/" .. platform_target .. "/" .. config .. "/tests"
         local sh_file_path = sh_file_dir .. "/" .. name .. ".sh"
         local f = io.open(sh_file_path, "w")
         print(sh_file_path)
@@ -415,7 +427,8 @@ function jupyter_sample_test(name, sample_path, args)
 end
 function jupyter_sample_runner(name, sample_path, config, extra_args)
     if os.target() == "linux" then
-        local sh_file_dir = root .. "/_build/linux-x86_64/" .. config .. "/tests"
+        local platform_target = _OPTIONS["platform-target"] or "linux-x86_64"
+        local sh_file_dir = root .. "/_build/" .. platform_target .. "/" .. config .. "/tests"
         local sh_file_path = sh_file_dir .. "/" .. name .. ".sh"
         local f = io.open(sh_file_path, "w")
         print(sh_file_path)
@@ -445,7 +458,6 @@ set SCRIPT_DIR=%%~dp0
 set NO_ROS_ENV=false
 
 REM don't set up ros env for the following apps
-if /i "%%~n0"=="isaac-sim.selector" set NO_ROS_ENV=true
 if /i "%%~n0"=="isaac-sim.compatibility_check" set NO_ROS_ENV=true
 
 REM Check args for a flag to disable ROS environment setup
@@ -527,7 +539,8 @@ function python_script_test(name, script)
 end
 function create_python_script_runner(name, script, config)
     if os.target() == "linux" then
-        local sh_file_dir = root .. "/_build/linux-x86_64/" .. config .. "/tests"
+        local platform_target = _OPTIONS["platform-target"] or "linux-x86_64"
+        local sh_file_dir = root .. "/_build/" .. platform_target .. "/" .. config .. "/tests"
         local sh_file_path = sh_file_dir .. "/" .. name .. ".sh"
         local f = io.open(sh_file_path, "w")
         print(sh_file_path)

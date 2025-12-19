@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import torch
+from isaacsim.core.deprecation_manager import import_module
 from isaacsim.core.utils.torch.rotations import (
     gf_quat_to_tensor,
     quat_apply,
@@ -25,16 +25,18 @@ from isaacsim.core.utils.torch.tensor import create_zeros_tensor
 from pxr import Gf
 from scipy.spatial.transform import Rotation
 
+torch = import_module("torch")
+
 
 def tf_matrices_from_poses(translations: torch.Tensor, orientations: torch.Tensor, device=None) -> torch.Tensor:
-    """[summary]
+    """Compute transformation matrices from translation and orientation tensors.
 
     Args:
-        translations (Union[np.ndarray, torch.Tensor]): translations with shape (N, 3).
-        orientations (Union[np.ndarray, torch.Tensor]): quaternion representation (scalar first) with shape (N, 4).
+        translations: Translations with shape (N, 3).
+        orientations: Quaternion orientations (scalar first) with shape (N, 4).
 
     Returns:
-        Union[np.ndarray, torch.Tensor]: transformation matrices with shape (N, 4, 4)
+        Transformation matrices with shape (N, 4, 4).
     """
     result = torch.zeros([orientations.shape[0], 4, 4], dtype=torch.float32, device=device)
     r = Rotation.from_quat(orientations[:, [1, 2, 3, 0]].detach().cpu().numpy())

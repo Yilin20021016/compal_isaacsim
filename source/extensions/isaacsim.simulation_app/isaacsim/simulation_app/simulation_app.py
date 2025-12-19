@@ -82,13 +82,13 @@ class SimulationApp:
         "window_height": 900,
         "display_options": 3094,
         "subdiv_refinement_level": 0,
-        "renderer": "RaytracedLighting",  # Can also be PathTracing
+        "renderer": "RealTimePathTracing",  # Can also be PathTracing or RaytracedLighting
         "anti_aliasing": 3,
         "samples_per_pixel_per_frame": 64,
         "denoiser": True,
-        "max_bounces": 4,
-        "max_specular_transmission_bounces": 6,
-        "max_volume_bounces": 4,
+        "max_bounces": 3,
+        "max_specular_transmission_bounces": 3,
+        "max_volume_bounces": 15,
         "open_usd": None,
         "fast_shutdown": True,
         "profiler_backend": [],
@@ -115,17 +115,17 @@ class SimulationApp:
         window_height (int): Height of the application window, independent of viewport, defaults to 900,
         display_options (int): used to specify whats visible in the stage by default. Defaults to 3094 so extra objects do not appear in synthetic data. 3286 is another good default, used for the regular isaac-sim editor experience
         subdiv_refinement_level (int): Number of subdivisons to perform on supported geometry. Defaults to 0
-        renderer (str): Rendering mode, can be  `RaytracedLighting` or `PathTracing`. Defaults to `PathTracing`
+        renderer (str): Rendering mode, can be  `RaytracedLighting`, `PathTracing`, `RealTimePathTracing`. Defaults to `RealTimePathTracing`
         anti_aliasing (int): Antialiasing mode, 0: Disabled, 1: TAA, 2: FXAA, 3: DLSS, 4:RTXAA
         samples_per_pixel_per_frame (int): The number of samples to render per frame, increase for improved quality, used for `PathTracing` only. Defaults to 64
         denoiser (bool):  Enable this to use AI denoising to improve image quality, used for `PathTracing` only. Defaults to True
-        max_bounces (int): Maximum number of bounces, used for `PathTracing` only. Defaults to 4
-        max_specular_transmission_bounces (int): Maximum number of bounces for specular or transmission, used for `PathTracing` only. Defaults to 6
-        max_volume_bounces (int): Maximum number of bounces for volumetric materials, used for `PathTracing` only. Defaults to 4
+        max_bounces (int): Maximum number of bounces, used for `PathTracing` (defaults to 4)and `RealTimePathTracing` (defaults to 3)
+        max_specular_transmission_bounces (int): Maximum number of bounces for specular or transmission, used for `PathTracing` (defaults to 6) or `RealTimePathTracing` (defaults to 3)
+        max_volume_bounces (int): Maximum number of bounces for volumetric materials, used for `PathTracing` (defaults to 64) and 'RealTimePathTracing' (defaults to 15).
         open_usd (str): This is the name of the usd to open when the app starts. It will not be saved over. Default is None and an empty stage is created on startup.
         fast_shutdown (bool): True to exit process immediately, false to shutdown each extension. If running in a jupyter notebook this is forced to false.
         profiler_backend (list): List of profiler backends to enable currently only supports the following backends: ["tracy", "nvtx"]
-        create_new_stage (bool): Set False to not create a new stage on application startup. Defaults to True
+        create_new_stage (bool): Set False to not create a new stage on application startup. Defaults to True, does not have an effect if open_usd is not None.
         extra_args: (list): List of extra command line arguments to pass down to the kit process
         enable_crashreporter (bool): Enable crash reporter. Defaults to True
         limit_cpu_threads (int): Limit the number of CPU threads created to the lesser of cpu core count or specified value. Defaults to 32.
@@ -289,8 +289,7 @@ class SimulationApp:
         self.reset_render_settings()
 
         self._app.print_and_log("Simulation App Starting")
-
-        self._app.update()
+        self._update_without_ready()
 
         self.open_usd = self.config.get("open_usd")
         if self.open_usd is not None:
@@ -300,13 +299,11 @@ class SimulationApp:
                 create_new_stage()
             else:
                 print("Done.")
-
-        if self.config["create_new_stage"] is True:
+        elif self.config["create_new_stage"] is True:
             carb.log_info("SimulationApp.__init__: Creating new stage")
             create_new_stage()
-
         # Update the app
-        self._app.update()
+        self._update_without_ready()
         self._prepare_ui()
 
         # Increase hang detection timeout
@@ -358,6 +355,7 @@ class SimulationApp:
             benchmark.store_measurements()
             benchmark.stop()
 
+        self.update()  # This app update triggers app ready status.
         builtins.ISAACSIM_APP_LAUNCHED = True
 
     def __del__(self):
@@ -411,7 +409,8 @@ class SimulationApp:
             args.extend(self.config.get("extra_args", []))
         else:
             print("Ignoring extra_args, extra_args must be of type list")
-
+        if self.config["create_new_stage"] is False:
+            args.append("--/app/content/emptyStageOnStart=false")
         if self.config.get("active_gpu") is not None:
             args.append(f'--/renderer/activeGpu={self.config["active_gpu"]}')
         if self.config.get("physics_gpu") is not None:
@@ -561,10 +560,22 @@ class SimulationApp:
             set_carb_setting(self._carb_settings, rtx_mode + "/rendermode", "RaytracedLighting")
         elif self.config["renderer"].lower() == "pathtracing":
             set_carb_setting(self._carb_settings, rtx_mode + "/rendermode", "PathTracing")
+        elif self.config["renderer"].lower() == "realtimepathtracing":
+            set_carb_setting(self._carb_settings, rtx_mode + "/rendermode", "RealTimePathTracing")
         else:
             set_carb_setting(self._carb_settings, rtx_mode + "/rendermode", self.config["renderer"])
         # Raytrace mode settings
         set_carb_setting(self._carb_settings, rtx_mode + "/post/aa/op", self.config["anti_aliasing"])
+
+        # Realtime Path Tracing mode settings
+        set_carb_setting(self._carb_settings, rtx_mode + "/rtpt/maxBounces", self.config["max_bounces"])
+        set_carb_setting(
+            self._carb_settings,
+            rtx_mode + "/rtpt/maxSpecularAndTransmissionBounces",
+            self.config["max_specular_transmission_bounces"],
+        )
+        set_carb_setting(self._carb_settings, rtx_mode + "/rtpt/maxVolumeBounces", self.config["max_volume_bounces"])
+
         # Pathtrace mode settings
         set_carb_setting(self._carb_settings, rtx_mode + "/pathtracing/spp", self.config["samples_per_pixel_per_frame"])
         set_carb_setting(
@@ -599,7 +610,7 @@ class SimulationApp:
         try:
             import omni.ui
 
-            self._app.update()
+            self._update_without_ready()
             content = omni.ui.Workspace.get_window("Content")
             console = omni.ui.Workspace.get_window("Console")
             samples = omni.ui.Workspace.get_window("Samples")
@@ -614,11 +625,21 @@ class SimulationApp:
         except:
             pass
 
-        self._app.update()
+        self._update_without_ready()
         carb.log_info("SimulationApp._prepare_ui: UI setup completed")
 
+    def _update_without_ready(self) -> None:
+        """Update the application without waiting for the app to be ready.
+
+        This is a convenience function that updates the application without waiting for the app to be ready.
+        """
+        app = omni.kit.app.get_app()
+        if not app.is_app_ready():
+            app.delay_app_ready("IsaacSim")
+        self._app.update()
+
     def _wait_for_viewport(self) -> None:
-        MAX_FRAMES = 60
+        MAX_FRAMES = 240 if os.name == "nt" else 120
         DOCKING_FRAMES = 10
         frame_count = 0
         carb.log_info("SimulationApp._wait_for_viewport: Starting viewport wait")
@@ -634,7 +655,7 @@ class SimulationApp:
 
             while viewport_api.frame_info.get("viewport_handle", None) is None and frame_count < MAX_FRAMES:
                 carb.log_info(f"SimulationApp._wait_for_viewport: Waiting for viewport... frame {frame_count}")
-                self._app.update()
+                self._update_without_ready()
                 # Sleep to reduce the overall number of frames it takes for the renderer to render its first frame
                 time.sleep(0.02)
                 frame_count += 1
@@ -648,7 +669,7 @@ class SimulationApp:
         if frame_count < DOCKING_FRAMES:
             carb.log_info("SimulationApp._wait_for_viewport: Running final update frames for docking")
             for _ in range(DOCKING_FRAMES):
-                self._app.update()
+                self._update_without_ready()
         carb.log_info("SimulationApp._wait_for_viewport: Viewport wait completed")
 
     ### Public methods

@@ -125,7 +125,7 @@ class TestSurfaceGripperView(omni.kit.test.AsyncTestCase):
             attachment_points_rel.SetTargets(djoint_paths)
 
         self.gripper_view = GripperView(
-            paths="/env*/SurfaceGripper",
+            paths="/env.*/SurfaceGripper",
         )
 
     # Before running each test

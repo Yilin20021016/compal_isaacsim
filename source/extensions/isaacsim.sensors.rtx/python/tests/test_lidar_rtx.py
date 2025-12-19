@@ -284,10 +284,9 @@ class TestLidarRtx(omni.kit.test.AsyncTestCase):
             "outputVelocity": True,
             "outputAzimuth": True,
             "outputElevation": False,
-            "outputNormal": True,
+            "outputHitNormal": True,
             "outputTimestamp": True,
             "outputEmitterId": False,
-            "outputBeamId": True,
             "outputMaterialId": True,
         }
 
