@@ -70,12 +70,12 @@ Ensure your system is set up with the following before building Isaac Sim:
 
 - [**Git LFS**](https://git-lfs.com/): For managing large files within the repository
 
-- **(Windows - C++ Only) Microsoft Visual Studio 2022 or 2026**: 
+- **(Windows - C++ Only) Microsoft Visual Studio 2022**:
 
-- Install Visual Studio 2026, Windows SDK, MSVC using Winget by running the following command in PowerShell:
+- Install Visual Studio 2022, Windows SDK, and MSVC using Winget by running the following command in PowerShell:
 
   ```powershell
-  winget install --id=Microsoft.VisualStudio.Community -e --override "--add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended"
+  winget install --id=Microsoft.VisualStudio.2022.Community -e --override "--add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended"
   ```
   
   [Additional information on Windows development configuration](docs/readme/windows_developer_configuration.md)
