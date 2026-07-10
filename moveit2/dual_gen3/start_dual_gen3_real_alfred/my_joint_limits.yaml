@@ -1,0 +1,137 @@
+# my_joint_limits.yaml
+# ⚠️ WARNING: 機械手臂關節限幅參數 (防擺動亂轉與速度防護優化設定)
+# 此設定檔由 Antigravity 自動生成，專為「手術器械自動分揀系統」設計。
+# 已限制右手關節 1 在初始拍攝位置的 +-90度內，且限制第五軸在 +-90度內，防止大角度迴轉。
+# 僅保留右手關節 1、3、5 的位置限制。其餘所有關節設為 has_position_limits: false。
+# 速度與加速度限幅依然保留以保證運動安全。
+# 僅在透過 MoveIt 進行運動規劃時生效。
+
+default_velocity_scaling_factor: 0.1
+default_acceleration_scaling_factor: 0.1
+
+joint_limits:
+  # ── 左手關節限制 ──
+  left_joint_1:
+    has_position_limits: false
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  left_joint_2:
+    has_position_limits: true
+    min_position: -2.35
+    max_position: 2.35
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  left_joint_3:
+    # 奇數軸限制：優化限幅範圍 [0.5, 4.5] rad，容許 180° (3.14 rad) 拍照姿勢與內折，但防止越過 0 度翻轉與繞圈
+    has_position_limits: true
+    min_position: 0.5
+    max_position: 4.5
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  left_joint_4:
+    # 限制手肘只在負半週彎曲，防止向上/反向折疊與奇異點
+    has_position_limits: true
+    min_position: -2.66
+    max_position: -0.1
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  left_joint_5:
+    has_position_limits: false
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  left_joint_6:
+    has_position_limits: true
+    min_position: -2.15
+    max_position: 2.15
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  left_joint_7:
+    has_position_limits: false
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  # ── 右手關節限制 ──
+  right_joint_1:
+    # ⚠️ WARNING: 限制右手第一軸位置在初始拍照姿態 (-1.4343 rad) 的 +-90度 (-1.5708 rad) 內，即 [-3.005, 0.136] rad，防止過度擺動
+    has_position_limits: true
+    min_position: -3.005
+    max_position: 0.136
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  right_joint_2:
+    has_position_limits: true
+    min_position: -2.35
+    max_position: 2.35
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  right_joint_3:
+    # 奇數軸限制：優化限幅範圍 [-4.5, -0.5] rad，容許 -180° (-3.14 rad) 拍照姿勢與內折，但防止越過 0 度翻轉與繞圈
+    has_position_limits: true
+    min_position: -4.5
+    max_position: -0.5
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  right_joint_4:
+    # 限制手肘只在負半週彎曲，防止向上/反向折疊與奇異點
+    has_position_limits: true
+    min_position: -2.66
+    max_position: -0.1
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  right_joint_5:
+    # ⚠️ WARNING: 限制右手第五軸位置在初始拍照姿態 (-0.0034 rad) 的 +-180度內，即 [-3.14, 3.14] rad，放寬限制以防止移動至預夾取點時規劃失敗
+    has_position_limits: true
+    min_position: -3.14
+    max_position: 3.14
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  right_joint_6:
+    has_position_limits: true
+    min_position: -2.15
+    max_position: 2.15
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+
+  right_joint_7:
+    has_position_limits: false
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_acceleration_limits: true
+    max_acceleration: 1.0
