@@ -1,0 +1,284 @@
+#!/usr/bin/env python3
+
+import threading
+
+import rclpy
+from rclpy.node import Node
+from rclpy.action import ActionServer, ActionClient
+from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
+
+from control_msgs.action import FollowJointTrajectory
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from control_msgs.msg import JointTolerance
+
+
+class TrajectorySplitter(Node):
+    def __init__(self):
+        super().__init__('trajectory_splitter_node')
+
+        self.callback_group = ReentrantCallbackGroup()
+
+        self.left_joints = [
+            'left_joint_1',
+            'left_joint_2',
+            'left_joint_3',
+            'left_joint_4',
+            'left_joint_5',
+            'left_joint_6',
+            'left_joint_7',
+        ]
+
+        self.right_joints = [
+            'right_joint_1',
+            'right_joint_2',
+            'right_joint_3',
+            'right_joint_4',
+            'right_joint_5',
+            'right_joint_6',
+            'right_joint_7',
+        ]
+
+        self.left_client = ActionClient(
+            self,
+            FollowJointTrajectory,
+            '/left/joint_trajectory_controller/follow_joint_trajectory',
+            callback_group=self.callback_group
+        )
+
+        self.right_client = ActionClient(
+            self,
+            FollowJointTrajectory,
+            '/right/joint_trajectory_controller/follow_joint_trajectory',
+            callback_group=self.callback_group
+        )
+
+        self.server = ActionServer(
+            self,
+            FollowJointTrajectory,
+            '/dual_arm_controller/follow_joint_trajectory',
+            self.execute_callback,
+            callback_group=self.callback_group
+        )
+
+        self.get_logger().info('Trajectory splitter node started.')
+        self.get_logger().info('Server: /dual_arm_controller/follow_joint_trajectory')
+        self.get_logger().info('Left target : /left/joint_trajectory_controller/follow_joint_trajectory')
+        self.get_logger().info('Right target: /right/joint_trajectory_controller/follow_joint_trajectory')
+
+    def make_result(self, code, text):
+        result = FollowJointTrajectory.Result()
+        result.error_code = code
+        result.error_string = text
+        return result
+
+    def wait_for_future(self, future, timeout_sec, label):
+        event = threading.Event()
+
+        def done_callback(_):
+            event.set()
+
+        future.add_done_callback(done_callback)
+
+        if not event.wait(timeout_sec):
+            raise RuntimeError(f'Timeout while waiting for {label}')
+
+        result = future.result()
+
+        if result is None:
+            raise RuntimeError(f'No result returned for {label}')
+
+        return result
+
+    def filter_tolerances(self, tolerances, selected_joint_names):
+        filtered = []
+        selected_set = set(selected_joint_names)
+
+        for tol in tolerances:
+            if tol.name in selected_set:
+                new_tol = JointTolerance()
+                new_tol.name = tol.name
+                new_tol.position = tol.position
+                new_tol.velocity = tol.velocity
+                new_tol.acceleration = tol.acceleration
+                filtered.append(new_tol)
+
+        return filtered
+
+    def split_trajectory(self, original_traj, selected_joint_names):
+        original_names = list(original_traj.joint_names)
+
+        index_map = []
+        for joint_name in selected_joint_names:
+            if joint_name not in original_names:
+                raise ValueError(f'Missing joint in trajectory: {joint_name}')
+            index_map.append(original_names.index(joint_name))
+
+        new_traj = JointTrajectory()
+        # 使用原本 frame_id，但把 stamp 設成 0，讓 joint_trajectory_controller 立即執行
+        # 避免因 MoveIt 規劃後等待太久，header stamp 過期而被 controller rejected
+        new_traj.header.frame_id = original_traj.header.frame_id
+        new_traj.header.stamp.sec = 0
+        new_traj.header.stamp.nanosec = 0
+        new_traj.joint_names = selected_joint_names
+
+        for point in original_traj.points:
+            new_point = JointTrajectoryPoint()
+
+            if len(point.positions) == len(original_names):
+                new_point.positions = [point.positions[i] for i in index_map]
+
+            if len(point.velocities) == len(original_names):
+                new_point.velocities = [point.velocities[i] for i in index_map]
+
+            if len(point.accelerations) == len(original_names):
+                new_point.accelerations = [point.accelerations[i] for i in index_map]
+
+            if len(point.effort) == len(original_names):
+                new_point.effort = [point.effort[i] for i in index_map]
+
+            new_point.time_from_start = point.time_from_start
+            new_traj.points.append(new_point)
+
+        return new_traj
+
+    def build_goal(self, traj, original_goal):
+        goal_msg = FollowJointTrajectory.Goal()
+        goal_msg.trajectory = traj
+        goal_msg.goal_time_tolerance = original_goal.goal_time_tolerance
+
+        goal_msg.path_tolerance = self.filter_tolerances(
+            original_goal.path_tolerance,
+            traj.joint_names
+        )
+
+        goal_msg.goal_tolerance = self.filter_tolerances(
+            original_goal.goal_tolerance,
+            traj.joint_names
+        )
+
+        return goal_msg
+
+    def send_goal_to_controller(self, client, traj, original_goal, controller_name):
+        self.get_logger().info(f'Waiting for {controller_name} action server...')
+
+        if not client.wait_for_server(timeout_sec=5.0):
+            raise RuntimeError(f'{controller_name} action server not available.')
+
+        goal_msg = self.build_goal(traj, original_goal)
+
+        self.get_logger().info(f'Sending trajectory to {controller_name}...')
+        send_goal_future = client.send_goal_async(goal_msg)
+
+        client_goal_handle = self.wait_for_future(
+            send_goal_future,
+            10.0,
+            f'{controller_name} goal response'
+        )
+
+        if not client_goal_handle.accepted:
+            raise RuntimeError(f'{controller_name} rejected the goal.')
+
+        self.get_logger().info(f'{controller_name} accepted goal.')
+
+        result_future = client_goal_handle.get_result_async()
+
+        result_response = self.wait_for_future(
+            result_future,
+            120.0,
+            f'{controller_name} execution result'
+        )
+
+        return result_response.result
+
+    def execute_callback(self, goal_handle):
+        request = goal_handle.request
+        traj = request.trajectory
+        incoming_joints = list(traj.joint_names)
+
+        self.get_logger().info('Received trajectory from MoveIt.')
+        self.get_logger().info('Incoming joints: ' + ', '.join(incoming_joints))
+
+        if len(incoming_joints) == 0:
+            goal_handle.abort()
+            return self.make_result(-1, 'Trajectory has no joint names.')
+
+        allowed = set(self.left_joints + self.right_joints)
+        unknown = [name for name in incoming_joints if name not in allowed]
+
+        if unknown:
+            goal_handle.abort()
+            return self.make_result(-2, 'Unknown joints: ' + ', '.join(unknown))
+
+        left_selected = [name for name in self.left_joints if name in incoming_joints]
+        right_selected = [name for name in self.right_joints if name in incoming_joints]
+
+        if not left_selected and not right_selected:
+            goal_handle.abort()
+            return self.make_result(-2, 'No left or right arm joints found.')
+
+        try:
+            results = []
+
+            if left_selected:
+                self.get_logger().info('Splitting left trajectory...')
+                left_traj = self.split_trajectory(traj, left_selected)
+                left_result = self.send_goal_to_controller(
+                    self.left_client,
+                    left_traj,
+                    request,
+                    'left joint_trajectory_controller'
+                )
+                results.append(left_result)
+
+            if right_selected:
+                self.get_logger().info('Splitting right trajectory...')
+                right_traj = self.split_trajectory(traj, right_selected)
+                right_result = self.send_goal_to_controller(
+                    self.right_client,
+                    right_traj,
+                    request,
+                    'right joint_trajectory_controller'
+                )
+                results.append(right_result)
+
+            for res in results:
+                if res.error_code != 0:
+                    goal_handle.abort()
+                    return self.make_result(
+                        res.error_code,
+                        'One controller failed: ' + res.error_string
+                    )
+
+            goal_handle.succeed()
+            return self.make_result(
+                0,
+                'Trajectory split and executed successfully.'
+            )
+
+        except Exception as e:
+            self.get_logger().error(str(e))
+            goal_handle.abort()
+            return self.make_result(-1, str(e))
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    node = TrajectorySplitter()
+
+    executor = MultiThreadedExecutor(num_threads=4)
+    executor.add_node(node)
+
+    try:
+        executor.spin()
+    except KeyboardInterrupt:
+        pass
+
+    executor.shutdown()
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
