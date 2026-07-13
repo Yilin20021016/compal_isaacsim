@@ -1,0 +1,17 @@
+# ============================================================
+# 左手 Robotiq 2F-85 夾爪控制器參數設定
+# ============================================================
+# 此檔案專供 start_dual_gen3_real_alfred.py 在雙臂環境下
+# 手動 spawn robotiq_gripper_controller 時使用。
+#
+# 命名空間：/left/robotiq_gripper_controller
+# 關節名稱：因為雙臂使用 prefix='left_'，
+#           所以夾爪關節名稱為 left_robotiq_85_left_knuckle_joint
+#
+# ⚠️ WARNING: 修改 joint 名稱前請確認硬體介面是否匹配
+# ============================================================
+/**:
+  ros__parameters:
+    default: true
+    joint: left_robotiq_85_left_knuckle_joint
+    allow_stalling: true
