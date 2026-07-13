@@ -59,9 +59,6 @@ exts.deps.generated.kit
 *.gltf
 *.glb
 *.fbx
-*.usd
-*.usda
-*.usdz
 *.obj
 *.mat
 
