@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<robot name="dual_gen3_with_gripper">
+<robot name="dual_gen3">
   <link name="world" />
   <ros2_control name="left_KortexMultiInterfaceHardware" type="system">
     <hardware>
@@ -142,7 +142,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/base_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/base_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -151,7 +151,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/base_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/base_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -164,7 +164,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/shoulder_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/shoulder_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -173,7 +173,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/shoulder_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/shoulder_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -193,7 +193,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/half_arm_1_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/half_arm_1_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -202,7 +202,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/half_arm_1_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/half_arm_1_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -222,7 +222,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/half_arm_2_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/half_arm_2_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -231,7 +231,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/half_arm_2_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/half_arm_2_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -251,7 +251,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/forearm_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/forearm_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -260,7 +260,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/forearm_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/forearm_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -280,7 +280,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/spherical_wrist_1_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/spherical_wrist_1_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -289,7 +289,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/spherical_wrist_1_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/spherical_wrist_1_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -309,7 +309,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/spherical_wrist_2_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/spherical_wrist_2_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -318,7 +318,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/spherical_wrist_2_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/spherical_wrist_2_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -338,7 +338,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/bracelet_no_vision_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/bracelet_no_vision_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -347,7 +347,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/bracelet_no_vision_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/bracelet_no_vision_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -368,12 +368,12 @@
   <link name="left_robotiq_85_base_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/robotiq_base.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/robotiq_base.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/robotiq_base.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/robotiq_base.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -385,12 +385,12 @@
   <link name="left_robotiq_85_left_knuckle_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/left_knuckle.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/left_knuckle.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/left_knuckle.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/left_knuckle.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -402,12 +402,12 @@
   <link name="left_robotiq_85_right_knuckle_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/right_knuckle.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/right_knuckle.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/right_knuckle.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/right_knuckle.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -419,12 +419,12 @@
   <link name="left_robotiq_85_left_finger_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/left_finger.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/left_finger.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/left_finger.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/left_finger.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -436,12 +436,12 @@
   <link name="left_robotiq_85_right_finger_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/right_finger.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/right_finger.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/right_finger.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/right_finger.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -453,12 +453,12 @@
   <link name="left_robotiq_85_left_inner_knuckle_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/left_inner_knuckle.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/left_inner_knuckle.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/left_inner_knuckle.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/left_inner_knuckle.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -470,12 +470,12 @@
   <link name="left_robotiq_85_right_inner_knuckle_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/right_inner_knuckle.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/right_inner_knuckle.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/right_inner_knuckle.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/right_inner_knuckle.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -487,12 +487,12 @@
   <link name="left_robotiq_85_left_finger_tip_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/left_finger_tip.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/left_finger_tip.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/left_finger_tip.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/left_finger_tip.stl" scale="1.15 1.15 1.15" />
       </geometry>
       <surface>
         <friction>
@@ -522,12 +522,12 @@
   <link name="left_robotiq_85_right_finger_tip_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/right_finger_tip.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/right_finger_tip.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/right_finger_tip.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/right_finger_tip.stl" scale="1.15 1.15 1.15" />
       </geometry>
       <surface>
         <friction>
@@ -753,7 +753,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/base_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/base_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -762,7 +762,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/base_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/base_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -775,7 +775,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/shoulder_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/shoulder_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -784,7 +784,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/shoulder_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/shoulder_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -804,7 +804,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/half_arm_1_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/half_arm_1_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -813,7 +813,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/half_arm_1_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/half_arm_1_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -833,7 +833,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/half_arm_2_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/half_arm_2_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -842,7 +842,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/half_arm_2_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/half_arm_2_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -862,7 +862,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/forearm_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/forearm_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -871,7 +871,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/forearm_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/forearm_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -891,7 +891,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/spherical_wrist_1_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/spherical_wrist_1_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -900,7 +900,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/spherical_wrist_1_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/spherical_wrist_1_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -920,7 +920,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/spherical_wrist_2_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/spherical_wrist_2_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -929,7 +929,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/spherical_wrist_2_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/spherical_wrist_2_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -949,7 +949,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/bracelet_no_vision_link.STL" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/bracelet_no_vision_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -958,7 +958,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0" />
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/kortex_description/share/kortex_description/arms/gen3/7dof/meshes/bracelet_no_vision_link.STL" scale="1.15 1.15 1.15" />
+        <mesh filename="package://kortex_description/arms/gen3/7dof/meshes/bracelet_no_vision_link.STL" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
   </link>
@@ -979,12 +979,12 @@
   <link name="right_robotiq_85_base_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/robotiq_base.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/robotiq_base.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/robotiq_base.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/robotiq_base.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -996,12 +996,12 @@
   <link name="right_robotiq_85_left_knuckle_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/left_knuckle.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/left_knuckle.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/left_knuckle.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/left_knuckle.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -1013,12 +1013,12 @@
   <link name="right_robotiq_85_right_knuckle_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/right_knuckle.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/right_knuckle.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/right_knuckle.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/right_knuckle.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -1030,12 +1030,12 @@
   <link name="right_robotiq_85_left_finger_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/left_finger.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/left_finger.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/left_finger.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/left_finger.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -1047,12 +1047,12 @@
   <link name="right_robotiq_85_right_finger_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/right_finger.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/right_finger.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/right_finger.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/right_finger.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -1064,12 +1064,12 @@
   <link name="right_robotiq_85_left_inner_knuckle_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/left_inner_knuckle.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/left_inner_knuckle.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/left_inner_knuckle.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/left_inner_knuckle.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -1081,12 +1081,12 @@
   <link name="right_robotiq_85_right_inner_knuckle_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/right_inner_knuckle.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/right_inner_knuckle.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/right_inner_knuckle.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/right_inner_knuckle.stl" scale="1.15 1.15 1.15" />
       </geometry>
     </collision>
     <inertial>
@@ -1098,12 +1098,12 @@
   <link name="right_robotiq_85_left_finger_tip_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/left_finger_tip.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/left_finger_tip.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/left_finger_tip.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/left_finger_tip.stl" scale="1.15 1.15 1.15" />
       </geometry>
       <surface>
         <friction>
@@ -1133,12 +1133,12 @@
   <link name="right_robotiq_85_right_finger_tip_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/visual/2f_85/right_finger_tip.dae" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/visual/2f_85/right_finger_tip.dae" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/robotiq_description/share/robotiq_description/meshes/collision/2f_85/right_finger_tip.stl" scale="1.15 1.15 1.15" />
+        <mesh filename="package://dual_arm_control_bringup/config/robotiq_description/collision/2f_85/right_finger_tip.stl" scale="1.15 1.15 1.15" />
       </geometry>
       <surface>
         <friction>
@@ -1174,12 +1174,12 @@
   <link name="right_bota_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/bota_driver/share/bota_driver/meshes/BFT_KG3_IND2_SW/mounting.dae" scale="0.001 0.001 0.001" />
+        <mesh filename="package://dual_arm_control_bringup/config/mounting.dae" scale="0.001 0.001 0.001" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/alfred/workspace/ros2_kortex_ws/install/bota_driver/share/bota_driver/meshes/BFT_KG3_IND2_SW/mounting.dae" scale="0.001 0.001 0.001" />
+        <mesh filename="package://dual_arm_control_bringup/config/mounting.dae" scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
   </link>

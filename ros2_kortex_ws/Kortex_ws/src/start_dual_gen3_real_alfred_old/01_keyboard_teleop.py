@@ -17,7 +17,6 @@
 - [1]     : 移動至預設點位 Home
 - [2]     : 移動至預設點位 Retract
 - [3]     : 移動至預設點位 Lay
-- [G/H]   : 夾爪 關閉(Grasp) / 開啟(Open)
 - [Space] : 緊急停止 (目前尚未實作即時打斷，但可放棄後續規劃)
 - [Q]     : 安全退出
 
@@ -34,7 +33,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
 from moveit_msgs.action import MoveGroup, ExecuteTrajectory
-from control_msgs.action import FollowJointTrajectory, GripperCommand
+from control_msgs.action import FollowJointTrajectory
 from moveit_msgs.srv import GetCartesianPath
 from moveit_msgs.msg import Constraints, JointConstraint, RobotTrajectory
 from geometry_msgs.msg import Pose, PoseStamped
@@ -88,12 +87,9 @@ class KeyboardTeleopNode(Node):
         # Action Clients (MoveIt)
         self.move_action_client = ActionClient(self, MoveGroup, '/move_action')
         
+        # Action Clients (Direct Hardware Controllers, bypass MoveIt Execute/Splitter to remove 8s delay)
         self.right_fjt_client = ActionClient(self, FollowJointTrajectory, '/right/joint_trajectory_controller/follow_joint_trajectory')
         self.left_fjt_client = ActionClient(self, FollowJointTrajectory, '/left/joint_trajectory_controller/follow_joint_trajectory')
-        
-        # Action Clients (Gripper)
-        self.right_gripper_client = ActionClient(self, GripperCommand, '/right/robotiq_gripper_controller/gripper_cmd')
-        self.left_gripper_client = ActionClient(self, GripperCommand, '/left/robotiq_gripper_controller/gripper_cmd')
         
         # Cartesian Path Service
         self.cartesian_client = self.create_client(GetCartesianPath, '/compute_cartesian_path')
@@ -108,7 +104,6 @@ class KeyboardTeleopNode(Node):
         self.get_logger().info(f" 當前控制手臂: [{self.active_arm}] (按 TAB 切換)")
         self.get_logger().info(" W/S: 前/後 | A/D: 左/右 | R/F: 上/下")
         self.get_logger().info(" U/O: Roll | I/K: Pitch | J/L: Yaw")
-        self.get_logger().info(" G/H: 夾爪 關閉 / 開啟")
         self.get_logger().info(" 1: Home | 2: Retract")
         self.get_logger().info(" Q: 退出")
         self.get_logger().info("====================================================")
@@ -143,21 +138,6 @@ class KeyboardTeleopNode(Node):
         if self.active_goal_handle is not None:
             await self.active_goal_handle.cancel_goal_async()
             self.active_goal_handle = None
-
-    async def send_gripper_command(self, pos: float):
-        """控制當前目標手臂的夾爪"""
-        client = self.right_gripper_client if self.active_arm == "right_arm" else self.left_gripper_client
-        if not client.wait_for_server(timeout_sec=1.0):
-            self.get_logger().error(f"{self.active_arm} 夾爪 Action Server 無回應！")
-            return
-            
-        goal = GripperCommand.Goal()
-        goal.command.position = pos
-        goal.command.max_effort = 50.0  # 使用適中力道避免夾壞器械或卡頓
-        
-        self.get_logger().info(f"[{self.active_arm}] 傳送夾爪指令: {'開啟' if pos < 0.2 else '關閉'} (位置: {pos})")
-        # 非同步發送指令不等待完成，讓鍵盤控制可以繼續
-        asyncio.create_task(client.send_goal_async(goal))
 
     async def start_continuous_move(self, dx=0.0, dy=0.0, dz=0.0, d_roll=0.0, d_pitch=0.0, d_yaw=0.0):
         """產生一條長距離連續軌跡，並發送給控制器 (按鍵放開時會呼叫 cancel 煞車)"""
@@ -260,8 +240,9 @@ class KeyboardTeleopNode(Node):
         self.active_goal_handle = goal_handle
 
     async def move_to_predefined_pose(self, pose_name):
-        """ 移動到預設點位 """
+        """將手臂移動到預設的 Joint 關節點位"""
         if pose_name not in PREDEFINED_POSES[self.active_arm]:
+            self.get_logger().error(f"找不到預設點位: {pose_name}")
             return
             
         joints = PREDEFINED_POSES[self.active_arm][pose_name]
@@ -274,20 +255,12 @@ class KeyboardTeleopNode(Node):
         goal_msg = MoveGroup.Goal()
         goal_msg.request.group_name = self.active_arm
         goal_msg.request.pipeline_id = "ompl"
-        goal_msg.request.planner_id = ""
-        goal_msg.request.num_planning_attempts = 30
-        goal_msg.request.allowed_planning_time = 15.0
-        # 遙操提速：解除極速封印 (100% 全速巡航)，維持適中加速度 (30%)
-        goal_msg.request.max_velocity_scaling_factor = 1.0
-        goal_msg.request.max_acceleration_scaling_factor = 0.30
-        goal_msg.planning_options.plan_only = False
-        
-        from moveit_msgs.msg import WorkspaceParameters
-        ws = WorkspaceParameters()
-        ws.header.frame_id = "world"
-        ws.min_corner.x, ws.min_corner.y, ws.min_corner.z = -2.0, -2.0, -0.15
-        ws.max_corner.x, ws.max_corner.y, ws.max_corner.z =  2.0,  2.0,  2.0
-        goal_msg.request.workspace_parameters = ws
+        goal_msg.request.planner_id = "BITstar"
+        goal_msg.request.num_planning_attempts = 10
+        goal_msg.request.allowed_planning_time = 5.0
+        goal_msg.request.max_velocity_scaling_factor = self.velocity_scaling
+        goal_msg.request.max_acceleration_scaling_factor = self.velocity_scaling
+        goal_msg.planning_options.plan_only = False # 交由 MoveIt 執行，確保硬體相容性與初始狀態同步
         
         # 建立 Joint 限制條件
         constraint = Constraints()
@@ -384,14 +357,6 @@ def main(args=None):
                     elif key == 'k': loop.run_until_complete(node.start_continuous_move(d_pitch=-node.angle_step))
                     elif key == 'j': loop.run_until_complete(node.start_continuous_move(d_yaw=node.angle_step))
                     elif key == 'l': loop.run_until_complete(node.start_continuous_move(d_yaw=-node.angle_step))
-                    
-                    # 夾爪控制 (單次)
-                    elif key == 'g':
-                        node.current_key = None # 避免單次指令被取消機制誤擋
-                        loop.run_until_complete(node.send_gripper_command(0.80)) # 關閉
-                    elif key == 'h':
-                        node.current_key = None
-                        loop.run_until_complete(node.send_gripper_command(0.00)) # 開啟
                         
                     # 預設點位 (單次)
                     elif key == '1':

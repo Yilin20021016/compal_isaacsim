@@ -32,8 +32,8 @@ def launch_setup(context, *args, **kwargs):
         'arm:=gen3',
         f'dof:={dof}',
         f'prefix:={prefix}',
-        'use_fake_hardware:=true',
-        'fake_sensor_commands:=true',
+        'use_fake_hardware:=false',
+        'fake_sensor_commands:=false',
         f'gripper:={gripper}',
         'use_internal_bus_gripper_comm:=true',
         'gripper_max_velocity:=100.0',
@@ -139,8 +139,8 @@ def generate_launch_description():
     # 將所有右手節點包入命名空間與 Remap 設定中
     right_arm = GroupAction([
         PushRosNamespace('right'),
-        # SetRemap(src='/joint_states', dst='/right/joint_states'),
-        # SetRemap(src='/dynamic_joint_states', dst='/right/dynamic_joint_states'),
+        SetRemap(src='/joint_states', dst='/right/joint_states'),
+        SetRemap(src='/dynamic_joint_states', dst='/right/dynamic_joint_states'),
         OpaqueFunction(function=launch_setup)
     ])
 

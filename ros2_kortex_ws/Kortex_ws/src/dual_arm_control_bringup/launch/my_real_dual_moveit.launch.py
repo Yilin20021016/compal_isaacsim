@@ -11,9 +11,11 @@ import os
 
 
 def generate_launch_description():
-    # 建立自訂的 MoveIt 配置，將 joint_limits 與 URDF 覆寫路徑指向我們的自定義檔案
-    custom_urdf_path = "./config/my_dual_gen3.urdf"
-    custom_joint_limits_path = "./config/my_joint_limits.yaml"
+    # 取得你新 package 的 share 路徑
+    my_pkg_share = get_package_share_directory("dual_arm_control_bringup")
+    
+    custom_urdf_path = os.path.join(my_pkg_share, "config", "my_dual_gen3.urdf")
+    custom_joint_limits_path = os.path.join(my_pkg_share, "config", "my_joint_limits.yaml")
     
     moveit_config = (
         MoveItConfigsBuilder("dual_gen3", package_name="dual_gen3_moveit_config")
@@ -21,7 +23,7 @@ def generate_launch_description():
         .robot_description_semantic(file_path="config/dual_gen3.srdf")
         .robot_description_kinematics(file_path="config/kinematics.yaml")
         .trajectory_execution(file_path="config/real_moveit_controllers.yaml")
-        .planning_pipelines(pipelines=["ompl", "pilz_industrial_motion_planner"])
+        .planning_pipelines(pipelines=["ompl"])
         .joint_limits(file_path=custom_joint_limits_path)  # 👈 強制覆寫為我們的限制設定！
         .to_moveit_configs()
     )
@@ -53,6 +55,7 @@ def generate_launch_description():
         "trajectory_execution.allowed_start_tolerance": 0.1,
         "trajectory_execution.execution_duration_monitoring": False,
     }
+
 
     move_group = Node(
         package="moveit_ros_move_group",

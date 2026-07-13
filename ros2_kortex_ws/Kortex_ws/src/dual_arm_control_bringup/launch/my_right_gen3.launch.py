@@ -33,7 +33,7 @@ def launch_setup(context, *args, **kwargs):
         f'dof:={dof}',
         f'prefix:={prefix}',
         'use_fake_hardware:=true',
-        'fake_sensor_commands:=true',
+        'mock_sensor_commands:=true',
         f'gripper:={gripper}',
         'use_internal_bus_gripper_comm:=true',
         'gripper_max_velocity:=100.0',

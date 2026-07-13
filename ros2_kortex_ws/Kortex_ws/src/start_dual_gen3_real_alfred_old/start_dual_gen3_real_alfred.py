@@ -96,7 +96,7 @@ def main():
     base_cmd = f"source /opt/ros/humble/setup.bash && source {WS}/install/setup.bash && "
 
     print("\n=== [階段 1] 啟動底層通訊 Driver ===")
-    run_job("T1 left driver", base_cmd + f"ros2 launch {WS}/scripts/start_dual_gen3_real_alfred/my_left_gen3.launch.py")
+    run_job("T1 left driver", base_cmd + "ros2 launch dual_kortex_bringup left_gen3.launch.py")
     run_job("T2 right driver", base_cmd + f"ros2 launch {WS}/scripts/start_dual_gen3_real_alfred/my_right_gen3.launch.py")
     
     # 關鍵：同時主動等待兩臂的 Controller Manager 上線
@@ -110,7 +110,6 @@ def main():
     run_job("T5 left trajectory controller", base_cmd + f"ros2 run controller_manager spawner joint_trajectory_controller --controller-manager /left/controller_manager --controller-type joint_trajectory_controller/JointTrajectoryController --param-file {WS}/src/dual_kortex_bringup/config/left_joint_trajectory_controller.yaml")
     run_job("T6 right trajectory controller", base_cmd + f"ros2 run controller_manager spawner joint_trajectory_controller --controller-manager /right/controller_manager --controller-type joint_trajectory_controller/JointTrajectoryController --param-file {WS}/src/dual_kortex_bringup/config/right_joint_trajectory_controller.yaml")
     run_job("T6.5 right gripper controller", base_cmd + f"ros2 run controller_manager spawner robotiq_gripper_controller --controller-manager /right/controller_manager --controller-type position_controllers/GripperActionController --param-file {WS}/scripts/start_dual_gen3_real_alfred/right_gripper_controller.yaml")
-    run_job("T6.6 left gripper controller", base_cmd + f"ros2 run controller_manager spawner robotiq_gripper_controller --controller-manager /left/controller_manager --controller-type position_controllers/GripperActionController --param-file {WS}/scripts/start_dual_gen3_real_alfred/left_gripper_controller.yaml")
 
     # 必須等待 Joint States 發布後才能啟動 Merger
     wait_for_output("等待左臂 joint_states", "ros2 topic list | grep -q '^/left/joint_states$'", 30)
@@ -149,7 +148,6 @@ def main():
             subprocess.run("pkill -f move_group", shell=True)
             subprocess.run("pkill -f rviz2", shell=True)
             subprocess.run("pkill -f kortex_watchdog.py", shell=True)
-            subprocess.run("pkill -f 02_publish_planning_scene", shell=True)
             print("所有手臂進程已關閉，環境清理完畢。")
     else:
         run_job("T11 real dual MoveIt RViz", base_cmd + f"ros2 launch {custom_launch_path}")

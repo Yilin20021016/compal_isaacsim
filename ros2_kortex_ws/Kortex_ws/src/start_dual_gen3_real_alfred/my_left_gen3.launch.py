@@ -1,4 +1,4 @@
-# my_right_gen3.launch.py
+# my_left_gen3.launch.py
 # ⚠️ WARNING: 自訂右手實機啟動腳本 (Alfred 動態描述檔注入版)
 # 此檔案由 Antigravity 自動生成，用於非侵入式地動態注入 gripper_joint_name 的 prefix，
 # 解決右手 Robotiq 2F-85 夾爪硬體介面註冊衝突，同時保持 src/ros2_kortex/kortex_description 原始碼完全乾淨。
@@ -12,8 +12,8 @@ from ament_index_python.packages import get_package_share_directory
 
 def launch_setup(context, *args, **kwargs):
     # 手臂與夾爪參數設定
-    robot_ip = '192.168.1.11'
-    prefix = 'right_'
+    robot_ip = '192.168.1.10'
+    prefix = 'left_'
     gripper = 'robotiq_2f_85'
     gripper_joint_name = 'robotiq_85_left_knuckle_joint'
     dof = '7'
@@ -49,7 +49,7 @@ def launch_setup(context, *args, **kwargs):
 
     # 🚨 [動態 XML 修正] 尋找原本的夾爪關節參數並將其替換為帶有前綴的版本
     # 原廠 XML 內容: <param name="gripper_joint_name">robotiq_85_left_knuckle_joint</param>
-    # 替換後 XML 內容: <param name="gripper_joint_name">right_robotiq_85_left_knuckle_joint</param>
+    # 替換後 XML 內容: <param name="gripper_joint_name">left_robotiq_85_left_knuckle_joint</param>
     target_str = f'<param name="gripper_joint_name">{gripper_joint_name}</param>'
     replacement_str = f'<param name="gripper_joint_name">{prefix}{gripper_joint_name}</param>'
     
@@ -61,10 +61,10 @@ def launch_setup(context, *args, **kwargs):
 
     robot_description = {'robot_description': robot_description_xml}
 
-    # 載入控制器配置路徑 (使用自訂的 right_ros2_controllers.yaml)
+    # 載入控制器配置路徑 (使用自訂的 left_ros2_controllers.yaml)
     robot_controllers = os.path.join(
         os.path.dirname(__file__),
-        "right_ros2_controllers.yaml"
+        "left_ros2_controllers.yaml"
     )
 
     # 1. 啟動 ros2_control_node (硬體驅動端)
@@ -137,13 +137,13 @@ def generate_launch_description():
     from launch_ros.actions import PushRosNamespace, SetRemap
 
     # 將所有右手節點包入命名空間與 Remap 設定中
-    right_arm = GroupAction([
-        PushRosNamespace('right'),
-        # SetRemap(src='/joint_states', dst='/right/joint_states'),
-        # SetRemap(src='/dynamic_joint_states', dst='/right/dynamic_joint_states'),
+    left_arm = GroupAction([
+        PushRosNamespace('left'),
+        # SetRemap(src='/joint_states', dst='/left/joint_states'),
+        # SetRemap(src='/dynamic_joint_states', dst='/left/dynamic_joint_states'),
         OpaqueFunction(function=launch_setup)
     ])
 
     return LaunchDescription([
-        right_arm
+        left_arm
     ])
