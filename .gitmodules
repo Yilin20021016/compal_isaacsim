@@ -1,0 +1,4 @@
+[submodule "NCU-Compal-Phase2"]
+	path = NCU-Compal-Phase2
+	url = https://github.com/alfred99yeh/NCU-Compal-Phase2.git
+	branch = sub03/feature-CPS-integration
