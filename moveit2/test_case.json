@@ -1,0 +1,90 @@
+{
+    "metadata": {
+        "timestamp": "20260713_142158",
+        "reference_frame": "right_arm_base_link",
+        "units": "meters",
+        "description": "Real-world surgical instrument poses for Real2Sim mapping."
+    },
+    "instruments": [
+        {
+            "class_id": 2,
+            "class_name": "Adson Teeth Forceps",
+            "instance_id": 1,
+            "position": {
+                "x": 0.2105423361062983,
+                "y": -0.13043029606342524,
+                "z": 0.788316936974424
+            },
+            "quaternion_wxyz": {
+                "w": 1,
+                "x": 0,
+                "y": 0,
+                "z": 0
+            }
+        },
+        {
+            "class_id": 4,
+            "class_name": "Thyroid Retractor",
+            "instance_id": 21,
+            "position": {
+                "x": 0.20167592167854625,
+                "y": -0.21666832268238204,
+                "z": 0.7994227180670022
+            },
+            "quaternion_wxyz": {
+                "w": 1,
+                "x": 0,
+                "y": 0,
+                "z": 0
+            }
+        },
+        {
+            "class_id": 1,
+            "class_name": "Scissors",
+            "instance_id": 2,
+            "position": {
+                "x": 0.0921916407058072,
+                "y": -0.06603181432388029,
+                "z": 0.7983301582763227
+            },
+            "quaternion_wxyz": {
+                "w": 0.46731,
+                "x": 0.45981,
+                "y": 0.6322,
+                "z": 0.41294
+            }
+        },
+        {
+            "class_id": 2,
+            "class_name": "Adson Teeth Forceps",
+            "instance_id": 1,
+            "position": {
+                "x": 0.09191878055312688,
+                "y": -0.10415259901553953,
+                "z": 0.7957027313359457
+            },
+            "quaternion_wxyz": {
+                "w": -0.10079,
+                "x": -0.34472,
+                "y": 0.66039,
+                "z": 0.65946
+            }
+        },
+        {
+            "class_id": 3,
+            "class_name": "Big Teeth Forceps",
+            "instance_id": 19,
+            "position": {
+                "x": 0.18183224945501025,
+                "y": -0.12568266070446057,
+                "z": 0.7889294201992392
+            },
+            "quaternion_wxyz": {
+                "w": 0.76604,
+                "x": 0,
+                "y": 0,
+                "z": -0.64279
+            }
+        }
+    ]
+}
