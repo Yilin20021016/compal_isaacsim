@@ -52,7 +52,7 @@ T_W_A = np.identity(4)
 T_W_A[:3, :3] = ARM_BASE_ROT.as_matrix()
 T_W_A[:3, 3] = ARM_BASE_TRANS
 
-SPAWN_Z_OFFSET = 0.07
+SPAWN_Z_OFFSET = 0.05
 
 
 def spawn_instruments_from_json(json_file_path):
@@ -105,7 +105,7 @@ def spawn_instruments_from_json(json_file_path):
             orientation=world_quat_wxyz
         )
 
-        print(f"[{idx+1}/{len(instruments)}] '{class_name}' (ID: {class_id}) spawned at World Pose: {world_pos}")
+        print(f"[{idx+1}/{len(instruments)}] '{class_name}' (ID: {class_id}) spawned at World Pose: {world_pos} Quat: {world_quat_wxyz}")
         tooling_prims.append(prim_path)
 
     return tooling_prims
